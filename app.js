@@ -1,67 +1,67 @@
 const bookingModal = document.getElementById('bookingModal');
 const offerModal = document.getElementById('offerModal');
+const accountModal = document.getElementById('accountModal');
 const searchInput = document.getElementById('searchInput');
 const emptyState = document.getElementById('emptyState');
 const serviceGrid = document.getElementById('serviceGrid');
-const feeRate = 0.06;
+const profitRate = 0.12;
+const emailEndpoint = 'https://formsubmit.co/ajax/HOUSSEMKESSENTINI77@GMAIL.COM';
 let selectedCategory = 'all';
 let selectedPrice = 45;
-let hours = 1;
+let hours = 0;
+let selectedService = null;
+let pendingOrder = false;
 
 const serviceData = [
-  { category: 'home', name: 'تصليح وتركيب كهرباء منزلية', price: 45, provider: 'وليد بن عمار', place: 'المنزه، تونس', tag: 'متاح اليوم', accent: 'orange' },
-  { category: 'home', name: 'سباكة وسحب الماء', price: 35, provider: 'فراس الحامدي', place: 'سليانة', tag: 'سريع جدًا', accent: 'red' },
-  { category: 'digital', name: 'تصميم logo وهوية بصرية', price: 80, provider: 'سارة القروي', place: 'عن بعد', tag: 'اختيار 9ATHYA', accent: 'blue' },
-  { category: 'digital', name: 'تسويق رقمي وSEO', price: 120, provider: 'يوسف المولدي', place: 'سوسة', tag: 'نتيجة مضمونة', accent: 'green' },
-  { category: 'learn', name: 'دروس انجليزية conversation', price: 25, provider: 'نسرين العياري', place: 'المرسى، تونس', tag: 'متاح هذا الأسبوع', accent: 'green' },
-  { category: 'learn', name: 'دروس فيزياء ورياضيات', price: 30, provider: 'إياد بوشوشة', place: 'تونس العاصمة', tag: 'أستاذ مميز', accent: 'yellow' },
-  { category: 'events', name: 'تصوير مناسبات واحتفالات', price: 150, provider: 'مالك فوتو', place: 'سيدي بوسعيد', tag: 'باقي 2 مواعيد', accent: 'purple' },
-  { category: 'events', name: 'تنسيق حفلات ومناسبات', price: 200, provider: 'سامي ونجوم', place: 'تونس', tag: 'الخدمة الأكثر طلبا', accent: 'pink' },
-  { category: 'transport', name: 'نقل أثاث داخل المدن', price: 70, provider: 'سليم النوري', place: 'أريانة', tag: 'مخصص للأعمال', accent: 'orange' },
-  { category: 'beauty', name: 'تجميل ومكياج حفل', price: 90, provider: 'هدى اللطيف', place: 'بن عروس', tag: 'مستوى فخم', accent: 'pink' },
-  { category: 'beauty', name: 'تصفيف شعر ولبس', price: 40, provider: 'رغدة المان', place: 'المنستير', tag: 'سريع ومريح', accent: 'blue' },
-  { category: 'wellness', name: 'تمارين شخصية ودايت', price: 55, provider: 'آية القيس', place: 'تونس', tag: 'مقترح صحي', accent: 'green' },
-  { category: 'wellness', name: 'علاج تدليك وراحة', price: 65, provider: 'سارة عبد الله', place: 'سوسة', tag: 'استرخاء كامل', accent: 'yellow' },
-  { category: 'repair', name: 'إصلاح أجهزات منزلية', price: 50, provider: 'خالد الجبالي', place: 'تونس', tag: 'حرفي موثوق', accent: 'orange' },
-  { category: 'repair', name: 'نجارة وترميم أثاث', price: 75, provider: 'حسن الباوي', place: 'الكاف', tag: 'ترميم احترافي', accent: 'purple' }
+  { category: 'vegetables', name: 'بطاطا بالكيلو', price: 2.8, provider: 'سوق الحومة', place: 'ساقية الزيت', tag: 'متوفر اليوم', accent: 'orange', visual: '🥔', unit: 'كيلو', details: 'بطاطا بيضاء للطبخ، مغسولة ومختارة حبة بحبة.', options: [{ label: 'الحجم', values: ['صغيرة', 'متوسطة', 'كبيرة'] }] },
+  { category: 'vegetables', name: 'تفاح بالكيلو', price: 7, provider: 'غلة الحومة', place: 'صفاقس المدينة', tag: 'طازج اليوم', accent: 'red', visual: '🍎', unit: 'كيلو', details: 'تفاح أحمر مقرمش، مناسب للفطور والعصير.', options: [{ label: 'درجة النضج', values: ['مقرمش', 'عادي', 'طري'] }] },
+  { category: 'vegetables', name: 'بنان بالكيلو', price: 6, provider: 'غلة الحومة', place: 'صفاقس المدينة', tag: 'طازج اليوم', accent: 'yellow', visual: '🍌', unit: 'كيلو', details: 'بنان حلو، يتسلّم أخضر شوية أو مستوي حسب اختيارك.', options: [{ label: 'النضج', values: ['أخضر شوية', 'مستوي'] }] },
+  { category: 'vegetables', name: 'طماطم للسلطة بالكيلو', price: 5, provider: 'خضرة الحومة', place: 'قرمدة، صفاقس', tag: 'قطف اليوم', accent: 'pink', visual: '🍅', unit: 'كيلو', details: 'طماطم حمراء للسلطة والشكشوكة، قطف صباحي.', options: [{ label: 'الاختيار', values: ['لينة للسلطة', 'صلبة للطبخ'] }] },
+  { category: 'chicken', name: 'دجاج عربي منظف', price: 16, provider: 'دجاجة الدار', place: 'الربض، صفاقس', tag: 'طازج اليوم', accent: 'yellow', visual: '🍗', unit: 'دجاجة', details: 'دجاج عربي منظف ومفرّغ، الوزن التقريبي بين 1 و1.3 كلغ.', options: [{ label: 'التقطيع', values: ['كامل', 'مقطّع 8 قطع', 'صدر فقط'] }] },
+  { category: 'chicken', name: 'بيض بلدي · 12 حبة', price: 8, provider: 'فلاح الحومة', place: 'العين، صفاقس', tag: 'من عند الفلاح', accent: 'red', visual: '🥚', unit: 'طبق', details: '12 بيضة بلدية طازجة، مجمّعة هذا الصباح.', options: [{ label: 'الحجم', values: ['متوسط', 'كبير'] }] },
+  { category: 'groceries', name: 'زيت زيتون من الدار', price: 28, provider: 'دار الزيتونة', place: 'قرمدة، صفاقس', tag: 'موسم جديد', accent: 'gold', visual: '🫒', unit: 'لتر', details: 'زيت زيتون بكر ممتاز، معبّى في قارورة 1 لتر.', options: [{ label: 'الحجم', values: ['1 لتر', '2 لتر', '5 لتر'] }] },
+  { category: 'groceries', name: 'قفة مواد أساسية', price: 42, provider: 'قفة صفاقسية', place: 'طينة، صفاقس', tag: 'اختار محتواها', accent: 'blue', visual: '🛒', unit: 'قفة', details: 'إنت تختار محتوى القفة: المواد الأساسية والكمية حسب حاجتك.', priceByValue: { 'صغيرة': 32, 'عائلية': 42 }, options: [{ label: 'حجم القفة', values: ['صغيرة', 'عائلية'] }, { label: 'المحتوى', type: 'checks', values: ['مقرونة', 'كسكسي', 'سكر', 'قهوة', 'طماطم مصبّرة', 'زيت نباتي'] }] },
+  { category: 'bakery', name: 'خبز طابونة سخون', price: 3, provider: 'فرن الحومة', place: 'باب الجبلي، صفاقس', tag: 'سخون توا', accent: 'orange', visual: '🥖', unit: 'خبزة', details: 'خبز طابونة يخرج سخون، مناسب للدار والفطور.', options: [{ label: 'التحضير', values: ['عادي', 'بالزيتون'] }] },
+  { category: 'bakery', name: 'كسكروت تونسي', price: 8, profit: 2, provider: 'مذاق الدار', place: 'ساقية الداير', tag: 'اختار حشوتك', accent: 'pink', visual: '🥪', unit: 'كسكروت', details: 'خبز طابونة مع هريسة وسلطة، وإنت تختار الحشو والإضافات.', priceAdditions: { 'سلامي': 2, 'بيض': 0.8, 'دجاج': 3, 'مرقاز': 2.5, 'تون': 1.5, 'جبن': 1, 'بطاطا': 0.5, 'زيتون': 0.5, 'سلطة مشوية': 1 }, options: [{ label: 'الحشو', values: ['سلامي', 'بيض', 'دجاج', 'مرقاز', 'تون', 'اختيار آخر'] }, { label: 'الحرارة', values: ['عادي', 'حار'] }, { label: 'إضافات', values: ['من غير زيادة', 'جبن', 'بطاطا', 'زيتون', 'سلطة مشوية'] }] },
+  { category: 'bakery', name: 'ملاوي', price: 6, profit: 1.5, provider: 'مذاق الدار', place: 'ساقية الداير', tag: 'اختار حشوتك', accent: 'pink', visual: '🫓', unit: 'ملاوي', details: 'ملاوي مورّق يتحضّر وقت الطلب، مع اختيار الحجم والحشو.', priceAdditions: { 'Double': 2, 'سلامي': 2, 'بيض': 0.8, 'دجاج': 3, 'مرقاز': 2.5, 'جبن': 1, 'تون': 1.5, 'بطاطا': 0.5, 'زيتون': 0.5, 'هريسة': 0.3 }, options: [{ label: 'الحجم', values: ['Normal', 'Double'] }, { label: 'الحشو', values: ['سلامي', 'بيض', 'دجاج', 'مرقاز', 'تون', 'جبن', 'اختيار آخر'] }, { label: 'الحرارة', values: ['عادي', 'حار'] }, { label: 'إضافات', values: ['من غير زيادة', 'بطاطا', 'زيتون', 'هريسة'] }] },
+  { category: 'cleaning', name: 'سلة مواد تنظيف', price: 24, provider: 'دار نظيفة', place: 'المدينة، صفاقس', tag: 'عرض الحومة', accent: 'blue', visual: '🧼', unit: 'سلة', details: 'جافال، سائل أواني، مسحوق غسيل، منظف أرضية وإسفنجة.', options: [{ label: 'الرائحة', values: ['ليمون', 'لافندر', 'من غير عطر'] }] },
+  { category: 'cleaning', name: 'صابون بلدي طبيعي', price: 7, provider: 'صنعة صفاقسية', place: 'حي البحري', tag: 'طبيعي 100%', accent: 'green', visual: '🧴', unit: 'قطعة', details: 'صابون بلدي بزيت الزيتون، مناسب لليدين والدار.', options: [{ label: 'العدد', values: ['قطعة واحدة', '3 قطع'] }] },
+  { category: 'home', name: 'ماء معدني · 6 قوارير', price: 6, provider: 'قريب للدار', place: 'الحنشة، صفاقس', tag: 'يوصل للباب', accent: 'purple', visual: '💧', unit: 'باكو', details: 'باكو فيه 6 قوارير ماء معدني، 1.5 لتر للقارورة.', options: [{ label: 'العدد', values: ['باكو واحد', 'زوج باكات'] }] },
+  { category: 'home', name: 'فحم وحطب للدار', price: 12, provider: 'حاجات الحومة', place: 'المحرس، صفاقس', tag: 'متوفر', accent: 'red', visual: '🪵', unit: 'كيس', details: 'فحم نظيف للشواء مع شوية حطب للإشعال، كيس متوسط.', options: [{ label: 'النوع', values: ['فحم فقط', 'فحم وحطب'] }] }
 ];
 
 function getCategoryLabel(category) {
   const map = {
     all: 'الكل',
-    home: 'الدار',
-    digital: 'ديجيتال',
-    learn: 'دروس',
-    events: 'مناسبات',
-    transport: 'نقل',
-    beauty: 'تجميل',
-    wellness: 'صحة',
-    repair: 'حرفي'
+    home: 'حاجات الدار',
+    vegetables: 'خضرة',
+    chicken: 'دجاج وبيض',
+    groceries: 'مواد غذائية',
+    bakery: 'خبز ومخبوزات',
+    cleaning: 'مواد تنظيف'
   };
   return map[category] || 'أخرى';
 }
 
 function getCategoryFromName(name) {
   const lower = name.toLowerCase();
-  if (/(تصليح|سباكة|نجار|دهان|تركيب|خدمة المنزل|رجل|مقاول|منزل|دار|حرفي|إصلاح)/.test(lower)) return 'home';
-  if (/(تصميم|logo|seo|تسويق|ويب|برمجة|تطبيق|ديجيتال|market|marketing|site|ui|ux)/.test(lower)) return 'digital';
-  if (/(دروس|تعليم|رياضيات|فيزياء|انجليزي|محاضرة|مدرس|معلّم|تعلم)/.test(lower)) return 'learn';
-  if (/(حفلة|مناسبة|تصوير|تصوير|عرض|فرح|زفاف|بلوك|ديكور|مشهد)/.test(lower)) return 'events';
-  if (/(نقل|شحن|توصيل|تجهيز|مركبة|سيارة|أثاث)/.test(lower)) return 'transport';
-  if (/(تجميل|مكياج|تصفيف|شعر|بشر|تزيين|جلدية|حلاقة)/.test(lower)) return 'beauty';
-  if (/(تمارين|دايت|تدليك|علاج|صحة|تغذية|عناية|مقعدة|تأهيل|استرخاء)/.test(lower)) return 'wellness';
-  if (/(إصلاح|ترميم|نجارة|أجهزة|مراوح|ثلاجة|غسالة|فني|خدمة)/.test(lower)) return 'repair';
-  return 'digital';
+  if (/(خضرة|بطاطا|بصل|طماطم|فلفل|سلطة)/.test(lower)) return 'vegetables';
+  if (/(دجاج|بيض|لحم|كبدة)/.test(lower)) return 'chicken';
+  if (/(خبز|ملاوي|كسكروت|مخبوز)/.test(lower)) return 'bakery';
+  if (/(تنظيف|صابون|جافال|منظف)/.test(lower)) return 'cleaning';
+  if (/(زيت|قفة|مواد غذائية|سكر|فارينة|مقرونة)/.test(lower)) return 'groceries';
+  return 'home';
 }
 
 function renderServiceCard(service) {
   return `
     <article class="service-card" data-category="${service.category}" data-name="${service.name}" data-price="${service.price}" data-provider="${service.provider}" data-place="${service.place}">
-      <div class="service-photo photo-${service.accent}"><span>${service.tag}</span><button class="save-btn" aria-label="حفظ الخدمة">♡</button></div>
+      <div class="service-photo photo-${service.accent}"><span class="product-visual" aria-hidden="true">${service.visual}</span><span>${service.tag}</span><button class="save-btn" aria-label="حفظ الحاجة">♡</button></div>
       <div class="service-content">
         <div class="provider-line"><span class="provider-avatar ${service.accent}">${service.provider.charAt(0)}</span><span>${service.provider} <b>✓</b></span><small>${service.place}</small></div>
         <h3>${service.name}</h3>
-        <div class="rating"><strong>★ 4.9</strong><span>(مراجعات)</span><strong class="price">من ${service.price} د.ت</strong></div>
+        <p class="service-detail">${service.details}</p>
+        <div class="rating"><strong>★ 4.9</strong><span>${service.unit || 'بالقطعة'}</span><strong class="price">السوم بعد تحديد الكمية</strong></div>
       </div>
     </article>
   `;
@@ -98,6 +98,10 @@ document.querySelectorAll('[data-open-offer]').forEach((button) => {
   button.addEventListener('click', () => openModal(offerModal));
 });
 
+document.querySelectorAll('[data-open-account]').forEach((button) => {
+  button.addEventListener('click', () => openModal(accountModal));
+});
+
 document.querySelectorAll('[data-close-modal]').forEach((button) => {
   button.addEventListener('click', closeModals);
 });
@@ -123,21 +127,47 @@ serviceGrid.addEventListener('click', (event) => {
   const card = event.target.closest('.service-card');
   if (!card) return;
 
-  selectedPrice = Number(card.dataset.price);
-  hours = 1;
+  selectedService = serviceData.find((service) => service.name === card.dataset.name);
+  selectedPrice = selectedService.price;
+  hours = 0;
   document.getElementById('modalTitle').textContent = card.dataset.name;
   document.getElementById('modalProvider').textContent = `مع ${card.dataset.provider} · ${card.dataset.place}`;
+  document.getElementById('quantityLabel').textContent = `قدّاش تحب؟ (${selectedService.unit || 'بالقطعة'})`;
+  document.getElementById('productDetails').textContent = selectedService.details;
+  const savedUser = JSON.parse(localStorage.getItem('9athyaUser') || 'null');
+  document.getElementById('deliveryAddress').value = savedUser?.area || '';
+  document.getElementById('productOptions').innerHTML = (selectedService.options || []).map((option, index) => option.type === 'checks' ? `
+    <fieldset class="option-checks"><legend>${option.label}</legend>${option.values.map((value) => `<label><input type="checkbox" data-option-label="${option.label}" value="${value}">${value}</label>`).join('')}</fieldset>
+  ` : `
+    <label>${option.label}<select data-option-label="${option.label}" data-option-index="${index}">${option.values.map((value) => `<option value="${value}">${value}</option>`).join('')}</select></label>
+  `).join('');
+  document.getElementById('productOptions').addEventListener('change', () => {
+    const pricedOption = [...document.querySelectorAll('#productOptions select')].find((select) => selectedService.priceByValue?.[select.value]);
+    selectedPrice = selectedService.priceByValue?.[pricedOption?.value] || selectedService.price;
+    updateBookingTotal();
+  });
   updateBookingTotal();
   openModal(bookingModal);
 });
 
 function updateBookingTotal() {
-  const serviceCost = selectedPrice * hours;
-  const fee = serviceCost * feeRate;
+  document.getElementById('confirmBooking').disabled = hours === 0;
+
+  if (hours === 0) {
+    document.getElementById('hoursValue').textContent = '—';
+    document.getElementById('serviceCost').textContent = 'حدّد الكمية';
+    document.getElementById('feeCost').textContent = '—';
+    document.getElementById('totalCost').textContent = 'بعد تحديد الكمية';
+    return;
+  }
+
+  const optionAdditions = [...document.querySelectorAll('#productOptions select')].reduce((total, select) => total + (selectedService?.priceAdditions?.[select.value] || 0), 0);
+  const serviceCost = (selectedPrice + optionAdditions) * hours;
+  const profit = serviceCost * profitRate;
   document.getElementById('hoursValue').textContent = hours;
   document.getElementById('serviceCost').textContent = `${serviceCost.toFixed(2)} د.ت`;
-  document.getElementById('feeCost').textContent = `${fee.toFixed(2)} د.ت`;
-  document.getElementById('totalCost').textContent = `${(serviceCost + fee).toFixed(2)} د.ت`;
+  document.getElementById('feeCost').textContent = `${profit.toFixed(2)} د.ت`;
+  document.getElementById('totalCost').textContent = `${(serviceCost + profit).toFixed(2)} د.ت`;
 }
 
 document.getElementById('increaseHours').addEventListener('click', () => {
@@ -146,17 +176,120 @@ document.getElementById('increaseHours').addEventListener('click', () => {
 });
 
 document.getElementById('decreaseHours').addEventListener('click', () => {
-  hours = Math.max(1, hours - 1);
+  hours = Math.max(0, hours - 1);
   updateBookingTotal();
 });
 
-document.getElementById('confirmBooking').addEventListener('click', () => {
+document.getElementById('confirmBooking').addEventListener('click', async () => {
   const button = document.getElementById('confirmBooking');
-  button.innerHTML = 'وصلنا الطلب ✓';
-  setTimeout(closeModals, 900);
-  setTimeout(() => {
-    button.innerHTML = 'ابعث الطلب <span>←</span>';
-  }, 1000);
+  const user = JSON.parse(localStorage.getItem('9athyaUser') || 'null');
+  if (!user?.phone) {
+    pendingOrder = true;
+    closeModals();
+    openModal(accountModal);
+    document.getElementById('accountPhone').focus();
+    return;
+  }
+  const note = document.getElementById('orderNote').value.trim();
+  const deliveryMethod = 'توصيل للدار';
+  const deliveryAddress = document.getElementById('deliveryAddress').value.trim();
+  if (!deliveryAddress) {
+    document.getElementById('deliveryAddress').focus();
+    return;
+  }
+  button.disabled = true;
+  button.innerHTML = 'يتم الإرسال...';
+
+  try {
+    const response = await fetch(emailEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: 'طلب حاجة جديد من 9ATHYA',
+        الحاجة: document.getElementById('modalTitle').textContent,
+        الكمية: `${hours} ${selectedService?.unit || 'قطعة'}`,
+        التفاصيل: [...document.querySelectorAll('#productOptions select, #productOptions input[type="checkbox"]:checked')].map((input) => `${input.dataset.optionLabel}: ${input.value}`).join('، ') || 'لا توجد اختيارات إضافية',
+        طريقة_الاستلام: deliveryMethod,
+        عنوان_التوصيل: deliveryAddress || 'عنوان غير محدد',
+        السوم_التقريبي: document.getElementById('totalCost').textContent,
+        المزوّد: document.getElementById('modalProvider').textContent,
+        ملاحظة_التوصيل: note || 'لا توجد ملاحظة.',
+        اسم_الحريف: user?.name || 'زائر',
+        إيميل_الحريف: user?.email || 'غير مسجل',
+        هاتف_الحريف: user?.phone || 'غير مسجل',
+        المنطقة: user?.area || 'غير محددة',
+        sentAt: new Date().toISOString(),
+        _captcha: 'false'
+      })
+    });
+
+    if (!response.ok) throw new Error('HTTP error');
+    button.innerHTML = 'وصلنا الطلب ✓';
+    setTimeout(closeModals, 900);
+  } catch (error) {
+    button.disabled = false;
+    button.innerHTML = 'فشل الإرسال — جرّب مرة أخرى';
+    console.error('Order submission failed:', error);
+  }
+});
+
+document.getElementById('submitAccount').addEventListener('click', async () => {
+  const password = document.getElementById('accountPassword').value;
+  const user = {
+    name: document.getElementById('accountName').value.trim(),
+    email: document.getElementById('accountEmail').value.trim(),
+    phone: document.getElementById('accountPhone').value.trim(),
+    area: document.getElementById('accountArea').value.trim()
+  };
+
+  const validPhone = /^(?:\+216)?[2459]\d{7}$/.test(user.phone.replace(/[\s-]/g, ''));
+  if (!user.name || !user.email || !validPhone || password.length < 4) {
+    if (!user.name) document.getElementById('accountName').focus();
+    else if (!user.email) document.getElementById('accountEmail').focus();
+    else if (!validPhone) document.getElementById('accountPhone').focus();
+    else document.getElementById('accountPassword').focus();
+    return;
+  }
+
+  const button = document.getElementById('submitAccount');
+  button.disabled = true;
+  button.innerHTML = 'يتم التسجيل...';
+
+  try {
+    const response = await fetch(emailEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: 'حساب جديد على 9ATHYA',
+        الاسم: user.name,
+        الإيميل: user.email,
+        الهاتف: user.phone,
+        المنطقة: user.area || 'غير محددة',
+        ملاحظة: 'كلمة السر لم يتم إرسالها حفاظًا على الأمان.',
+        sentAt: new Date().toISOString(),
+        _captcha: 'false'
+      })
+    });
+
+    if (!response.ok) throw new Error('HTTP error');
+    localStorage.setItem('9athyaUser', JSON.stringify(user));
+    button.innerHTML = 'الحساب حاضر ✓';
+    setTimeout(() => {
+      closeModals();
+      if (pendingOrder) {
+        pendingOrder = false;
+        openModal(bookingModal);
+      }
+    }, 900);
+  } catch (error) {
+    button.innerHTML = 'فشل التسجيل — جرّب مرة أخرى';
+    console.error('Account registration failed:', error);
+  } finally {
+    setTimeout(() => {
+      button.disabled = false;
+      button.innerHTML = 'نعمل حساب <span>↗</span>';
+    }, 1200);
+  }
 });
 
 document.getElementById('submitOffer').addEventListener('click', async () => {
@@ -180,9 +313,10 @@ document.getElementById('submitOffer').addEventListener('click', async () => {
     name,
     price: Number(price) || 50,
     provider: name.split(' ')[0] || 'مستقل',
-    place: 'تونس',
-    tag: 'خدمة جديدة',
-    accent: 'orange'
+    place: 'صفاقس',
+    tag: 'حاجة جديدة',
+    accent: 'orange',
+    visual: '📦'
   };
 
   const payload = {
@@ -194,12 +328,12 @@ document.getElementById('submitOffer').addEventListener('click', async () => {
     referrer: document.referrer || 'direct',
     userAgent: navigator.userAgent,
     sentAt: new Date().toISOString(),
-    _subject: 'طلب خدمة جديد من 9ATHYA',
+    _subject: 'حاجة جديدة على 9ATHYA',
     _captcha: 'false'
   };
 
   try {
-    const response = await fetch('https://formsubmit.co/ajax/HOUSSEMKESSENTINI77@GMAIL.COM', {
+    const response = await fetch(emailEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -215,7 +349,7 @@ document.getElementById('submitOffer').addEventListener('click', async () => {
     serviceData.unshift(newService);
     renderServices();
 
-    submitButton.innerHTML = 'تم إرسال طلبك ✓';
+    submitButton.innerHTML = 'تمت إضافة الحاجة ✓';
     document.getElementById('offerName').value = '';
     document.getElementById('offerEmail').value = '';
     document.getElementById('offerPrice').value = '';
@@ -227,7 +361,7 @@ document.getElementById('submitOffer').addEventListener('click', async () => {
   } finally {
     setTimeout(() => {
       submitButton.disabled = false;
-      submitButton.innerHTML = 'انشر خدمتك <span>↗</span>';
+      submitButton.innerHTML = 'زِد الحاجة <span>↗</span>';
     }, 1200);
   }
 });
