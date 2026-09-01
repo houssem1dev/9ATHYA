@@ -244,7 +244,7 @@ document.getElementById('submitAccount').addEventListener('click', async () => {
 
   const validPhone = /^(?:\+216)?[2459]\d{7}$/.test(user.phone.replace(/[\s-]/g, ''));
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email);
-  if (!user.name || !validEmail || !validPhone || password.length < 4 || password.length > 128) {
+  if (!user.name || !validEmail || !validPhone || password.length < 8 || password.length > 128) {
     if (!user.name) document.getElementById('accountName').focus();
     else if (!user.email) document.getElementById('accountEmail').focus();
     else if (!validPhone) document.getElementById('accountPhone').focus();
@@ -273,7 +273,7 @@ document.getElementById('submitAccount').addEventListener('click', async () => {
       }
     }, 900);
   } catch (error) {
-    button.innerHTML = 'فشل التسجيل — جرّب مرة أخرى';
+    button.innerHTML = error.message || 'فشل التسجيل — جرّب مرة أخرى';
     console.error('Account registration failed:', error);
   } finally {
     setTimeout(() => {
@@ -396,7 +396,15 @@ if (allServicesButton) {
 
 fetch('/api/me', { credentials: 'same-origin' })
   .then((response) => response.ok ? response.json() : null)
-  .then((user) => { currentUser = user; })
+  .then((user) => {
+    currentUser = user;
+    if (user) {
+      document.getElementById('accountName').value = user.name || '';
+      document.getElementById('accountEmail').value = user.email || '';
+      document.getElementById('accountPhone').value = user.phone || '';
+      document.getElementById('accountArea').value = user.area || '';
+    }
+  })
   .catch(() => { currentUser = null; });
 
 renderServices();
