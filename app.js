@@ -12,6 +12,26 @@ let hours = 0;
 let selectedService = null;
 let pendingOrder = false;
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }[character]));
+}
+
+function getSavedUser() {
+  try {
+    const user = JSON.parse(localStorage.getItem('9athyaUser') || 'null');
+    return user && typeof user === 'object' ? user : null;
+  } catch {
+    localStorage.removeItem('9athyaUser');
+    return null;
+  }
+}
+
 const serviceData = [
   { category: 'vegetables', name: 'بطاطا بالكيلو', price: 2.8, provider: 'سوق الحومة', place: 'ساقية الزيت', tag: 'متوفر اليوم', accent: 'orange', visual: '🥔', unit: 'كيلو', details: 'بطاطا بيضاء للطبخ، مغسولة ومختارة حبة بحبة.', options: [{ label: 'الحجم', values: ['صغيرة', 'متوسطة', 'كبيرة'] }] },
   { category: 'vegetables', name: 'تفاح بالكيلو', price: 7, provider: 'غلة الحومة', place: 'صفاقس المدينة', tag: 'طازج اليوم', accent: 'red', visual: '🍎', unit: 'كيلو', details: 'تفاح أحمر مقرمش، مناسب للفطور والعصير.', options: [{ label: 'درجة النضج', values: ['مقرمش', 'عادي', 'طري'] }] },
@@ -55,13 +75,13 @@ function getCategoryFromName(name) {
 
 function renderServiceCard(service) {
   return `
-    <article class="service-card" data-category="${service.category}" data-name="${service.name}" data-price="${service.price}" data-provider="${service.provider}" data-place="${service.place}">
-      <div class="service-photo photo-${service.accent}"><span class="product-visual" aria-hidden="true">${service.visual}</span><span>${service.tag}</span><button class="save-btn" aria-label="حفظ الحاجة">♡</button></div>
+    <article class="service-card" data-category="${escapeHtml(service.category)}" data-name="${escapeHtml(service.name)}" data-price="${Number(service.price)}" data-provider="${escapeHtml(service.provider)}" data-place="${escapeHtml(service.place)}">
+      <div class="service-photo photo-${escapeHtml(service.accent)}"><span class="product-visual" aria-hidden="true">${escapeHtml(service.visual)}</span><span>${escapeHtml(service.tag)}</span><button class="save-btn" aria-label="حفظ الحاجة">♡</button></div>
       <div class="service-content">
-        <div class="provider-line"><span class="provider-avatar ${service.accent}">${service.provider.charAt(0)}</span><span>${service.provider} <b>✓</b></span><small>${service.place}</small></div>
-        <h3>${service.name}</h3>
-        <p class="service-detail">${service.details}</p>
-        <div class="rating"><strong>★ 4.9</strong><span>${service.unit || 'بالقطعة'}</span><strong class="price">السوم بعد تحديد الكمية</strong></div>
+        <div class="provider-line"><span class="provider-avatar ${escapeHtml(service.accent)}">${escapeHtml(service.provider.charAt(0))}</span><span>${escapeHtml(service.provider)} <b>✓</b></span><small>${escapeHtml(service.place)}</small></div>
+        <h3>${escapeHtml(service.name)}</h3>
+        <p class="service-detail">${escapeHtml(service.details)}</p>
+        <div class="rating"><strong>★ 4.9</strong><span>${escapeHtml(service.unit || 'بالقطعة')}</span><strong class="price">السوم بعد تحديد الكمية</strong></div>
       </div>
     </article>
   `;
@@ -134,7 +154,7 @@ serviceGrid.addEventListener('click', (event) => {
   document.getElementById('modalProvider').textContent = `مع ${card.dataset.provider} · ${card.dataset.place}`;
   document.getElementById('quantityLabel').textContent = `قدّاش تحب؟ (${selectedService.unit || 'بالقطعة'})`;
   document.getElementById('productDetails').textContent = selectedService.details;
-  const savedUser = JSON.parse(localStorage.getItem('9athyaUser') || 'null');
+  const savedUser = getSavedUser();
   document.getElementById('deliveryAddress').value = savedUser?.area || '';
   document.getElementById('productOptions').innerHTML = (selectedService.options || []).map((option, index) => option.type === 'checks' ? `
     <fieldset class="option-checks"><legend>${option.label}</legend>${option.values.map((value) => `<label><input type="checkbox" data-option-label="${option.label}" value="${value}">${value}</label>`).join('')}</fieldset>
@@ -182,7 +202,7 @@ document.getElementById('decreaseHours').addEventListener('click', () => {
 
 document.getElementById('confirmBooking').addEventListener('click', async () => {
   const button = document.getElementById('confirmBooking');
-  const user = JSON.parse(localStorage.getItem('9athyaUser') || 'null');
+  const user = getSavedUser();
   if (!user?.phone) {
     pendingOrder = true;
     closeModals();
@@ -236,14 +256,15 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
 document.getElementById('submitAccount').addEventListener('click', async () => {
   const password = document.getElementById('accountPassword').value;
   const user = {
-    name: document.getElementById('accountName').value.trim(),
-    email: document.getElementById('accountEmail').value.trim(),
-    phone: document.getElementById('accountPhone').value.trim(),
-    area: document.getElementById('accountArea').value.trim()
+    name: document.getElementById('accountName').value.trim().slice(0, 100),
+    email: document.getElementById('accountEmail').value.trim().slice(0, 160),
+    phone: document.getElementById('accountPhone').value.trim().slice(0, 20),
+    area: document.getElementById('accountArea').value.trim().slice(0, 160)
   };
 
   const validPhone = /^(?:\+216)?[2459]\d{7}$/.test(user.phone.replace(/[\s-]/g, ''));
-  if (!user.name || !user.email || !validPhone || password.length < 4) {
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email);
+  if (!user.name || !validEmail || !validPhone || password.length < 4 || password.length > 128) {
     if (!user.name) document.getElementById('accountName').focus();
     else if (!user.email) document.getElementById('accountEmail').focus();
     else if (!validPhone) document.getElementById('accountPhone').focus();
@@ -292,6 +313,11 @@ document.getElementById('submitAccount').addEventListener('click', async () => {
   }
 });
 
+document.getElementById('googleAccount').addEventListener('click', () => {
+  const message = document.getElementById('accountMessage');
+  message.textContent = 'زر Google حاضر. يلزم إعداد Google Client ID باش يتفعل الدخول الحقيقي.';
+});
+
 document.getElementById('submitOffer').addEventListener('click', async () => {
   const name = document.getElementById('offerName').value.trim();
   const email = document.getElementById('offerEmail').value.trim();
@@ -311,12 +337,14 @@ document.getElementById('submitOffer').addEventListener('click', async () => {
   const newService = {
     category: getCategoryFromName(name),
     name,
-    price: Number(price) || 50,
+    price: Math.min(10000, Math.max(0.1, Number(price) || 50)),
     provider: name.split(' ')[0] || 'مستقل',
     place: 'صفاقس',
     tag: 'حاجة جديدة',
     accent: 'orange',
-    visual: '📦'
+    visual: '📦',
+    unit: 'حاجة',
+    details: message || 'حاجة منزلية متوفرة للتوصيل داخل صفاقس.'
   };
 
   const payload = {

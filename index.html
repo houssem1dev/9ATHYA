@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://formsubmit.co; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; script-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="description" content="9ATHYA.TN - سوق الحاجات المنزلية القريبة في صفاقس.">
   <title>9ATHYA.TN | حاجتك قريبة</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -172,7 +174,7 @@
 
       <div class="delivery-fields">
         <div class="delivery-only"><strong>التوصيل للدار</strong><span>نوصلولك الحاجة للعنوان اللي تكتبو</span></div>
-        <label class="address-field">عنوان التوصيل / الحومة<input id="deliveryAddress" type="text" autocomplete="street-address" placeholder="مثال: ساقية الزيت، نهج..." /></label>
+        <label class="address-field">عنوان التوصيل / الحومة<input id="deliveryAddress" type="text" autocomplete="street-address" maxlength="160" placeholder="مثال: ساقية الزيت، نهج..." /></label>
       </div>
 
       <div class="fee-breakdown">
@@ -181,7 +183,7 @@
         <div class="total"><span>المجموع التقريبي</span><strong id="totalCost">بعد تحديد الكمية</strong></div>
       </div>
 
-      <label>ملاحظة للتوصيل<input id="orderNote" placeholder="مثال: خلّيه قدّام الباب" /></label>
+      <label>ملاحظة للتوصيل<input id="orderNote" maxlength="300" placeholder="مثال: خلّيه قدّام الباب" /></label>
 
       <button class="primary-btn full-btn" type="button" id="confirmBooking" disabled>أكد الطلب <span>←</span></button>
       <small class="modal-footnote">ما تخلّص شي توا. نتصلوا بيك للتأكيد.</small>
@@ -195,12 +197,15 @@
       <h2 id="accountTitle">خلّي بياناتك عندنا</h2>
       <p>التسجيل إجباري باش نثبتو الطلب ونكلموك على التوصيل. كلمة السر تبقى عندك وما تتبعثش بالإيميل.</p>
 
-      <label>الاسم واللقب<input id="accountName" autocomplete="name" placeholder="مثال: محمد بن علي" /></label>
-      <label>البريد الإلكتروني<input id="accountEmail" type="email" autocomplete="email" placeholder="example@email.com" /></label>
+      <label>الاسم واللقب<input id="accountName" autocomplete="name" maxlength="100" placeholder="مثال: محمد بن علي" /></label>
+      <label>البريد الإلكتروني<input id="accountEmail" type="email" autocomplete="email" maxlength="160" placeholder="example@email.com" /></label>
       <label>رقم الهاتف<input id="accountPhone" type="tel" autocomplete="tel" pattern="(?:\+216)?[2459][0-9]{7}" placeholder="20 000 000" /></label>
-      <label>الحومة / المنطقة<input id="accountArea" autocomplete="address-level2" placeholder="مثال: ساقية الزيت، صفاقس" /></label>
-      <label>كلمة السر<input id="accountPassword" type="password" autocomplete="new-password" placeholder="4 أحرف على الأقل" /></label>
+      <label>الحومة / المنطقة<input id="accountArea" autocomplete="address-level2" maxlength="160" placeholder="مثال: ساقية الزيت، صفاقس" /></label>
+      <label>كلمة السر<input id="accountPassword" type="password" autocomplete="new-password" minlength="4" maxlength="128" placeholder="4 أحرف على الأقل" /></label>
       <button class="primary-btn full-btn" type="button" id="submitAccount">نعمل حساب <span>↗</span></button>
+      <div class="account-divider"><span>ولا</span></div>
+      <button class="google-btn" type="button" id="googleAccount"><span class="google-mark">G</span> نواصل بحساب Google</button>
+      <p class="account-message" id="accountMessage" role="status"></p>
     </div>
   </div>
 
@@ -211,10 +216,10 @@
       <h2 id="offerTitle">شنوّة تعرف تعمل؟</h2>
       <p>خلّي ناس الحومة تلقى الحاجة اللي عندك. زيدها مع السعر والمنطقة، والاتفاق يصير بيناتكم مباشرة.</p>
 
-      <label>شنوّة الحاجة؟<input id="offerName" placeholder="مثال: خضرة، دجاج، زيت زيتون..." /></label>
-      <label>البريد الإلكتروني<input id="offerEmail" type="email" placeholder="example@email.com" /></label>
-      <label>السعر يبدأ من<input id="offerPrice" type="number" placeholder="بالدينار التونسي" /></label>
-      <label>تفاصيل قصيرة<textarea id="offerMessage" rows="4" placeholder="اكتب الكمية، الجودة، والمنطقة اللي تنجم توصللها..."></textarea></label>
+      <label>شنوّة الحاجة؟<input id="offerName" maxlength="120" placeholder="مثال: خضرة، دجاج، زيت زيتون..." /></label>
+      <label>البريد الإلكتروني<input id="offerEmail" type="email" maxlength="160" placeholder="example@email.com" /></label>
+      <label>السعر يبدأ من<input id="offerPrice" type="number" min="0.1" max="10000" step="0.01" placeholder="بالدينار التونسي" /></label>
+      <label>تفاصيل قصيرة<textarea id="offerMessage" rows="4" maxlength="500" placeholder="اكتب الكمية، الجودة، والمنطقة اللي تنجم توصللها..."></textarea></label>
       <button class="primary-btn full-btn" type="button" id="submitOffer">زِد الحاجة <span>↗</span></button>
     </div>
   </div>
