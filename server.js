@@ -40,22 +40,22 @@ function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
 function verifyPassword(password, stored) { const [salt, hash] = String(stored || '').split(':'); if (!salt || !hash) return Promise.resolve(false); return hashPassword(password, salt).then((candidate) => crypto.timingSafeEqual(Buffer.from(candidate.split(':')[1], 'hex'), Buffer.from(hash, 'hex'))); }
 function requireAuth(req, res, next) { if (!req.session?.userId) return res.status(401).json({ error: 'يلزم تسجيل الدخول.' }); next(); }
 function requireGoogleConfig(res) { if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) { res.status(503).send('Google login موش مفعّل بعد.'); return false; } return true; }
+function createGoogleState() { const payload = Buffer.from(JSON.stringify({ nonce: crypto.randomBytes(18).toString('hex'), expires: Date.now() + 10 * 60 * 1000 })).toString('base64url'); const signature = crypto.createHmac('sha256', process.env.SESSION_SECRET).update(payload).digest('base64url'); return `${payload}.${signature}`; }
+function verifyGoogleState(state) { try { const [payload, signature] = String(state).split('.'); if (!payload || !signature) return false; const expected = crypto.createHmac('sha256', process.env.SESSION_SECRET).update(payload).digest('base64url'); if (signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return false; return JSON.parse(Buffer.from(payload, 'base64url').toString()).expires > Date.now(); } catch { return false; } }
 
 app.get('/api/health', async (_req, res) => { if (!databaseConfigured || !sessionConfigured) return res.status(503).json({ ok: false, error: 'Production environment is not configured.' }); try { await pool.query('SELECT 1'); res.json({ ok: true }); } catch { res.status(503).json({ ok: false }); } });
 app.get('/api/me', requireAuth, async (req, res) => { const result = await pool.query('SELECT id, name, email, phone, area FROM users WHERE id = $1', [req.session.userId]); if (!result.rowCount) return res.status(401).json({ error: 'الجلسة غير صالحة.' }); res.json(result.rows[0]); });
 
 app.get('/auth/google', (req, res) => {
   if (!requireGoogleConfig(res)) return;
-  const state = crypto.randomBytes(24).toString('hex');
-  req.session.googleState = state;
+  const state = createGoogleState();
   const params = new URLSearchParams({ client_id: process.env.GOOGLE_CLIENT_ID, redirect_uri: googleCallbackUrl, response_type: 'code', scope: 'openid email profile', state, access_type: 'online', prompt: 'select_account' });
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
 });
 
 app.get('/auth/google/callback', async (req, res) => {
   if (!requireGoogleConfig(res)) return;
-  if (!req.query.code || !req.query.state || req.query.state !== req.session?.googleState) return res.status(400).send('Google login request غير صالحة.');
-  req.session.googleState = null;
+  if (!req.query.code || !req.query.state || !verifyGoogleState(req.query.state)) return res.status(400).send('Google login request غير صالحة.');
   try {
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code: String(req.query.code), client_id: process.env.GOOGLE_CLIENT_ID, client_secret: process.env.GOOGLE_CLIENT_SECRET, redirect_uri: googleCallbackUrl, grant_type: 'authorization_code' }) });
     if (!tokenResponse.ok) return res.status(401).send('ما نجّمش نثبت حساب Google.');
