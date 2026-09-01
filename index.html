@@ -1,215 +1,985 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar-TN" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://9-athya.vercel.app; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; script-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none';">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="description" content="9ATHYA.TN - سوق الحاجات المنزلية القريبة في صفاقس.">
-  <title>9ATHYA.TN | حاجتك قريبة</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>9ATHYA.TN | قعدة صفاقسية - توصيل لكل صفاقس</title>
+  <style>
+    :root {
+      --primary: #e74c3c;
+      --primary-dark: #c0392b;
+      --secondary: #f39c12;
+      --success: #27ae60;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --card-bg: #ffffff;
+      --shadow: 0 10px 30px rgba(0,0,0,0.1);
+      --shadow-hover: 0 15px 40px rgba(0,0,0,0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Cairo', 'Tahoma', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .main-container {
+      max-width: 1400px;
+      width: 100%;
+      background: var(--light);
+      border-radius: 20px;
+      box-shadow: var(--shadow-hover);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      opacity: 0.95;
+    }
+
+    .category-nav {
+      display: flex;
+      gap: 8px;
+      padding: 12px 15px;
+      background: white;
+      overflow-x: auto;
+      border-bottom: 2px solid #eee;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .category-nav-btn {
+      padding: 8px 16px;
+      background: #f5f5f5;
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+      transition: all 0.3s;
+      white-space: nowrap;
+      color: #333;
+    }
+
+    .category-nav-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .category-nav-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+    }
+
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 15px;
+    }
+
+    @media (min-width: 1024px) {
+      .content-wrapper {
+        grid-template-columns: 1fr 380px;
+        padding: 25px;
+      }
+    }
+
+    .menu-section {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .category-section {
+      margin-bottom: 25px;
+    }
+
+    .category-title {
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f9f9f9;
+      border-right: 4px solid var(--primary);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    @media (max-width: 480px) {
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .menu-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s;
+    }
+
+    .menu-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .item-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .item-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 3px;
+    }
+
+    .item-unit-price {
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      font-weight: 900;
+      color: var(--primary);
+    }
+
+    .item-unit-price span {
+      font-size: 0.8rem;
+      color: #999;
+      font-weight: 400;
+    }
+
+    .quantity-selector {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .quantity-input {
+      width: 70px;
+      padding: 6px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .quantity-unit {
+      color: #666;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .total-item-price {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--success);
+      margin-right: auto;
+    }
+
+    .quick-quantity-btns {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .quick-qty-btn {
+      padding: 4px 10px;
+      background: #e0e0e0;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .quick-qty-btn:hover {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .add-to-cart-btn {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 8px;
+    }
+
+    .add-to-cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+    }
+
+    .cart-section {
+      background: white;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    @media (min-width: 1024px) {
+      .cart-section {
+        position: sticky;
+        top: 80px;
+        height: fit-content;
+      }
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .cart-title {
+      font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+      font-weight: 800;
+      color: var(--dark);
+    }
+
+    .cart-count {
+      background: var(--primary);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    #cart-items {
+      list-style: none;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+
+    #cart-items li {
+      background: #f9f9f9;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      font-size: 0.9rem;
+    }
+
+    .cart-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+
+    .cart-item-name {
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .cart-item-price {
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .cart-item-details {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 3px;
+    }
+
+    .remove-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 3px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+
+    .total-section {
+      text-align: center;
+      padding: 15px 0;
+      border-top: 2px solid #eee;
+    }
+
+    .total-price {
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 900;
+      color: var(--primary);
+      margin: 5px 0;
+    }
+
+    .delivery-fee {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .user-form {
+      margin-top: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 3px;
+      font-weight: 700;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      background: white;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    }
+
+    .submit-order-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 15px;
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+    }
+
+    .submit-order-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(39, 174, 96, 0.6);
+    }
+
+    .fees-info {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f0f8ff;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #555;
+    }
+
+    .fees-info strong {
+      color: var(--primary);
+    }
+  </style>
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="9ATHYA.TN الصفحة الرئيسية">
-      <span class="brand-mark">9</span>
-      <span>ATHYA<span class="brand-dot">.</span>TN</span>
-    </a>
-
-    <nav class="main-nav" aria-label="التنقل الرئيسي">
-      <a class="active" href="#services">حاجات الدار</a>
-      <a href="#how-it-works">كيفاش تخدم؟</a>
-      <a href="#about">علّاش 9ATHYA؟</a>
-    </nav>
-
-    <div class="header-actions">
-      <button class="language-btn" type="button">TN <span>⌄</span></button>
-      <button class="outline-btn" type="button" data-open-offer>زِد حاجة <span>↗</span></button>
-      <button class="menu-btn" type="button" aria-label="فتح القائمة">☰</button>
-    </div>
-  </header>
-
-  <main id="top">
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="live-dot"></span> حاجات الدار من ناس الحومة</div>
-        <h1>الحاجة اللي <em>تحتاجها</em><br>تلقاها قريبة ليك.</h1>
-        <p>خضرة، دجاج، خبز، مواد غذائية وتنظيف، وكل حاجة تستحقها الدار. لوج على اللي يلزمك من ناس قريبين منك، واتفق بسهولة على الكمية والتوصيل.</p>
-
-        <div class="hero-actions">
-          <a class="primary-btn" href="#services">لوج على حاجة <span>←</span></a>
-          <button class="text-btn" type="button" data-open-offer>عندك حاجة تبيعها؟ <span>↗</span></button>
-        </div>
-
-        <div class="trust-row">
-          <div class="avatars"><span>م</span><span>س</span><span>ن</span><span>ر</span></div>
-          <span><strong>+2,400</strong> حاجة من كل جهة</span>
-        </div>
-      </div>
-
-      <div class="hero-visual">
-        <div class="visual-note note-top"><span>✦</span> حاجة اليوم</div>
-        <div class="local-market-card">
-          <div class="market-card-top"><span>من حومتك</span><strong>صفاقس</strong></div>
-          <div class="market-items" aria-label="منتوجات اليوم">
-            <span>🥔<small>بطاطا</small></span>
-            <span>🍎<small>تفاح</small></span>
-            <span>🥪<small>كسكروت</small></span>
-            <span>🫓<small>ملاوي</small></span>
-          </div>
-          <div class="market-card-bottom"><span>توصيل للدار</span><b>اليوم</b></div>
-        </div>
-        <div class="floating-card booking-card">
-          <div class="card-icon">✓</div>
-          <div>
-            <strong>مريم لقات حاجتها</strong>
-            <small>منذ 3 دقايق · صفاقس</small>
-          </div>
-          <span class="status-dot"></span>
-        </div>
-        <div class="floating-card rating-card">
-          <strong>4.9</strong>
-          <span>★★★★★</span>
-          <small>معدّل التقييم</small>
-        </div>
-        <div class="scribble">هكّا أسهل <span>↗</span></div>
-      </div>
-    </section>
-
-    <div class="trust-badges" aria-label="علامات الثقة">
-      <span>✓ ناس موثوقين</span>
-      <span>✓ قريب ليك</span>
-      <span>✓ حاجات طازجة</span>
-      <span>✓ اتفاق واضح</span>
+  <div class="main-container">
+    <div class="header">
+      <h1>🔥 9ATHYA.TN</h1>
+      <p>أطيب قعدة صفاقسية - توصيل لكل مناطق صفاقس</p>
     </div>
 
-    <section class="stats-strip">
-      <div><strong>1,200+</strong><span>حاجة تباعت</span></div>
-      <div><strong>96%</strong><span>ناس لقات طلبها</span></div>
-      <div><strong>24/7</strong><span>تواصل مباشر</span></div>
-      <div><strong>0%</strong><span>رسوم على الشاري</span></div>
-    </section>
+    <div class="category-nav">
+      <button class="category-nav-btn active" data-category="all">📋 الكل</button>
+      <button class="category-nav-btn" data-category="vegetables">🥬 خضرة</button>
+      <button class="category-nav-btn" data-category="fruits">🍎 غلة</button>
+      <button class="category-nav-btn" data-category="staples">🌾 مواد أساسية</button>
+      <button class="category-nav-btn" data-category="grains">🫘 بقول وحبوب</button>
+      <button class="category-nav-btn" data-category="meat">🥩 بروتينات</button>
+      <button class="category-nav-btn" data-category="dairy">🥛 ألبان</button>
+    </div>
 
-    <section class="service-section" id="services">
-      <div class="section-heading">
-        <div>
-          <span class="section-kicker">من حومتك للدار</span>
-          <h2>شنوّة ناقصك اليوم؟</h2>
+    <div class="content-wrapper">
+      <div class="menu-section">
+        <div class="category-section" id="vegetables-section">
+          <div class="category-title">🥬 خضرة طازجة</div>
+          <div class="menu-grid" id="vegetables-menu"></div>
         </div>
-        <button class="all-services" type="button">شوف الكل <span>←</span></button>
-      </div>
 
-      <div class="search-bar">
-        <span class="search-icon">⌕</span>
-        <input id="searchInput" type="search" placeholder="لوج على خضرة، دجاج، خبز، مواد تنظيف..." aria-label="البحث عن حاجة للدار">
-        <span class="location-pill">⌖ صفاقس · توصيل للدار</span>
-        <button class="filter-toggle" type="button" id="filterToggle">☷ <span>فلتر</span></button>
-      </div>
+        <div class="category-section" id="fruits-section">
+          <div class="category-title">🍎 غلة وفواكه</div>
+          <div class="menu-grid" id="fruits-menu"></div>
+        </div>
 
-      <div class="category-row" role="tablist" aria-label="تصنيفات حاجات الدار">
-        <button class="category active" data-category="all" role="tab">الكل <small>15</small></button>
-        <button class="category" data-category="vegetables" role="tab">🥬 خضرة</button>
-        <button class="category" data-category="chicken" role="tab">🍗 دجاج وبيض</button>
-        <button class="category" data-category="groceries" role="tab">🛒 مواد غذائية</button>
-        <button class="category" data-category="bakery" role="tab">🥖 خبز</button>
-        <button class="category" data-category="cleaning" role="tab">🧼 تنظيف</button>
-        <button class="category" data-category="home" role="tab">🏠 أخرى للدار</button>
-      </div>
+        <div class="category-section" id="staples-section">
+          <div class="category-title">🌾 مواد أساسية</div>
+          <div class="menu-grid" id="staples-menu"></div>
+        </div>
 
-      <div class="service-grid" id="serviceGrid"></div>
+        <div class="category-section" id="grains-section">
+          <div class="category-title">🫘 بقول وحبوب</div>
+          <div class="menu-grid" id="grains-menu"></div>
+        </div>
 
-      <div class="empty-state" id="emptyState" hidden>ما لقيناش الحاجة هاذي. جرّب كلمة أخرى.</div>
-    </section>
+        <div class="category-section" id="meat-section">
+          <div class="category-title">🥩 بروتينات ولحوم</div>
+          <div class="menu-grid" id="meat-menu"></div>
+        </div>
 
-    <section class="how-section" id="how-it-works">
-      <div class="how-intro">
-        <span class="section-kicker">بلا تعقيد</span>
-        <h2>من اللوجان<br>للحاجة في 3 خطوات فقط.</h2>
-      </div>
-
-      <div class="steps">
-        <div class="step"><span>01</span><h3>لوج على حاجتك</h3><p>اختار الخضرة، الماكلة، ولا الحاجة المنزلية اللي ناقصتك.</p></div>
-        <div class="step"><span>02</span><h3>تواصل واتفق</h3><p>اسأل على الكمية والسعر والتوصيل، واتفق مباشرة مع صاحب الحاجة.</p></div>
-        <div class="step"><span>03</span><h3>توصلك للدار</h3><p>استلم حاجتك من قريب ليك وخلّي تقييمك يعاون ناس الحومة.</p></div>
-      </div>
-    </section>
-
-    <section class="cta-section" id="about">
-      <div>
-        <span class="section-kicker">عندك حاجة زايدة؟</span>
-        <h2>حاجتك تنجم<br>تعاون دار أخرى.</h2>
-      </div>
-      <button class="dark-btn" type="button" data-open-offer>زِد حاجة للدار <span>↗</span></button>
-    </section>
-  </main>
-
-  <footer>
-    <div class="brand footer-brand"><span class="brand-mark">9</span><span>ATHYA<span class="brand-dot">.</span>TN</span></div>
-    <span>من صفاقس، للصفاقسية الكل.</span>
-    <span>© 2026 9ATHYA.TN</span>
-  </footer>
-
-  <div class="modal-backdrop" id="bookingModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="close-modal" data-close-modal aria-label="سكر">×</button>
-      <span class="modal-label">اطلب حاجتك</span>
-      <h2 id="modalTitle">بطاطا بالكيلو</h2>
-      <p class="modal-provider" id="modalProvider">مع خضرة الحومة · صفاقس المدينة</p>
-      <p class="product-details" id="productDetails">بطاطا بيضاء للطبخ، مغسولة ومختارة حبة بحبة.</p>
-
-      <div class="quantity-field">
-        <span id="quantityLabel">قدّاش تحب؟</span>
-        <div class="number-control">
-          <button type="button" id="decreaseHours">−</button>
-          <strong id="hoursValue">—</strong>
-          <button type="button" id="increaseHours">+</button>
+        <div class="category-section" id="dairy-section">
+          <div class="category-title">🥛 ألبان وبيض</div>
+          <div class="menu-grid" id="dairy-menu"></div>
         </div>
       </div>
 
-      <div id="productOptions" class="product-options"></div>
+      <div class="cart-section">
+        <div class="cart-header">
+          <div class="cart-title">🛒 سلة الطلبات</div>
+          <div class="cart-count" id="cart-count">0</div>
+        </div>
+        <ul id="cart-items"></ul>
+        
+        <div class="total-section">
+          <div class="total-price" id="total-price">0.000 DT</div>
+          <div class="delivery-fee">+ توصيل: 2.000 DT</div>
+        </div>
 
-      <div class="delivery-fields">
-        <div class="delivery-only"><strong>التوصيل للدار</strong><span>نوصلولك الحاجة للعنوان اللي تكتبو</span></div>
-        <label class="address-field">عنوان التوصيل / الحومة<input id="deliveryAddress" type="text" autocomplete="street-address" maxlength="160" placeholder="مثال: ساقية الزيت، نهج..." /></label>
+        <div class="user-form">
+          <div class="form-group">
+            <label>👤 الاسم الكامل *</label>
+            <input type="text" id="userName" class="form-input" placeholder="أدخل اسمك" maxlength="100" required>
+          </div>
+          <div class="form-group">
+            <label>📞 رقم الهاتف *</label>
+            <input type="tel" id="userPhone" class="form-input" placeholder="للتحقق من الطلب (8 أرقام)" maxlength="15" required>
+          </div>
+          <div class="form-group">
+            <label>📍 منطقة التوصيل *</label>
+            <select id="userZone" class="form-select" required>
+              <option value="">اختر منطقتك في صفاقس</option>
+              <option value="المدينة العتيقة">المدينة العتيقة</option>
+              <option value="باب البحر">باب البحر</option>
+              <option value="باب الديوان">باب الديوان</option>
+              <option value="الربض">الربض</option>
+              <option value="حي النور">حي النور</option>
+              <option value="حي الحبيب">حي الحبيب</option>
+              <option value="حي الأنس">حي الأنس</option>
+              <option value="حي البستان">حي البستان</option>
+              <option value="المنطقة الصناعية">المنطقة الصناعية</option>
+              <option value="طريق المطار">طريق المطار</option>
+              <option value="سكرة">سكرة</option>
+              <option value="العين">العين</option>
+              <option value="قرمدة">قرمدة</option>
+              <option value="ساقية الزيت">ساقية الزيت</option>
+              <option value="ساقية الدائر">ساقية الدائر</option>
+              <option value="الشيحية">الشيحية</option>
+              <option value="تنيور">تنيور</option>
+              <option value="المحرس">المحرس</option>
+              <option value="قرقنة">قرقنة</option>
+              <option value="الصخيرة">الصخيرة</option>
+              <option value="منطقة أخرى">منطقة أخرى</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>📍 العنوان التفصيلي</label>
+            <input type="text" id="userAdresse" class="form-input" placeholder="رقم المنزل، الشارع، العمارة..." maxlength="200">
+          </div>
+          <div class="form-group">
+            <label>📝 ملاحظات إضافية</label>
+            <textarea id="userNotes" class="form-input" rows="2" placeholder="أي ملاحظات خاصة بالطلب" maxlength="300"></textarea>
+          </div>
+        </div>
+
+        <button id="submitOrder" class="submit-order-btn">📨 تأكيد الطلب</button>
+
+        <div class="fees-info">
+          <strong>💳 رسوم الخدمة:</strong> 1.500 DT + توصيل 2.000 DT<br>
+          <strong>📦 الحد الأدنى للطلب:</strong> 5.000 DT<br>
+          <strong>⏰ وقت التوصيل:</strong> 30-45 دقيقة
+        </div>
       </div>
-
-      <div class="customer-fields">
-        <label>الاسم واللقب<input id="customerName" type="text" autocomplete="name" maxlength="100" placeholder="مثال: محمد بن علي" /></label>
-        <label>رقم الهاتف<input id="customerPhone" type="tel" autocomplete="tel" pattern="(?:\+216)?[2459][0-9]{7}" maxlength="20" placeholder="20 000 000" /></label>
-      </div>
-
-      <div class="fee-breakdown">
-        <div><span>السوم</span><strong id="serviceCost">حدّد الكمية</strong></div>
-        <div><span>ربح 9ATHYA <small>(12%)</small></span><strong id="feeCost">—</strong></div>
-        <div class="total"><span>المجموع التقريبي</span><strong id="totalCost">بعد تحديد الكمية</strong></div>
-      </div>
-
-      <label>ملاحظة للتوصيل<input id="orderNote" maxlength="300" placeholder="مثال: خلّيه قدّام الباب" /></label>
-
-      <button class="primary-btn full-btn" type="button" id="confirmBooking" disabled>أكد الطلب <span>←</span></button>
-      <small class="modal-footnote">ما تخلّص شي توا. نتصلوا بيك للتأكيد.</small>
     </div>
   </div>
 
-  <div class="modal-backdrop" id="offerModal" aria-hidden="true">
-    <div class="modal offer-modal" role="dialog" aria-modal="true" aria-labelledby="offerTitle">
-      <button class="close-modal" data-close-modal aria-label="سكر">×</button>
-      <span class="modal-label">كبّر حاجتك</span>
-      <h2 id="offerTitle">شنوّة تعرف تعمل؟</h2>
-      <p>خلّي ناس الحومة تلقى الحاجة اللي عندك. زيدها مع السعر والمنطقة، والاتفاق يصير بيناتكم مباشرة.</p>
+  <script>
+    (function() {
+      // Catalog mapping for secure price enforcement
+      const menuData = {
+        vegetables: [
+          { id: 'v1', name: 'طماطم', pricePerUnit: 1.800, unit: 'كغ', image: '🍅', description: 'طماطم طازجة محلية', quickQuantities: [1, 2, 5] },
+          { id: 'v2', name: 'فلفل', pricePerUnit: 1.500, unit: 'كغ', image: '🌶️', description: 'فلفل أخضر وحار', quickQuantities: [1, 2, 5] },
+          { id: 'v3', name: 'بصل', pricePerUnit: 0.900, unit: 'كغ', image: '🧅', description: 'بصل أحمر وأبيض', quickQuantities: [1, 2, 5] },
+          { id: 'v4', name: 'بطاطا', pricePerUnit: 1.200, unit: 'كغ', image: '🥔', description: 'بطاطا محلية', quickQuantities: [1, 5, 10] },
+          { id: 'v5', name: 'جزر', pricePerUnit: 1.400, unit: 'كغ', image: '🥕', description: 'جزر طازج', quickQuantities: [1, 2, 5] }
+        ],
+        fruits: [
+          { id: 'f1', name: 'تفاح', pricePerUnit: 3.500, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر', quickQuantities: [1, 2, 5] },
+          { id: 'f2', name: 'موز', pricePerUnit: 4.000, unit: 'كغ', image: '🍌', description: 'موز طازج', quickQuantities: [1, 2, 5] },
+          { id: 'f3', name: 'عنب موسمي', pricePerUnit: 3.000, unit: 'كغ', image: '🍇', description: 'عنب أحمر وأبيض', quickQuantities: [1, 2, 5] },
+          { id: 'f4', name: 'برتقال', pricePerUnit: 2.500, unit: 'كغ', image: '🍊', description: 'برتقال محلي', quickQuantities: [1, 3, 5] }
+        ],
+        staples: [
+          { id: 's1', name: 'زيت زيتون', pricePerUnit: 12.000, unit: 'لتر', image: '🫒', description: 'زيت زيتون بكر', quickQuantities: [1, 5, 10] },
+          { id: 's2', name: 'سكر', pricePerUnit: 2.200, unit: 'كغ', image: '🧂', description: 'سكر أبيض', quickQuantities: [1, 2, 5] },
+          { id: 's3', name: 'سميدة', pricePerUnit: 1.500, unit: 'كغ', image: '🌾', description: 'سميدة خشنة ورقيقة', quickQuantities: [1, 2, 5] },
+          { id: 's4', name: 'عجين', pricePerUnit: 1.000, unit: 'كغ', image: '🍞', description: 'عجين طازج', quickQuantities: [1, 2, 5] },
+          { id: 's5', name: 'حليب', pricePerUnit: 1.300, unit: 'لتر', image: '🥛', description: 'حليب طازج', quickQuantities: [1, 2, 6] }
+        ],
+        grains: [
+          { id: 'g1', name: 'عدس', pricePerUnit: 3.500, unit: 'كغ', image: '🫘', description: 'عدس أخضر وأحمر', quickQuantities: [1, 2, 5] },
+          { id: 'g2', name: 'حمص', pricePerUnit: 4.000, unit: 'كغ', image: '🫛', description: 'حمص جاف', quickQuantities: [1, 2, 5] },
+          { id: 'g3', name: 'لوبيا', pricePerUnit: 5.000, unit: 'كغ', image: '🫘', description: 'لوبيا بيضاء وحمراء', quickQuantities: [1, 2, 5] }
+        ],
+        meat: [
+          { id: 'm1', name: 'لحم مفروم', pricePerUnit: 18.000, unit: 'كغ', image: '🥩', description: 'لحم بقري مفروم', quickQuantities: [0.5, 1, 2] },
+          { id: 'm2', name: 'دجاج', pricePerUnit: 9.000, unit: 'كغ', image: '🍗', description: 'صدر وأفخاذ دجاج', quickQuantities: [0.5, 1, 2] },
+          { id: 'm3', name: 'تونة', pricePerUnit: 8.000, unit: 'علبة', image: '🐟', description: 'تونة معلبة', quickQuantities: [1, 2, 5] }
+        ],
+        dairy: [
+          { id: 'd1', name: 'بيض', pricePerUnit: 0.400, unit: 'حبة', image: '🥚', description: 'بيض طازج', quickQuantities: [10, 20, 30] },
+          { id: 'd2', name: 'جبن', pricePerUnit: 8.000, unit: 'قطعة', image: '🧀', description: 'جبن أبيض وصفراء', quickQuantities: [1, 2, 5] },
+          { id: 'd3', name: 'زبدة', pricePerUnit: 6.000, unit: 'قطعة', image: '🧈', description: 'زبدة طبيعية', quickQuantities: [1, 2, 5] }
+        ]
+      };
 
-      <label>شنوّة الحاجة؟<input id="offerName" maxlength="120" placeholder="مثال: خضرة، دجاج، زيت زيتون..." /></label>
-      <label>البريد الإلكتروني<input id="offerEmail" type="email" maxlength="160" placeholder="example@email.com" /></label>
-      <label>السعر يبدأ من<input id="offerPrice" type="number" min="0.1" max="10000" step="0.01" placeholder="بالدينار التونسي" /></label>
-      <label>تفاصيل قصيرة<textarea id="offerMessage" rows="4" maxlength="500" placeholder="اكتب الكمية، الجودة، والمنطقة اللي تنجم توصللها..."></textarea></label>
-      <button class="primary-btn full-btn" type="button" id="submitOffer">زِد الحاجة <span>↗</span></button>
-    </div>
-  </div>
+      // Create a flat dictionary mapping item ID to its official database object
+      const itemRegistry = {};
+      Object.values(menuData).forEach(catArray => {
+        catArray.forEach(item => {
+          itemRegistry[item.id] = item;
+        });
+      });
 
-  <script defer src="/_vercel/insights/script.js"></script>
-  <script src="app.js?v=20260901f"></script>
+      const cart = [];
+      const DELIVERY_FEE = 2.000;
+      const SERVICE_FEE = 1.500;
+
+      // Escape helper to neutralize potential XSS vectors
+      function sanitizeText(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      // Category Switching logic
+      document.querySelectorAll('.category-nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.category-nav-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          const category = this.dataset.category;
+          
+          Object.keys(menuData).forEach(cat => {
+            const section = document.getElementById(`${cat}-section`);
+            if (section) {
+              if (category === 'all' || category === cat) {
+                section.style.display = 'block';
+              } else {
+                section.style.display = 'none';
+              }
+            }
+          });
+        });
+      });
+
+      function renderMenu() {
+        Object.keys(menuData).forEach(category => {
+          const container = document.getElementById(`${category}-menu`);
+          if (container) {
+            renderCategory(container, menuData[category]);
+          }
+        });
+      }
+
+      function renderCategory(container, items) {
+        container.innerHTML = '';
+        
+        items.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'menu-card';
+          
+          // Construct using safe DOM methods / properties to avoid DOM-XSS
+          const headerDiv = document.createElement('div');
+          headerDiv.className = 'item-header';
+          
+          const imgDiv = document.createElement('div');
+          imgDiv.className = 'item-image';
+          imgDiv.textContent = item.image;
+          
+          const infoDiv = document.createElement('div');
+          infoDiv.className = 'item-info';
+          
+          const nameDiv = document.createElement('div');
+          nameDiv.className = 'item-name';
+          nameDiv.textContent = item.name;
+          
+          const priceDiv = document.createElement('div');
+          priceDiv.className = 'item-unit-price';
+          priceDiv.textContent = item.pricePerUnit.toFixed(3) + ' ';
+          
+          const priceSpan = document.createElement('span');
+          priceSpan.textContent = `DT/${item.unit}`;
+          priceDiv.appendChild(priceSpan);
+          
+          infoDiv.appendChild(nameDiv);
+          infoDiv.appendChild(priceDiv);
+          headerDiv.appendChild(imgDiv);
+          headerDiv.appendChild(infoDiv);
+          
+          const descDiv = document.createElement('div');
+          descDiv.style.color = '#666';
+          descDiv.style.fontSize = '0.85rem';
+          descDiv.style.marginBottom = '8px';
+          descDiv.textContent = item.description;
+          
+          const qtySelector = document.createElement('div');
+          qtySelector.className = 'quantity-selector';
+          
+          const qtyLabel = document.createElement('span');
+          qtyLabel.style.fontWeight = '700';
+          qtyLabel.style.color = '#666';
+          qtyLabel.textContent = 'الكمية:';
+          
+          const quantityInput = document.createElement('input');
+          quantityInput.type = 'number';
+          quantityInput.className = 'quantity-input';
+          quantityInput.value = '1';
+          quantityInput.min = '0.1';
+          quantityInput.step = '0.1';
+          quantityInput.max = '999';
+          
+          const qtyUnit = document.createElement('span');
+          qtyUnit.className = 'quantity-unit';
+          qtyUnit.textContent = item.unit;
+          
+          const totalItemPrice = document.createElement('span');
+          totalItemPrice.className = 'total-item-price';
+          totalItemPrice.textContent = `= ${item.pricePerUnit.toFixed(3)} DT`;
+          
+          qtySelector.appendChild(qtyLabel);
+          qtySelector.appendChild(quantityInput);
+          qtySelector.appendChild(qtyUnit);
+          qtySelector.appendChild(totalItemPrice);
+          
+          const quickBtnsDiv = document.createElement('div');
+          quickBtnsDiv.className = 'quick-quantity-btns';
+          
+          item.quickQuantities.forEach(qty => {
+            const qBtn = document.createElement('button');
+            qBtn.className = 'quick-qty-btn';
+            qBtn.textContent = `${qty} ${item.unit}`;
+            qBtn.dataset.qty = qty;
+            quickBtnsDiv.appendChild(qBtn);
+          });
+          
+          const addToCartBtn = document.createElement('button');
+          addToCartBtn.className = 'add-to-cart-btn';
+          addToCartBtn.textContent = '🛒 أضف للسلة';
+          
+          card.appendChild(headerDiv);
+          card.appendChild(descDiv);
+          card.appendChild(qtySelector);
+          card.appendChild(quickBtnsDiv);
+          card.appendChild(addToCartBtn);
+          
+          function updatePrice() {
+            const qty = parseFloat(quantityInput.value) || 0;
+            const total = qty * item.pricePerUnit;
+            totalItemPrice.textContent = `= ${total.toFixed(3)} DT`;
+          }
+          
+          quantityInput.addEventListener('input', updatePrice);
+          
+          card.querySelectorAll('.quick-qty-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const qty = this.dataset.qty;
+              quantityInput.value = qty;
+              updatePrice();
+            });
+          });
+          
+          addToCartBtn.addEventListener('click', function() {
+            const qty = parseFloat(quantityInput.value) || 0;
+            if (qty <= 0 || qty > 999) {
+              alert('⚠️ الكمية غير صالحة');
+              return;
+            }
+            
+            const totalPrice = qty * item.pricePerUnit;
+            
+            const newItem = {
+              cartId: item.id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+              id: item.id,
+              name: item.name,
+              image: item.image,
+              unit: item.unit,
+              quantity: qty,
+              unitPrice: item.pricePerUnit,
+              totalPrice: totalPrice
+            };
+            
+            cart.push(newItem);
+            updateCart();
+            
+            quantityInput.value = 1;
+            updatePrice();
+          });
+          
+          container.appendChild(card);
+        });
+      }
+
+      function updateCart() {
+        const cartList = document.getElementById('cart-items');
+        const cartCount = document.getElementById('cart-count');
+        const totalPrice = document.getElementById('total-price');
+        
+        cartList.innerHTML = '';
+        let total = 0;
+        
+        if (cart.length === 0) {
+          const emptyLi = document.createElement('li');
+          emptyLi.style.textAlign = 'center';
+          emptyLi.style.color = '#999';
+          emptyLi.style.padding = '15px';
+          emptyLi.textContent = 'السلة فارغة 🛒';
+          cartList.appendChild(emptyLi);
+          cartCount.textContent = '0';
+        } else {
+          cart.forEach((item, index) => {
+            total += item.totalPrice;
+            
+            const li = document.createElement('li');
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'cart-item-header';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'cart-item-name';
+            nameSpan.textContent = `${item.image} ${item.name}`;
+            
+            const priceSpan = document.createElement('span');
+            priceSpan.className = 'cart-item-price';
+            priceSpan.textContent = `${item.totalPrice.toFixed(3)} DT`;
+            
+            headerDiv.appendChild(nameSpan);
+            headerDiv.appendChild(priceSpan);
+            
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'cart-item-details';
+            detailsDiv.textContent = `${item.quantity} ${item.unit} × ${item.unitPrice.toFixed(3)} DT/${item.unit}`;
+            
+            const actionDiv = document.createElement('div');
+            actionDiv.style.textAlign = 'left';
+            actionDiv.style.marginTop = '3px';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.textContent = 'حذف';
+            removeBtn.addEventListener('click', function() {
+              cart.splice(index, 1);
+              updateCart();
+            });
+            
+            actionDiv.appendChild(removeBtn);
+            
+            li.appendChild(headerDiv);
+            li.appendChild(detailsDiv);
+            li.appendChild(actionDiv);
+            
+            cartList.appendChild(li);
+          });
+          
+          cartCount.textContent = cart.length;
+        }
+        
+        totalPrice.textContent = (total + DELIVERY_FEE + SERVICE_FEE).toFixed(3) + ' DT';
+      }
+
+      document.getElementById('submitOrder').addEventListener('click', function() {
+        const name = document.getElementById('userName').value.trim();
+        const phone = document.getElementById('userPhone').value.trim();
+        const zone = document.getElementById('userZone').value;
+        const adresse = document.getElementById('userAdresse').value.trim();
+        const notes = document.getElementById('userNotes').value.trim();
+        
+        if (!name || !phone || !zone) {
+          alert('⚠️ لازم تكتب اسمك ورقم هاتفك وتختار منطقة التوصيل');
+          return;
+        }
+
+        // Strict Phone Number Validation (Tunisian phone format: 8 digits starting with 2, 4, 5, 9, etc.)
+        const phoneRegex = /^(?:\+216)?\s?[234579]\d{7}$/;
+        if (!phoneRegex.test(phone.replace(/\s+/g, ''))) {
+          alert('⚠️ الرجاء إدخال رقم هاتف تونسي صحيح (8 أرقام)');
+          return;
+        }
+        
+        if (cart.length === 0) {
+          alert('🥲 السلة فارغة! زيد مواد قبل ما تبعث الطلب');
+          return;
+        }
+
+        // SECURE PRICE RE-CALCULATION & ENFORCEMENT ON SUBMIT
+        let verifiedSubtotal = 0;
+        let orderDetails = '';
+        
+        for (let i = 0; i < cart.length; i++) {
+          const cartItem = cart[i];
+          const officialItem = itemRegistry[cartItem.id];
+          
+          // Guard against client-side inspection manipulation of unit prices
+          if (!officialItem || cartItem.unitPrice !== officialItem.pricePerUnit) {
+            alert('⚠️ تم اكتشاف خطأ في الأسعار، الرجاء إعادة تحميل الصفحة وإعادة المحاولة.');
+            return;
+          }
+          
+          const verifiedItemTotal = cartItem.quantity * officialItem.pricePerUnit;
+          verifiedSubtotal += verifiedItemTotal;
+          
+          orderDetails += `${i + 1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
+        }
+
+        const totalAmount = verifiedSubtotal + DELIVERY_FEE + SERVICE_FEE;
+        
+        const orderMessage = `
+          🛒 طلب جديد من 9ATHYA.TN
+          
+          👤 الاسم: ${sanitizeText(name)}
+          📞 الهاتف: ${sanitizeText(phone)}
+          📍 المنطقة: ${sanitizeText(zone)}
+          📍 العنوان: ${sanitizeText(adresse || 'غير محدد')}
+          📝 ملاحظات: ${sanitizeText(notes || 'لا يوجد')}
+          
+          📋 تفاصيل الطلب:
+          ${orderDetails}
+          📦 رسوم التوصيل: ${DELIVERY_FEE.toFixed(3)} DT
+          💳 رسوم الخدمة: ${SERVICE_FEE.toFixed(3)} DT
+          💰 المجموع الكلي: ${totalAmount.toFixed(3)} DT
+          
+          ⏰ وقت الطلب: ${new Date().toLocaleString('ar-TN')}
+        `;
+        
+        // Disable submission button during fetch to prevent duplicate submissions
+        const submitBtn = document.getElementById('submitOrder');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'جاري الإرسال...';
+
+        fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            _subject: `🛒 طلب جديد من ${sanitizeText(name)} - 9ATHYA.TN`,
+            name: sanitizeText(name),
+            phone: sanitizeText(phone),
+            zone: sanitizeText(zone),
+            adresse: sanitizeText(adresse),
+            notes: sanitizeText(notes),
+            message: orderMessage,
+            _captcha: 'false',
+            _template: 'table'
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert('✅ تم إرسال طلبك بنجاح! راح نتواصلوا معاك قريباً');
+          cart.length = 0;
+          updateCart();
+          document.getElementById('userName').value = '';
+          document.getElementById('userPhone').value = '';
+          document.getElementById('userZone').value = '';
+          document.getElementById('userAdresse').value = '';
+          document.getElementById('userNotes').value = '';
+        })
+        .catch(error => {
+          alert('❌ مشكل في الإرسال، حاول مرة أخرى');
+          console.error('Error:', error);
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '📨 تأكيد الطلب';
+        });
+      });
+
+      renderMenu();
+      updateCart();
+    })();
+  </script>
 </body>
 </html>
