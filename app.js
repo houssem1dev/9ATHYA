@@ -10,6 +10,7 @@ let selectedPrice = 45;
 let hours = 0;
 let selectedService = null;
 let pendingOrder = false;
+let submittingOrder = false;
 let currentUser = null;
 
 function escapeHtml(value) {
@@ -196,6 +197,7 @@ document.getElementById('decreaseHours').addEventListener('click', () => {
 
 document.getElementById('confirmBooking').addEventListener('click', async () => {
   const button = document.getElementById('confirmBooking');
+  if (submittingOrder) return;
   const user = getSavedUser();
   if (!user?.phone) {
     pendingOrder = true;
@@ -211,6 +213,7 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
     document.getElementById('deliveryAddress').focus();
     return;
   }
+  submittingOrder = true;
   button.disabled = true;
   button.innerHTML = 'يتم الإرسال...';
 
@@ -223,13 +226,17 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
       body: JSON.stringify({ productName: selectedService.name, quantity: hours, unit: selectedService.unit || 'قطعة', details, deliveryAddress, note, subtotal })
     });
 
-    if (!response.ok) throw new Error('HTTP error');
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.error || 'ما نجّمش نثبت الطلب توا.');
+    }
     button.innerHTML = 'وصلنا الطلب ✓';
     setTimeout(closeModals, 900);
   } catch (error) {
     button.disabled = false;
-    button.innerHTML = 'فشل الإرسال — جرّب مرة أخرى';
+    button.innerHTML = error.message || 'فشل الإرسال — جرّب مرة أخرى';
     console.error('Order submission failed:', error);
+    submittingOrder = false;
   }
 });
 

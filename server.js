@@ -74,7 +74,7 @@ app.post('/api/orders', requireAuth, async (req, res) => {
     const result = await pool.query('INSERT INTO orders (user_id, product_name, quantity, unit, details, delivery_address, note, subtotal, platform_profit, total) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id, created_at', [req.session.userId, productName, quantity, unit, details, address, note, subtotal, profit, total]);
     if (mailer && process.env.NOTIFY_EMAIL) await mailer.sendMail({ from: process.env.SMTP_USER, to: process.env.NOTIFY_EMAIL, subject: `طلب جديد #${result.rows[0].id} على 9ATHYA`, text: JSON.stringify({ orderId: result.rows[0].id, productName, quantity, unit, details, deliveryAddress: address, note, subtotal, platformProfit: profit, total }, null, 2) }).catch((error) => console.error('Order notification failed:', error.message));
     res.status(201).json({ orderId: result.rows[0].id, createdAt: result.rows[0].created_at });
-  } catch { res.status(500).json({ error: 'ما نجّمش نسجّل الطلب توا.' }); }
+  } catch (error) { console.error('Order creation failed:', error.message); res.status(500).json({ error: 'ما نجّمش نسجّل الطلب توا.' }); }
 });
 
 if (process.env.VERCEL !== '1') app.listen(port, () => console.log(`9ATHYA server listening on port ${port}`));
