@@ -3,6 +3,7 @@ const offerModal = document.getElementById('offerModal');
 const searchInput = document.getElementById('searchInput');
 const emptyState = document.getElementById('emptyState');
 const serviceGrid = document.getElementById('serviceGrid');
+const apiBase = window.location.protocol === 'file:' ? 'https://9-athya.vercel.app' : '';
 const profitRate = 0.12;
 let selectedCategory = 'all';
 let selectedPrice = 45;
@@ -215,7 +216,7 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
     const details = Object.fromEntries([...document.querySelectorAll('#productOptions select, #productOptions input[type="checkbox"]:checked')].map((input) => [input.dataset.optionLabel, input.value]));
     const optionAdditions = [...document.querySelectorAll('#productOptions select')].reduce((total, select) => total + (selectedService?.priceAdditions?.[select.value] || 0), 0);
     const subtotal = (selectedPrice + optionAdditions) * hours;
-    const response = await fetch('/api/orders', {
+    const response = await fetch(`${apiBase}/api/orders`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ productName: selectedService.name, quantity: hours, unit: selectedService.unit || 'قطعة', details, deliveryAddress, note, subtotal, customerName, customerPhone })
     });
@@ -225,7 +226,7 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
     setTimeout(closeModals, 900);
   } catch (error) {
     button.disabled = false;
-    button.innerHTML = error.message || 'فشل الإرسال — جرّب مرة أخرى';
+    button.innerHTML = error.message || 'فشل تأكيد الطلب — جرّب مرة أخرى';
     console.error('Order submission failed:', error);
     submittingOrder = false;
   }

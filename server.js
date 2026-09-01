@@ -28,6 +28,7 @@ app.use(helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], 
 app.use(compression());
 app.use(express.json({ limit: '20kb' }));
 app.use(cookieSession({ name: '9athya_session', keys: [process.env.SESSION_SECRET || 'development-only-secret'], httpOnly: true, secure: isProduction, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 24 * 7 }));
+app.use((req, res, next) => { if (req.path === '/api/orders' && req.headers.origin === 'null') { res.setHeader('Access-Control-Allow-Origin', 'null'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); if (req.method === 'OPTIONS') return res.sendStatus(204); } next(); });
 app.use(async (req, res, next) => { try { await requestLimiter.consume(req.ip); next(); } catch { res.status(429).json({ error: 'طلبات كثيرة، حاول بعد شوية.' }); } });
 app.get('/', (_req, res) => res.sendFile(path.join(rootDir, 'index.html')));
 app.get('/styles.css', (_req, res) => res.sendFile(path.join(rootDir, 'styles.css')));
