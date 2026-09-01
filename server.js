@@ -19,9 +19,8 @@ const authLimiter = new RateLimiterMemory({ points: 8, duration: 900 });
 const profitRate = 0.12;
 const mailer = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD ? nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: Number(process.env.SMTP_PORT || 587) === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD } }) : null;
 
-if (isProduction && (!process.env.DATABASE_URL || !process.env.SESSION_SECRET)) {
-  throw new Error('DATABASE_URL and SESSION_SECRET are required in production');
-}
+const databaseConfigured = Boolean(process.env.DATABASE_URL);
+const sessionConfigured = Boolean(process.env.SESSION_SECRET);
 
 app.disable('x-powered-by');
 app.use(helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], connectSrc: ["'self'"], fontSrc: ["'self'", 'https://fonts.gstatic.com'], styleSrc: ["'self'", 'https://fonts.googleapis.com'], imgSrc: ["'self'", 'data:'], objectSrc: ["'none'"], baseUri: ["'self'"], frameAncestors: ["'none'"] } } }));
@@ -40,7 +39,7 @@ function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
 function verifyPassword(password, stored) { const [salt, hash] = String(stored || '').split(':'); if (!salt || !hash) return Promise.resolve(false); return hashPassword(password, salt).then((candidate) => crypto.timingSafeEqual(Buffer.from(candidate.split(':')[1], 'hex'), Buffer.from(hash, 'hex'))); }
 function requireAuth(req, res, next) { if (!req.session?.userId) return res.status(401).json({ error: 'يلزم تسجيل الدخول.' }); next(); }
 
-app.get('/api/health', async (_req, res) => { try { await pool.query('SELECT 1'); res.json({ ok: true }); } catch { res.status(503).json({ ok: false }); } });
+app.get('/api/health', async (_req, res) => { if (!databaseConfigured || !sessionConfigured) return res.status(503).json({ ok: false, error: 'Production environment is not configured.' }); try { await pool.query('SELECT 1'); res.json({ ok: true }); } catch { res.status(503).json({ ok: false }); } });
 app.get('/api/me', requireAuth, async (req, res) => { const result = await pool.query('SELECT id, name, email, phone, area FROM users WHERE id = $1', [req.session.userId]); if (!result.rowCount) return res.status(401).json({ error: 'الجلسة غير صالحة.' }); res.json(result.rows[0]); });
 
 app.post('/api/auth/register', async (req, res) => {
