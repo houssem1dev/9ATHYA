@@ -27,6 +27,15 @@ function getSavedUser() {
   return currentUser;
 }
 
+function validEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+async function getApiError(response, fallback) {
+  const body = await response.json().catch(() => ({}));
+  return new Error(body.error || fallback);
+}
+
 const serviceData = [
   { category: 'vegetables', name: 'بطاطا بالكيلو', price: 2.8, provider: 'سوق الحومة', place: 'ساقية الزيت', tag: 'متوفر اليوم', accent: 'orange', visual: '🥔', unit: 'كيلو', details: 'بطاطا بيضاء للطبخ، مغسولة ومختارة حبة بحبة.', options: [{ label: 'الحجم', values: ['صغيرة', 'متوسطة', 'كبيرة'] }] },
   { category: 'vegetables', name: 'تفاح بالكيلو', price: 7, provider: 'غلة الحومة', place: 'صفاقس المدينة', tag: 'طازج اليوم', accent: 'red', visual: '🍎', unit: 'كيلو', details: 'تفاح أحمر مقرمش، مناسب للفطور والعصير.', options: [{ label: 'درجة النضج', values: ['مقرمش', 'عادي', 'طري'] }] },
@@ -226,10 +235,7 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
       body: JSON.stringify({ productName: selectedService.name, quantity: hours, unit: selectedService.unit || 'قطعة', details, deliveryAddress, note, subtotal })
     });
 
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({}));
-      throw new Error(errorBody.error || 'ما نجّمش نثبت الطلب توا.');
-    }
+    if (!response.ok) throw await getApiError(response, 'ما نجّمش نثبت الطلب توا.');
     button.innerHTML = 'وصلنا الطلب ✓';
     setTimeout(closeModals, 900);
   } catch (error) {
@@ -269,7 +275,7 @@ document.getElementById('submitAccount').addEventListener('click', async () => {
       body: JSON.stringify({ ...user, password })
     });
 
-    if (!response.ok) throw new Error('HTTP error');
+    if (!response.ok) throw await getApiError(response, 'ما نجّمش نعمل الحساب توا.');
     currentUser = await response.json();
     button.innerHTML = 'الحساب حاضر ✓';
     setTimeout(() => {
@@ -293,6 +299,35 @@ document.getElementById('submitAccount').addEventListener('click', async () => {
 document.getElementById('googleAccount').addEventListener('click', () => {
   const message = document.getElementById('accountMessage');
   message.textContent = 'زر Google حاضر. يلزم إعداد Google Client ID باش يتفعل الدخول الحقيقي.';
+});
+
+document.getElementById('loginAccount').addEventListener('click', async () => {
+  const email = document.getElementById('accountEmail').value.trim().toLowerCase();
+  const password = document.getElementById('accountPassword').value;
+  const button = document.getElementById('loginAccount');
+  if (!validEmail(email) || !password) {
+    if (!validEmail(email)) document.getElementById('accountEmail').focus();
+    else document.getElementById('accountPassword').focus();
+    return;
+  }
+  button.disabled = true;
+  button.textContent = 'يتم الدخول...';
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!response.ok) throw await getApiError(response, 'الإيميل أو كلمة السر غالطة.');
+    currentUser = await response.json();
+    button.textContent = 'دخلت بنجاح ✓';
+    setTimeout(() => {
+      closeModals();
+      if (pendingOrder) { pendingOrder = false; openModal(bookingModal); }
+    }, 700);
+  } catch (error) {
+    button.textContent = error.message;
+    setTimeout(() => { button.disabled = false; button.textContent = 'عندي حساب، ندخل'; }, 1600);
+  }
 });
 
 document.getElementById('submitOffer').addEventListener('click', async () => {
