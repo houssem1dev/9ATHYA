@@ -27,7 +27,6 @@
 
     <div class="header-actions">
       <button class="language-btn" type="button">TN <span>⌄</span></button>
-      <button class="language-btn" type="button" data-open-account>حسابي</button>
       <button class="outline-btn" type="button" data-open-offer>زِد حاجة <span>↗</span></button>
       <button class="menu-btn" type="button" aria-label="فتح القائمة">☰</button>
     </div>
@@ -177,6 +176,11 @@
         <label class="address-field">عنوان التوصيل / الحومة<input id="deliveryAddress" type="text" autocomplete="street-address" maxlength="160" placeholder="مثال: ساقية الزيت، نهج..." /></label>
       </div>
 
+      <div class="customer-fields">
+        <label>الاسم واللقب<input id="customerName" type="text" autocomplete="name" maxlength="100" placeholder="مثال: محمد بن علي" /></label>
+        <label>رقم الهاتف<input id="customerPhone" type="tel" autocomplete="tel" pattern="(?:\+216)?[2459][0-9]{7}" maxlength="20" placeholder="20 000 000" /></label>
+      </div>
+
       <div class="fee-breakdown">
         <div><span>السوم</span><strong id="serviceCost">حدّد الكمية</strong></div>
         <div><span>ربح 9ATHYA <small>(12%)</small></span><strong id="feeCost">—</strong></div>
@@ -187,26 +191,6 @@
 
       <button class="primary-btn full-btn" type="button" id="confirmBooking" disabled>أكد الطلب <span>←</span></button>
       <small class="modal-footnote">ما تخلّص شي توا. نتصلوا بيك للتأكيد.</small>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="accountModal" aria-hidden="true">
-    <div class="modal offer-modal" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
-      <button class="close-modal" data-close-modal aria-label="سكر">×</button>
-      <span class="modal-label">حسابك في 9ATHYA</span>
-      <h2 id="accountTitle">خلّي بياناتك عندنا</h2>
-      <p>التسجيل إجباري باش نثبتو الطلب ونكلموك على التوصيل. كلمة السر تبقى عندك وما تتبعثش بالإيميل.</p>
-
-      <label>الاسم واللقب<input id="accountName" autocomplete="name" maxlength="100" placeholder="مثال: محمد بن علي" /></label>
-      <label>البريد الإلكتروني<input id="accountEmail" type="email" autocomplete="email" maxlength="160" placeholder="example@email.com" /></label>
-      <label>رقم الهاتف<input id="accountPhone" type="tel" autocomplete="tel" pattern="(?:\+216)?[2459][0-9]{7}" placeholder="20 000 000" /></label>
-      <label>الحومة / المنطقة<input id="accountArea" autocomplete="address-level2" maxlength="160" placeholder="مثال: ساقية الزيت، صفاقس" /></label>
-      <label>كلمة السر<input id="accountPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="8 أحرف على الأقل" /></label>
-      <button class="primary-btn full-btn" type="button" id="submitAccount">نعمل حساب <span>↗</span></button>
-      <button class="secondary-account-btn" type="button" id="loginAccount">عندي حساب، ندخل</button>
-      <div class="account-divider"><span>ولا</span></div>
-      <button class="google-btn" type="button" id="googleAccount"><span class="google-mark">G</span> نواصل بحساب Google</button>
-      <p class="account-message" id="accountMessage" role="status"></p>
     </div>
   </div>
 

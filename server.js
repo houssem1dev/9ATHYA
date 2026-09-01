@@ -95,13 +95,13 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.post('/api/auth/logout', (req, res) => { req.session = null; res.status(204).end(); });
 
-app.post('/api/orders', requireAuth, async (req, res) => {
+app.post('/api/orders', async (req, res) => {
   try {
-    const productName = clean(req.body.productName, 160); const unit = clean(req.body.unit, 40); const address = clean(req.body.deliveryAddress, 160); const note = clean(req.body.note, 300); const quantity = Number(req.body.quantity); const subtotal = Number(req.body.subtotal); const details = typeof req.body.details === 'object' && req.body.details ? req.body.details : {};
-    if (!productName || !unit || !address || !Number.isInteger(quantity) || quantity < 1 || quantity > 12 || !Number.isFinite(subtotal) || subtotal < 0 || subtotal > 100000) return res.status(400).json({ error: 'تفاصيل الطلب ناقصة أو غير صحيحة.' });
+    const productName = clean(req.body.productName, 160); const unit = clean(req.body.unit, 40); const address = clean(req.body.deliveryAddress, 160); const note = clean(req.body.note, 300); const customerName = clean(req.body.customerName, 100); const customerPhone = clean(req.body.customerPhone, 20); const quantity = Number(req.body.quantity); const subtotal = Number(req.body.subtotal); const details = typeof req.body.details === 'object' && req.body.details ? req.body.details : {};
+    if (!productName || !unit || !customerName || !validPhone(customerPhone) || !address || !Number.isInteger(quantity) || quantity < 1 || quantity > 12 || !Number.isFinite(subtotal) || subtotal < 0 || subtotal > 100000) return res.status(400).json({ error: 'ثبت من الاسم، رقم الهاتف، العنوان وتفاصيل الطلب.' });
     const profit = Number((subtotal * profitRate).toFixed(2)); const total = Number((subtotal + profit).toFixed(2));
-    const result = await pool.query('INSERT INTO orders (user_id, product_name, quantity, unit, details, delivery_address, note, subtotal, platform_profit, total) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id, created_at', [req.session.userId, productName, quantity, unit, details, address, note, subtotal, profit, total]);
-    if (mailer && process.env.NOTIFY_EMAIL) await mailer.sendMail({ from: process.env.SMTP_USER, to: process.env.NOTIFY_EMAIL, subject: `طلب جديد #${result.rows[0].id} على 9ATHYA`, text: JSON.stringify({ orderId: result.rows[0].id, productName, quantity, unit, details, deliveryAddress: address, note, subtotal, platformProfit: profit, total }, null, 2) }).catch((error) => console.error('Order notification failed:', error.message));
+    const result = await pool.query('INSERT INTO orders (user_id, customer_name, customer_phone, product_name, quantity, unit, details, delivery_address, note, subtotal, platform_profit, total) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id, created_at', [null, customerName, customerPhone, productName, quantity, unit, details, address, note, subtotal, profit, total]);
+    if (mailer && process.env.NOTIFY_EMAIL) await mailer.sendMail({ from: process.env.SMTP_USER, to: process.env.NOTIFY_EMAIL, subject: `طلب جديد #${result.rows[0].id} على 9ATHYA`, text: JSON.stringify({ orderId: result.rows[0].id, customerName, customerPhone, productName, quantity, unit, details, deliveryAddress: address, note, subtotal, platformProfit: profit, total }, null, 2) }).catch((error) => console.error('Order notification failed:', error.message));
     res.status(201).json({ orderId: result.rows[0].id, createdAt: result.rows[0].created_at });
   } catch (error) { console.error('Order creation failed:', error.message); res.status(500).json({ error: 'ما نجّمش نسجّل الطلب توا.' }); }
 });

@@ -1,6 +1,5 @@
 const bookingModal = document.getElementById('bookingModal');
 const offerModal = document.getElementById('offerModal');
-const accountModal = document.getElementById('accountModal');
 const searchInput = document.getElementById('searchInput');
 const emptyState = document.getElementById('emptyState');
 const serviceGrid = document.getElementById('serviceGrid');
@@ -9,9 +8,7 @@ let selectedCategory = 'all';
 let selectedPrice = 45;
 let hours = 0;
 let selectedService = null;
-let pendingOrder = false;
 let submittingOrder = false;
-let currentUser = null;
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -21,14 +18,6 @@ function escapeHtml(value) {
     '"': '&quot;',
     "'": '&#039;'
   }[character]));
-}
-
-function getSavedUser() {
-  return currentUser;
-}
-
-function validEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 async function getApiError(response, fallback) {
@@ -122,10 +111,6 @@ document.querySelectorAll('[data-open-offer]').forEach((button) => {
   button.addEventListener('click', () => openModal(offerModal));
 });
 
-document.querySelectorAll('[data-open-account]').forEach((button) => {
-  button.addEventListener('click', () => openModal(accountModal));
-});
-
 document.querySelectorAll('[data-close-modal]').forEach((button) => {
   button.addEventListener('click', closeModals);
 });
@@ -207,12 +192,12 @@ document.getElementById('decreaseHours').addEventListener('click', () => {
 document.getElementById('confirmBooking').addEventListener('click', async () => {
   const button = document.getElementById('confirmBooking');
   if (submittingOrder) return;
-  const user = getSavedUser();
-  if (!user?.phone) {
-    pendingOrder = true;
-    closeModals();
-    openModal(accountModal);
-    document.getElementById('accountPhone').focus();
+  const customerName = document.getElementById('customerName').value.trim();
+  const customerPhone = document.getElementById('customerPhone').value.trim();
+  const validPhone = /^(?:\+216)?[2459]\d{7}$/.test(customerPhone.replace(/[\s-]/g, ''));
+  if (!customerName || !validPhone) {
+    if (!customerName) document.getElementById('customerName').focus();
+    else document.getElementById('customerPhone').focus();
     return;
   }
   const note = document.getElementById('orderNote').value.trim();
@@ -232,7 +217,7 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
     const subtotal = (selectedPrice + optionAdditions) * hours;
     const response = await fetch('/api/orders', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ productName: selectedService.name, quantity: hours, unit: selectedService.unit || 'قطعة', details, deliveryAddress, note, subtotal })
+      body: JSON.stringify({ productName: selectedService.name, quantity: hours, unit: selectedService.unit || 'قطعة', details, deliveryAddress, note, subtotal, customerName, customerPhone })
     });
 
     if (!response.ok) throw await getApiError(response, 'ما نجّمش نثبت الطلب توا.');
@@ -243,89 +228,6 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
     button.innerHTML = error.message || 'فشل الإرسال — جرّب مرة أخرى';
     console.error('Order submission failed:', error);
     submittingOrder = false;
-  }
-});
-
-document.getElementById('submitAccount').addEventListener('click', async () => {
-  const password = document.getElementById('accountPassword').value;
-  const user = {
-    name: document.getElementById('accountName').value.trim().slice(0, 100),
-    email: document.getElementById('accountEmail').value.trim().slice(0, 160),
-    phone: document.getElementById('accountPhone').value.trim().slice(0, 20),
-    area: document.getElementById('accountArea').value.trim().slice(0, 160)
-  };
-
-  const validPhone = /^(?:\+216)?[2459]\d{7}$/.test(user.phone.replace(/[\s-]/g, ''));
-  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email);
-  if (!user.name || !validEmail || !validPhone || password.length < 8 || password.length > 128) {
-    if (!user.name) document.getElementById('accountName').focus();
-    else if (!user.email) document.getElementById('accountEmail').focus();
-    else if (!validPhone) document.getElementById('accountPhone').focus();
-    else document.getElementById('accountPassword').focus();
-    return;
-  }
-
-  const button = document.getElementById('submitAccount');
-  button.disabled = true;
-  button.innerHTML = 'يتم التسجيل...';
-
-  try {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ ...user, password })
-    });
-
-    if (!response.ok) throw await getApiError(response, 'ما نجّمش نعمل الحساب توا.');
-    currentUser = await response.json();
-    button.innerHTML = 'الحساب حاضر ✓';
-    setTimeout(() => {
-      closeModals();
-      if (pendingOrder) {
-        pendingOrder = false;
-        openModal(bookingModal);
-      }
-    }, 900);
-  } catch (error) {
-    button.innerHTML = error.message || 'فشل التسجيل — جرّب مرة أخرى';
-    console.error('Account registration failed:', error);
-  } finally {
-    setTimeout(() => {
-      button.disabled = false;
-      button.innerHTML = 'نعمل حساب <span>↗</span>';
-    }, 1200);
-  }
-});
-
-document.getElementById('googleAccount').addEventListener('click', () => {
-  window.location.assign('/auth/google');
-});
-
-document.getElementById('loginAccount').addEventListener('click', async () => {
-  const email = document.getElementById('accountEmail').value.trim().toLowerCase();
-  const password = document.getElementById('accountPassword').value;
-  const button = document.getElementById('loginAccount');
-  if (!validEmail(email) || !password) {
-    if (!validEmail(email)) document.getElementById('accountEmail').focus();
-    else document.getElementById('accountPassword').focus();
-    return;
-  }
-  button.disabled = true;
-  button.textContent = 'يتم الدخول...';
-  try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    if (!response.ok) throw await getApiError(response, 'الإيميل أو كلمة السر غالطة.');
-    currentUser = await response.json();
-    button.textContent = 'دخلت بنجاح ✓';
-    setTimeout(() => {
-      closeModals();
-      if (pendingOrder) { pendingOrder = false; openModal(bookingModal); }
-    }, 700);
-  } catch (error) {
-    button.textContent = error.message;
-    setTimeout(() => { button.disabled = false; button.textContent = 'عندي حساب، ندخل'; }, 1600);
   }
 });
 
@@ -434,19 +336,6 @@ if (allServicesButton) {
     renderServices();
   });
 }
-
-fetch('/api/me', { credentials: 'same-origin' })
-  .then((response) => response.ok ? response.json() : null)
-  .then((user) => {
-    currentUser = user;
-    if (user) {
-      document.getElementById('accountName').value = user.name || '';
-      document.getElementById('accountEmail').value = user.email || '';
-      document.getElementById('accountPhone').value = user.phone || '';
-      document.getElementById('accountArea').value = user.area || '';
-    }
-  })
-  .catch(() => { currentUser = null; });
 
 renderServices();
 
