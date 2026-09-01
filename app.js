@@ -297,8 +297,7 @@ document.getElementById('submitAccount').addEventListener('click', async () => {
 });
 
 document.getElementById('googleAccount').addEventListener('click', () => {
-  const message = document.getElementById('accountMessage');
-  message.textContent = 'زر Google حاضر. يلزم إعداد Google Client ID باش يتفعل الدخول الحقيقي.';
+  window.location.assign('/auth/google');
 });
 
 document.getElementById('loginAccount').addEventListener('click', async () => {

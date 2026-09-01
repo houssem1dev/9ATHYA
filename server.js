@@ -18,6 +18,7 @@ const requestLimiter = new RateLimiterMemory({ points: 60, duration: 60 });
 const authLimiter = new RateLimiterMemory({ points: 8, duration: 900 });
 const profitRate = 0.12;
 const mailer = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD ? nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: Number(process.env.SMTP_PORT || 587) === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD } }) : null;
+const googleCallbackUrl = process.env.GOOGLE_CALLBACK_URL || 'https://9-athya.vercel.app/auth/google/callback';
 
 const databaseConfigured = Boolean(process.env.DATABASE_URL);
 const sessionConfigured = Boolean(process.env.SESSION_SECRET);
@@ -38,9 +39,37 @@ function validPhone(value) { return /^(?:\+216)?[2459]\d{7}$/.test(value.replace
 function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) { return new Promise((resolve, reject) => crypto.scrypt(password, salt, 64, (error, key) => error ? reject(error) : resolve(`${salt}:${key.toString('hex')}`))); }
 function verifyPassword(password, stored) { const [salt, hash] = String(stored || '').split(':'); if (!salt || !hash) return Promise.resolve(false); return hashPassword(password, salt).then((candidate) => crypto.timingSafeEqual(Buffer.from(candidate.split(':')[1], 'hex'), Buffer.from(hash, 'hex'))); }
 function requireAuth(req, res, next) { if (!req.session?.userId) return res.status(401).json({ error: 'يلزم تسجيل الدخول.' }); next(); }
+function requireGoogleConfig(res) { if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) { res.status(503).send('Google login موش مفعّل بعد.'); return false; } return true; }
 
 app.get('/api/health', async (_req, res) => { if (!databaseConfigured || !sessionConfigured) return res.status(503).json({ ok: false, error: 'Production environment is not configured.' }); try { await pool.query('SELECT 1'); res.json({ ok: true }); } catch { res.status(503).json({ ok: false }); } });
 app.get('/api/me', requireAuth, async (req, res) => { const result = await pool.query('SELECT id, name, email, phone, area FROM users WHERE id = $1', [req.session.userId]); if (!result.rowCount) return res.status(401).json({ error: 'الجلسة غير صالحة.' }); res.json(result.rows[0]); });
+
+app.get('/auth/google', (req, res) => {
+  if (!requireGoogleConfig(res)) return;
+  const state = crypto.randomBytes(24).toString('hex');
+  req.session.googleState = state;
+  const params = new URLSearchParams({ client_id: process.env.GOOGLE_CLIENT_ID, redirect_uri: googleCallbackUrl, response_type: 'code', scope: 'openid email profile', state, access_type: 'online', prompt: 'select_account' });
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+});
+
+app.get('/auth/google/callback', async (req, res) => {
+  if (!requireGoogleConfig(res)) return;
+  if (!req.query.code || !req.query.state || req.query.state !== req.session?.googleState) return res.status(400).send('Google login request غير صالحة.');
+  req.session.googleState = null;
+  try {
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code: String(req.query.code), client_id: process.env.GOOGLE_CLIENT_ID, client_secret: process.env.GOOGLE_CLIENT_SECRET, redirect_uri: googleCallbackUrl, grant_type: 'authorization_code' }) });
+    if (!tokenResponse.ok) return res.status(401).send('ما نجّمش نثبت حساب Google.');
+    const tokens = await tokenResponse.json();
+    const profileResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: `Bearer ${tokens.access_token}` } });
+    if (!profileResponse.ok) return res.status(401).send('ما نجّمش نجيب معلومات حساب Google.');
+    const profile = await profileResponse.json();
+    if (!profile.email || !profile.email_verified) return res.status(400).send('يلزم إيميل Google موثّق.');
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [profile.email.toLowerCase()]);
+    const user = existing.rowCount ? existing.rows[0] : (await pool.query('INSERT INTO users (name, email, phone, area, google_id) VALUES ($1,$2,$3,$4,$5) RETURNING id', [clean(profile.name || profile.email.split('@')[0], 100), profile.email.toLowerCase(), '', 'صفاقس', profile.sub])).rows[0];
+    req.session.userId = user.id;
+    res.redirect('/');
+  } catch (error) { console.error('Google login failed:', error.message); res.status(500).send('صار مشكل في الدخول بحساب Google.'); }
+});
 
 app.post('/api/auth/register', async (req, res) => {
   try {

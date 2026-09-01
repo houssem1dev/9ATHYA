@@ -2,8 +2,8 @@ CREATE TABLE IF NOT EXISTS users (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL CHECK (char_length(name) BETWEEN 1 AND 100),
   email TEXT NOT NULL UNIQUE,
-  phone TEXT NOT NULL,
-  area TEXT NOT NULL,
+  phone TEXT NOT NULL DEFAULT '',
+  area TEXT NOT NULL DEFAULT 'صفاقس',
   password_hash TEXT,
   google_id TEXT UNIQUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
