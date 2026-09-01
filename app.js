@@ -5,12 +5,12 @@ const searchInput = document.getElementById('searchInput');
 const emptyState = document.getElementById('emptyState');
 const serviceGrid = document.getElementById('serviceGrid');
 const profitRate = 0.12;
-const emailEndpoint = 'https://formsubmit.co/ajax/HOUSSEMKESSENTINI77@GMAIL.COM';
 let selectedCategory = 'all';
 let selectedPrice = 45;
 let hours = 0;
 let selectedService = null;
 let pendingOrder = false;
+let currentUser = null;
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -23,13 +23,7 @@ function escapeHtml(value) {
 }
 
 function getSavedUser() {
-  try {
-    const user = JSON.parse(localStorage.getItem('9athyaUser') || 'null');
-    return user && typeof user === 'object' ? user : null;
-  } catch {
-    localStorage.removeItem('9athyaUser');
-    return null;
-  }
+  return currentUser;
 }
 
 const serviceData = [
@@ -221,26 +215,12 @@ document.getElementById('confirmBooking').addEventListener('click', async () => 
   button.innerHTML = 'يتم الإرسال...';
 
   try {
-    const response = await fetch(emailEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        _subject: 'طلب حاجة جديد من 9ATHYA',
-        الحاجة: document.getElementById('modalTitle').textContent,
-        الكمية: `${hours} ${selectedService?.unit || 'قطعة'}`,
-        التفاصيل: [...document.querySelectorAll('#productOptions select, #productOptions input[type="checkbox"]:checked')].map((input) => `${input.dataset.optionLabel}: ${input.value}`).join('، ') || 'لا توجد اختيارات إضافية',
-        طريقة_الاستلام: deliveryMethod,
-        عنوان_التوصيل: deliveryAddress || 'عنوان غير محدد',
-        السوم_التقريبي: document.getElementById('totalCost').textContent,
-        المزوّد: document.getElementById('modalProvider').textContent,
-        ملاحظة_التوصيل: note || 'لا توجد ملاحظة.',
-        اسم_الحريف: user?.name || 'زائر',
-        إيميل_الحريف: user?.email || 'غير مسجل',
-        هاتف_الحريف: user?.phone || 'غير مسجل',
-        المنطقة: user?.area || 'غير محددة',
-        sentAt: new Date().toISOString(),
-        _captcha: 'false'
-      })
+    const details = Object.fromEntries([...document.querySelectorAll('#productOptions select, #productOptions input[type="checkbox"]:checked')].map((input) => [input.dataset.optionLabel, input.value]));
+    const optionAdditions = [...document.querySelectorAll('#productOptions select')].reduce((total, select) => total + (selectedService?.priceAdditions?.[select.value] || 0), 0);
+    const subtotal = (selectedPrice + optionAdditions) * hours;
+    const response = await fetch('/api/orders', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ productName: selectedService.name, quantity: hours, unit: selectedService.unit || 'قطعة', details, deliveryAddress, note, subtotal })
     });
 
     if (!response.ok) throw new Error('HTTP error');
@@ -277,23 +257,13 @@ document.getElementById('submitAccount').addEventListener('click', async () => {
   button.innerHTML = 'يتم التسجيل...';
 
   try {
-    const response = await fetch(emailEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        _subject: 'حساب جديد على 9ATHYA',
-        الاسم: user.name,
-        الإيميل: user.email,
-        الهاتف: user.phone,
-        المنطقة: user.area || 'غير محددة',
-        ملاحظة: 'كلمة السر لم يتم إرسالها حفاظًا على الأمان.',
-        sentAt: new Date().toISOString(),
-        _captcha: 'false'
-      })
+    const response = await fetch('/api/auth/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ ...user, password })
     });
 
     if (!response.ok) throw new Error('HTTP error');
-    localStorage.setItem('9athyaUser', JSON.stringify(user));
+    currentUser = await response.json();
     button.innerHTML = 'الحساب حاضر ✓';
     setTimeout(() => {
       closeModals();
@@ -423,6 +393,11 @@ if (allServicesButton) {
     renderServices();
   });
 }
+
+fetch('/api/me', { credentials: 'same-origin' })
+  .then((response) => response.ok ? response.json() : null)
+  .then((user) => { currentUser = user; })
+  .catch(() => { currentUser = null; });
 
 renderServices();
 
