@@ -23,7 +23,7 @@ const databaseConfigured = Boolean(process.env.DATABASE_URL);
 const sessionConfigured = Boolean(process.env.SESSION_SECRET);
 
 app.disable('x-powered-by');
-app.use(helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], connectSrc: ["'self'"], fontSrc: ["'self'", 'https://fonts.gstatic.com'], styleSrc: ["'self'", 'https://fonts.googleapis.com'], imgSrc: ["'self'", 'data:'], objectSrc: ["'none'"], baseUri: ["'self'"], frameAncestors: ["'none'"] } } }));
+app.use(helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], connectSrc: ["'self'", 'https://vitals.vercel-insights.com'], fontSrc: ["'self'", 'https://fonts.gstatic.com'], styleSrc: ["'self'", 'https://fonts.googleapis.com'], scriptSrc: ["'self'", 'https://cdn.vercel-insights.com'], imgSrc: ["'self'", 'data:'], objectSrc: ["'none'"], baseUri: ["'self'"], frameAncestors: ["'none'"] } } }));
 app.use(compression());
 app.use(express.json({ limit: '20kb' }));
 app.use(cookieSession({ name: '9athya_session', keys: [process.env.SESSION_SECRET || 'development-only-secret'], httpOnly: true, secure: isProduction, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 24 * 7 }));
