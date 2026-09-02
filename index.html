@@ -717,30 +717,32 @@
   let clientCoords = null;
 
   // ============================================================
-  // 2. MENU DATA
+  // 2. MENU DATA - أسعار محدثة من Numbeo لصفاقس
   // ============================================================
   const menuData = {
     vegetables: [
-      { id: 'v1', name: 'طماطم', pricePerUnit: 2.200, unit: 'كغ', image: '🍅', description: 'طماطم طازجة', quickQuantities: [1, 2, 5] },
-      { id: 'v2', name: 'فلفل', pricePerUnit: 2.000, unit: 'كغ', image: '🌶️', description: 'فلفل أخضر وحار', quickQuantities: [1, 2, 5] },
-      { id: 'v3', name: 'بصل', pricePerUnit: 1.700, unit: 'كغ', image: '🧅', description: 'بصل أحمر وأبيض', quickQuantities: [1, 2, 5] },
-      { id: 'v4', name: 'بطاطا', pricePerUnit: 1.900, unit: 'كغ', image: '🥔', description: 'بطاطا محلية', quickQuantities: [1, 5, 10] },
-      { id: 'v5', name: 'جزر', pricePerUnit: 2.000, unit: 'كغ', image: '🥕', description: 'جزر طازج', quickQuantities: [1, 2, 5] }
+      { id: 'v1', name: 'طماطم', pricePerUnit: 2.120, unit: 'كغ', image: '🍅', description: 'طماطم طازجة', quickQuantities: [1, 2, 5] },
+      { id: 'v2', name: 'فلفل', pricePerUnit: 3.000, unit: 'كغ', image: '🌶️', description: 'فلفل أخضر وحار', quickQuantities: [1, 2, 5] },
+      { id: 'v3', name: 'بصل', pricePerUnit: 2.380, unit: 'كغ', image: '🧅', description: 'بصل أحمر وأبيض', quickQuantities: [1, 2, 5] },
+      { id: 'v4', name: 'بطاطا', pricePerUnit: 2.350, unit: 'كغ', image: '🥔', description: 'بطاطا محلية', quickQuantities: [1, 5, 10] },
+      { id: 'v5', name: 'جزر', pricePerUnit: 2.500, unit: 'كغ', image: '🥕', description: 'جزر طازج', quickQuantities: [1, 2, 5] },
+      { id: 'v6', name: 'سلطة (خس)', pricePerUnit: 1.670, unit: 'رأس', image: '🥬', description: 'خس طازج', quickQuantities: [1, 2, 3] }
     ],
     fruits: [
-      { id: 'f1', name: 'تفاح', pricePerUnit: 4.800, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر', quickQuantities: [1, 2, 5] },
-      { id: 'f2', name: 'موز', pricePerUnit: 5.200, unit: 'كغ', image: '🍌', description: 'موز طازج', quickQuantities: [1, 2, 5] },
-      { id: 'f3', name: 'عنب موسمي', pricePerUnit: 4.500, unit: 'كغ', image: '🍇', description: 'عنب أحمر وأبيض', quickQuantities: [1, 2, 5] },
-      { id: 'f4', name: 'برتقال', pricePerUnit: 3.000, unit: 'كغ', image: '🍊', description: 'برتقال محلي', quickQuantities: [1, 3, 5] }
+      { id: 'f1', name: 'تفاح', pricePerUnit: 5.330, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر', quickQuantities: [1, 2, 5] },
+      { id: 'f2', name: 'موز', pricePerUnit: 9.320, unit: 'كغ', image: '🍌', description: 'موز طازج', quickQuantities: [1, 2, 5] },
+      { id: 'f3', name: 'برتقال', pricePerUnit: 3.170, unit: 'كغ', image: '🍊', description: 'برتقال محلي', quickQuantities: [1, 3, 5] }
     ],
     staples: [
       { id: 's1', name: 'زيت زيتون', pricePerUnit: 14.000, unit: 'لتر', image: '🫒', description: 'زيت زيتون بكر', quickQuantities: [1, 5, 10] },
       { id: 's2', name: 'سكر', pricePerUnit: 2.800, unit: 'كغ', image: '🧂', description: 'سكر أبيض', quickQuantities: [1, 2, 5] },
       { id: 's3', name: 'سميدة', pricePerUnit: 2.200, unit: 'كغ', image: '🌾', description: 'سميدة خشنة', quickQuantities: [1, 2, 5] },
-      { id: 's4', name: 'عجين', pricePerUnit: 1.800, unit: 'كغ', image: '🍞', description: 'عجين طازج', quickQuantities: [1, 2, 5] },
-      { id: 's5', name: 'حليب', pricePerUnit: 2.100, unit: 'لتر', image: '🥛', description: 'حليب طازج', quickQuantities: [1, 2, 6] },
+      { id: 's4', name: 'خبز (رغيف)', pricePerUnit: 0.250, unit: 'رغيف', image: '🍞', description: 'خبز طازج', quickQuantities: [1, 5, 10] },
+      { id: 's5', name: 'حليب', pricePerUnit: 1.420, unit: 'لتر', image: '🥛', description: 'حليب طازج', quickQuantities: [1, 2, 6] },
       { id: 's6', name: 'قهوة', pricePerUnit: 12.000, unit: 'كغ', image: '☕', description: 'قهوة طازجة محمصة - جودة عالية', quickQuantities: [0.5, 1, 2] },
-      { id: 's7', name: 'بهارات مشكلة', pricePerUnit: 7.500, unit: 'كغ', image: '🌶️', description: 'بهارات متنوعة (كمون، فلفل، كركم...)', quickQuantities: [0.5, 1, 2] }
+      { id: 's7', name: 'بهارات مشكلة', pricePerUnit: 7.500, unit: 'كغ', image: '🌶️', description: 'بهارات متنوعة (كمون، فلفل، كركم...)', quickQuantities: [0.5, 1, 2] },
+      { id: 's8', name: 'رز أبيض', pricePerUnit: 4.000, unit: 'كغ', image: '🍚', description: 'رز أبيض', quickQuantities: [1, 2, 5] },
+      { id: 's9', name: 'ماء (قارورة 1.5 لتر)', pricePerUnit: 0.980, unit: 'قارورة', image: '💧', description: 'ماء معدني', quickQuantities: [1, 6, 12] }
     ],
     grains: [
       { id: 'g1', name: 'عدس', pricePerUnit: 4.800, unit: 'كغ', image: '🫘', description: 'عدس أخضر وأحمر', quickQuantities: [1, 2, 5] },
@@ -749,12 +751,13 @@
     ],
     meat: [
       { id: 'm1', name: 'لحم مفروم', pricePerUnit: 18.000, unit: 'كغ', image: '🥩', description: 'لحم بقري مفروم طازج', quickQuantities: [0.5, 1, 2] },
-      { id: 'm2', name: 'دجاج', pricePerUnit: 9.500, unit: 'كغ', image: '🍗', description: 'صدر وأفخاذ دجاج', quickQuantities: [0.5, 1, 2] },
-      { id: 'm3', name: 'تونة', pricePerUnit: 8.500, unit: 'علبة', image: '🐟', description: 'تونة معلبة', quickQuantities: [1, 2, 5] }
+      { id: 'm2', name: 'دجاج (فيليه)', pricePerUnit: 16.750, unit: 'كغ', image: '🍗', description: 'فيليه دجاج طازج', quickQuantities: [0.5, 1, 2] },
+      { id: 'm3', name: 'لحم بقري (رومان)', pricePerUnit: 41.800, unit: 'كغ', image: '🥩', description: 'لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
+      { id: 'm4', name: 'تونة', pricePerUnit: 8.500, unit: 'علبة', image: '🐟', description: 'تونة معلبة', quickQuantities: [1, 2, 5] }
     ],
     dairy: [
-      { id: 'd1', name: 'بيض', pricePerUnit: 0.500, unit: 'حبة', image: '🥚', description: 'بيض طازج', quickQuantities: [10, 20, 30] },
-      { id: 'd2', name: 'جبن', pricePerUnit: 8.500, unit: 'قطعة', image: '🧀', description: 'جبن أبيض وصفراء', quickQuantities: [1, 2, 5] },
+      { id: 'd1', name: 'بيض (12 حبة)', pricePerUnit: 4.750, unit: 'طبق', image: '🥚', description: 'بيض طازج', quickQuantities: [1, 2, 3] },
+      { id: 'd2', name: 'جبن محلي', pricePerUnit: 37.330, unit: 'كغ', image: '🧀', description: 'جبن أبيض وصفراء', quickQuantities: [0.25, 0.5, 1] },
       { id: 'd3', name: 'زبدة', pricePerUnit: 7.000, unit: 'قطعة', image: '🧈', description: 'زبدة طبيعية', quickQuantities: [1, 2, 5] }
     ]
   };
