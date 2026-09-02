@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>9ATHYA.TN | قعدة صفاقسية - توصيل لكل صفاقس</title>
+  <title>9ATHYA.TN | تتبع المندوب - خدمة توصيل</title>
+  
+  <!-- Leaflet CSS (مجاني) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <style>
     :root {
       --primary: #e74c3c;
@@ -107,7 +112,7 @@
 
     @media (min-width: 1024px) {
       .content-wrapper {
-        grid-template-columns: 1fr 380px;
+        grid-template-columns: 1fr 420px;
         padding: 25px;
       }
     }
@@ -280,6 +285,7 @@
       box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
     }
 
+    /* ===== CART SECTION ===== */
     .cart-section {
       background: white;
       border-radius: 15px;
@@ -292,6 +298,8 @@
         position: sticky;
         top: 80px;
         height: fit-content;
+        max-height: 90vh;
+        overflow-y: auto;
       }
     }
 
@@ -321,7 +329,7 @@
 
     #cart-items {
       list-style: none;
-      max-height: 300px;
+      max-height: 200px;
       overflow-y: auto;
       margin-bottom: 15px;
     }
@@ -368,6 +376,179 @@
       font-size: 0.75rem;
     }
 
+    /* ===== MAP SECTION ===== */
+    .map-section {
+      margin: 10px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #ddd;
+      height: 300px;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .map-controls {
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .map-btn {
+      padding: 6px 16px;
+      border: none;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .map-btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .map-btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 10px rgba(231, 76, 60, 0.4);
+    }
+
+    .map-btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .map-btn-success:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 10px rgba(39, 174, 96, 0.4);
+    }
+
+    .map-btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .map-btn-secondary:hover {
+      transform: scale(1.05);
+    }
+
+    .map-status {
+      font-size: 0.75rem;
+      color: #555;
+      padding: 5px 10px;
+      background: #f0f8ff;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 5px;
+    }
+
+    .map-status .online {
+      color: #27ae60;
+      font-weight: 700;
+    }
+
+    .map-status .offline {
+      color: #e74c3c;
+      font-weight: 700;
+    }
+
+    .map-status .loading {
+      color: #f39c12;
+      font-weight: 700;
+    }
+
+    /* ===== SHOPS INPUT ===== */
+    .shops-input-area {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+    }
+
+    .shops-input-area .shop-entry {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .shops-input-area .shop-entry input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      min-width: 150px;
+    }
+
+    .shops-input-area .shop-entry input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    }
+
+    .shops-input-area .shop-entry .remove-shop {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .shops-input-area .shop-entry .remove-shop:hover {
+      background: var(--primary-dark);
+    }
+
+    .shops-input-area .shop-entry .shop-number {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 0.8rem;
+      min-width: 20px;
+    }
+
+    .add-shop-btn {
+      padding: 6px 16px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.75rem;
+      transition: all 0.3s;
+      margin-top: 4px;
+    }
+
+    .add-shop-btn:hover {
+      background: #5a6268;
+      transform: scale(1.02);
+    }
+
+    .shops-label {
+      font-weight: 700;
+      color: #555;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* ===== TOTAL SECTION ===== */
     .total-section {
       text-align: center;
       padding: 15px 0;
@@ -384,6 +565,12 @@
     .delivery-fee {
       font-size: 0.85rem;
       color: #666;
+    }
+
+    .delivery-info {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 5px;
     }
 
     .user-form {
@@ -418,6 +605,29 @@
       box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
     }
 
+    .form-input.loading {
+      background: #f0f8ff;
+      border-color: #1a73e8;
+      color: #1a73e8;
+    }
+
+    .form-input.success {
+      background: #e8f5e9;
+      border-color: #27ae60;
+      color: #2e7d32;
+    }
+
+    .form-input.error {
+      background: #ffebee;
+      border-color: #e74c3c;
+      color: #c62828;
+    }
+
+    .form-input:disabled {
+      opacity: 0.8;
+      cursor: default;
+    }
+
     .submit-order-btn {
       width: 100%;
       padding: 15px;
@@ -438,6 +648,11 @@
       box-shadow: 0 8px 25px rgba(39, 174, 96, 0.6);
     }
 
+    .submit-order-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .fees-info {
       margin-top: 10px;
       padding: 10px;
@@ -450,13 +665,94 @@
     .fees-info strong {
       color: var(--primary);
     }
+
+    .badge-delivery {
+      display: inline-block;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      color: #856404;
+      margin-top: 3px;
+    }
+
+    .shop-list {
+      font-size: 0.75rem;
+      color: #555;
+      margin: 5px 0;
+      padding: 5px 8px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    .shop-list .shop-item {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #1a73e8;
+      padding: 1px 10px;
+      border-radius: 10px;
+      margin: 2px 3px;
+      font-size: 0.7rem;
+    }
+
+    /* Leaflet custom styles */
+    .leaflet-popup-content {
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.85rem;
+    }
+
+    .custom-marker {
+      background: var(--primary);
+      border: 3px solid white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.6); }
+      70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+    }
+
+    .shop-marker {
+      background: #1a73e8;
+      border: 2px solid white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+    }
+
+    .client-marker {
+      background: var(--success);
+      border: 2px solid white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+    }
+
+    .location-status {
+      font-size: 0.7rem;
+      color: #666;
+      margin-top: 3px;
+      padding: 4px 8px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    .location-status .icon {
+      margin-left: 5px;
+    }
   </style>
 </head>
 <body>
   <div class="main-container">
     <div class="header">
       <h1>🔥 9ATHYA.TN</h1>
-      <p>أطيب قعدة صفاقسية - توصيل لكل مناطق صفاقس</p>
+      <p>خدمة توصيل - تتبع المندوب في الوقت الحقيقي</p>
     </div>
 
     <div class="category-nav">
@@ -509,9 +805,49 @@
         </div>
         <ul id="cart-items"></ul>
         
+        <div class="shop-list" id="shop-list">
+          <span style="font-weight:700;">🏪 المتاجر:</span>
+          <span id="shops-display">لا يوجد</span>
+        </div>
+
+        <!-- ===== SHOPS INPUT ===== -->
+        <div class="shops-input-area">
+          <label class="shops-label">📝 أكتب المتاجر المطلوبة:</label>
+          <div id="shops-container">
+            <div class="shop-entry">
+              <span class="shop-number">1</span>
+              <input type="text" class="shop-input" placeholder="اسم المحل + عنوانه (مثال: سوق الخضرة، صفاقس)">
+              <button class="remove-shop" style="visibility:hidden;">×</button>
+            </div>
+          </div>
+          <button class="add-shop-btn" id="addShopBtn">+ إضافة محل آخر</button>
+        </div>
+
+        <!-- ===== MAP SECTION ===== -->
+        <div class="map-section">
+          <div id="map"></div>
+        </div>
+
+        <div class="map-controls">
+          <button class="map-btn map-btn-primary" id="getLocationBtn">📍 موقعي الحالي</button>
+          <button class="map-btn map-btn-success" id="simulateRouteBtn">🚗 محاكاة المسار</button>
+          <button class="map-btn map-btn-secondary" id="resetMapBtn">🔄 إعادة ضبط</button>
+        </div>
+
+        <div class="map-status" id="map-status">
+          <span>📍 الحالة: <span class="offline">غير متصل</span></span>
+          <span style="margin-right:15px;">📍 المسافة: <span id="map-distance">0.0</span> كم</span>
+          <span style="margin-right:15px;">📍 العميل: <span id="client-status">⏳ جاري التحديد...</span></span>
+        </div>
+        
         <div class="total-section">
           <div class="total-price" id="total-price">0.000 DT</div>
-          <div class="delivery-fee">+ توصيل: 2.000 DT</div>
+          <div class="delivery-fee" id="delivery-fee-display">
+            + توصيل: 0.000 DT
+          </div>
+          <div class="delivery-info">
+            🗺️ سعر التوصيل: 0.500 دت/كم <span class="badge-delivery">📍 تتبع حي عبر الخريطة</span>
+          </div>
         </div>
 
         <div class="user-form">
@@ -524,9 +860,16 @@
             <input type="tel" id="userPhone" class="form-input" placeholder="للتحقق من الطلب (8 أرقام)" maxlength="15" required>
           </div>
           <div class="form-group">
-            <label>📍 منطقة التوصيل *</label>
-            <select id="userZone" class="form-select" required>
-              <option value="">اختر منطقتك في صفاقس</option>
+            <label>📍 عنوان التوصيل (دارك) *</label>
+            <input type="text" id="userAdresse" class="form-input" placeholder="جاري تحديد موقعك..." value="⏳ جاري التحميل..." disabled>
+            <div class="location-status" id="locationStatus">
+              <span class="icon">📍</span> جاري تحديد موقعك... اضغط "Autoriser" إذا طلب منك المتصفح
+            </div>
+          </div>
+          <div class="form-group">
+            <label>📍 المنطقة (للمساعدة)</label>
+            <select id="userZone" class="form-select">
+              <option value="">اختر منطقتك (اختياري)</option>
               <option value="المدينة العتيقة">المدينة العتيقة</option>
               <option value="باب البحر">باب البحر</option>
               <option value="باب الديوان">باب الديوان</option>
@@ -544,15 +887,8 @@
               <option value="ساقية الدائر">ساقية الدائر</option>
               <option value="الشيحية">الشيحية</option>
               <option value="تنيور">تنيور</option>
-              <option value="المحرس">المحرس</option>
-              <option value="قرقنة">قرقنة</option>
-              <option value="الصخيرة">الصخيرة</option>
               <option value="منطقة أخرى">منطقة أخرى</option>
             </select>
-          </div>
-          <div class="form-group">
-            <label>📍 العنوان التفصيلي</label>
-            <input type="text" id="userAdresse" class="form-input" placeholder="رقم المنزل، الشارع، العمارة..." maxlength="200">
           </div>
           <div class="form-group">
             <label>📝 ملاحظات إضافية</label>
@@ -563,9 +899,10 @@
         <button id="submitOrder" class="submit-order-btn">📨 تأكيد الطلب</button>
 
         <div class="fees-info">
-          <strong>💳 رسوم الخدمة:</strong> 1.500 DT + توصيل 2.000 DT<br>
+          <strong>💳 رسوم الخدمة:</strong> 1.500 DT<br>
           <strong>📦 الحد الأدنى للطلب:</strong> 5.000 DT<br>
-          <strong>⏰ وقت التوصيل:</strong> 30-45 دقيقة
+          <strong>⏰ وقت التوصيل:</strong> حسب المسافة<br>
+          <strong>🚗 سعر التوصيل:</strong> 0.500 دت/كم (محسوب عبر الخريطة)
         </div>
       </div>
     </div>
@@ -573,46 +910,57 @@
 
   <script>
     (function() {
-      // Catalog mapping for secure price enforcement
+      // ============================================================
+      // 1. CONFIGURATION
+      // ============================================================
+      const DELIVERY_PRICE_PER_KM = 0.500;
+      const SERVICE_FEE = 1.500;
+      const SFAX_CENTER = [34.7399, 10.7600];
+
+      // ============================================================
+      // 2. MENU DATA
+      // ============================================================
       const menuData = {
         vegetables: [
-          { id: 'v1', name: 'طماطم', pricePerUnit: 1.800, unit: 'كغ', image: '🍅', description: 'طماطم طازجة محلية', quickQuantities: [1, 2, 5] },
-          { id: 'v2', name: 'فلفل', pricePerUnit: 1.500, unit: 'كغ', image: '🌶️', description: 'فلفل أخضر وحار', quickQuantities: [1, 2, 5] },
-          { id: 'v3', name: 'بصل', pricePerUnit: 0.900, unit: 'كغ', image: '🧅', description: 'بصل أحمر وأبيض', quickQuantities: [1, 2, 5] },
-          { id: 'v4', name: 'بطاطا', pricePerUnit: 1.200, unit: 'كغ', image: '🥔', description: 'بطاطا محلية', quickQuantities: [1, 5, 10] },
-          { id: 'v5', name: 'جزر', pricePerUnit: 1.400, unit: 'كغ', image: '🥕', description: 'جزر طازج', quickQuantities: [1, 2, 5] }
+          { id: 'v1', name: 'طماطم', pricePerUnit: 1.200, unit: 'كغ', image: '🍅', description: 'طماطم طازجة محلية', quickQuantities: [1, 2, 5] },
+          { id: 'v2', name: 'فلفل', pricePerUnit: 1.000, unit: 'كغ', image: '🌶️', description: 'فلفل أخضر وحار', quickQuantities: [1, 2, 5] },
+          { id: 'v3', name: 'بصل', pricePerUnit: 0.700, unit: 'كغ', image: '🧅', description: 'بصل أحمر وأبيض', quickQuantities: [1, 2, 5] },
+          { id: 'v4', name: 'بطاطا', pricePerUnit: 0.900, unit: 'كغ', image: '🥔', description: 'بطاطا محلية', quickQuantities: [1, 5, 10] },
+          { id: 'v5', name: 'جزر', pricePerUnit: 1.000, unit: 'كغ', image: '🥕', description: 'جزر طازج', quickQuantities: [1, 2, 5] }
         ],
         fruits: [
-          { id: 'f1', name: 'تفاح', pricePerUnit: 3.500, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر', quickQuantities: [1, 2, 5] },
-          { id: 'f2', name: 'موز', pricePerUnit: 4.000, unit: 'كغ', image: '🍌', description: 'موز طازج', quickQuantities: [1, 2, 5] },
-          { id: 'f3', name: 'عنب موسمي', pricePerUnit: 3.000, unit: 'كغ', image: '🍇', description: 'عنب أحمر وأبيض', quickQuantities: [1, 2, 5] },
-          { id: 'f4', name: 'برتقال', pricePerUnit: 2.500, unit: 'كغ', image: '🍊', description: 'برتقال محلي', quickQuantities: [1, 3, 5] }
+          { id: 'f1', name: 'تفاح', pricePerUnit: 2.800, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر', quickQuantities: [1, 2, 5] },
+          { id: 'f2', name: 'موز', pricePerUnit: 3.200, unit: 'كغ', image: '🍌', description: 'موز طازج', quickQuantities: [1, 2, 5] },
+          { id: 'f3', name: 'عنب موسمي', pricePerUnit: 2.500, unit: 'كغ', image: '🍇', description: 'عنب أحمر وأبيض', quickQuantities: [1, 2, 5] },
+          { id: 'f4', name: 'برتقال', pricePerUnit: 2.000, unit: 'كغ', image: '🍊', description: 'برتقال محلي', quickQuantities: [1, 3, 5] }
         ],
         staples: [
-          { id: 's1', name: 'زيت زيتون', pricePerUnit: 12.000, unit: 'لتر', image: '🫒', description: 'زيت زيتون بكر', quickQuantities: [1, 5, 10] },
-          { id: 's2', name: 'سكر', pricePerUnit: 2.200, unit: 'كغ', image: '🧂', description: 'سكر أبيض', quickQuantities: [1, 2, 5] },
-          { id: 's3', name: 'سميدة', pricePerUnit: 1.500, unit: 'كغ', image: '🌾', description: 'سميدة خشنة ورقيقة', quickQuantities: [1, 2, 5] },
-          { id: 's4', name: 'عجين', pricePerUnit: 1.000, unit: 'كغ', image: '🍞', description: 'عجين طازج', quickQuantities: [1, 2, 5] },
-          { id: 's5', name: 'حليب', pricePerUnit: 1.300, unit: 'لتر', image: '🥛', description: 'حليب طازج', quickQuantities: [1, 2, 6] }
+          { id: 's1', name: 'زيت زيتون', pricePerUnit: 10.000, unit: 'لتر', image: '🫒', description: 'زيت زيتون بكر', quickQuantities: [1, 5, 10] },
+          { id: 's2', name: 'سكر', pricePerUnit: 1.800, unit: 'كغ', image: '🧂', description: 'سكر أبيض', quickQuantities: [1, 2, 5] },
+          { id: 's3', name: 'سميدة', pricePerUnit: 1.200, unit: 'كغ', image: '🌾', description: 'سميدة خشنة ورقيقة', quickQuantities: [1, 2, 5] },
+          { id: 's4', name: 'عجين', pricePerUnit: 0.800, unit: 'كغ', image: '🍞', description: 'عجين طازج', quickQuantities: [1, 2, 5] },
+          { id: 's5', name: 'حليب', pricePerUnit: 1.100, unit: 'لتر', image: '🥛', description: 'حليب طازج', quickQuantities: [1, 2, 6] }
         ],
         grains: [
-          { id: 'g1', name: 'عدس', pricePerUnit: 3.500, unit: 'كغ', image: '🫘', description: 'عدس أخضر وأحمر', quickQuantities: [1, 2, 5] },
-          { id: 'g2', name: 'حمص', pricePerUnit: 4.000, unit: 'كغ', image: '🫛', description: 'حمص جاف', quickQuantities: [1, 2, 5] },
-          { id: 'g3', name: 'لوبيا', pricePerUnit: 5.000, unit: 'كغ', image: '🫘', description: 'لوبيا بيضاء وحمراء', quickQuantities: [1, 2, 5] }
+          { id: 'g1', name: 'عدس', pricePerUnit: 2.800, unit: 'كغ', image: '🫘', description: 'عدس أخضر وأحمر', quickQuantities: [1, 2, 5] },
+          { id: 'g2', name: 'حمص', pricePerUnit: 3.200, unit: 'كغ', image: '🫛', description: 'حمص جاف', quickQuantities: [1, 2, 5] },
+          { id: 'g3', name: 'لوبيا', pricePerUnit: 4.000, unit: 'كغ', image: '🫘', description: 'لوبيا بيضاء وحمراء', quickQuantities: [1, 2, 5] }
         ],
         meat: [
-          { id: 'm1', name: 'لحم مفروم', pricePerUnit: 18.000, unit: 'كغ', image: '🥩', description: 'لحم بقري مفروم', quickQuantities: [0.5, 1, 2] },
-          { id: 'm2', name: 'دجاج', pricePerUnit: 9.000, unit: 'كغ', image: '🍗', description: 'صدر وأفخاذ دجاج', quickQuantities: [0.5, 1, 2] },
-          { id: 'm3', name: 'تونة', pricePerUnit: 8.000, unit: 'علبة', image: '🐟', description: 'تونة معلبة', quickQuantities: [1, 2, 5] }
+          { id: 'm1', name: 'لحم مفروم', pricePerUnit: 15.000, unit: 'كغ', image: '🥩', description: 'لحم بقري مفروم', quickQuantities: [0.5, 1, 2] },
+          { id: 'm2', name: 'دجاج', pricePerUnit: 7.500, unit: 'كغ', image: '🍗', description: 'صدر وأفخاذ دجاج', quickQuantities: [0.5, 1, 2] },
+          { id: 'm3', name: 'تونة', pricePerUnit: 6.500, unit: 'علبة', image: '🐟', description: 'تونة معلبة', quickQuantities: [1, 2, 5] }
         ],
         dairy: [
-          { id: 'd1', name: 'بيض', pricePerUnit: 0.400, unit: 'حبة', image: '🥚', description: 'بيض طازج', quickQuantities: [10, 20, 30] },
-          { id: 'd2', name: 'جبن', pricePerUnit: 8.000, unit: 'قطعة', image: '🧀', description: 'جبن أبيض وصفراء', quickQuantities: [1, 2, 5] },
-          { id: 'd3', name: 'زبدة', pricePerUnit: 6.000, unit: 'قطعة', image: '🧈', description: 'زبدة طبيعية', quickQuantities: [1, 2, 5] }
+          { id: 'd1', name: 'بيض', pricePerUnit: 0.300, unit: 'حبة', image: '🥚', description: 'بيض طازج', quickQuantities: [10, 20, 30] },
+          { id: 'd2', name: 'جبن', pricePerUnit: 6.500, unit: 'قطعة', image: '🧀', description: 'جبن أبيض وصفراء', quickQuantities: [1, 2, 5] },
+          { id: 'd3', name: 'زبدة', pricePerUnit: 5.000, unit: 'قطعة', image: '🧈', description: 'زبدة طبيعية', quickQuantities: [1, 2, 5] }
         ]
       };
 
-      // Create a flat dictionary mapping item ID to its official database object
+      // ============================================================
+      // 3. ITEM REGISTRY
+      // ============================================================
       const itemRegistry = {};
       Object.values(menuData).forEach(catArray => {
         catArray.forEach(item => {
@@ -620,11 +968,24 @@
         });
       });
 
+      // ============================================================
+      // 4. STATE
+      // ============================================================
       const cart = [];
-      const DELIVERY_FEE = 2.000;
-      const SERVICE_FEE = 1.500;
+      let totalDistance = 0;
+      let deliveryFee = 0;
+      let map = null;
+      let livreurMarker = null;
+      let shopMarkers = [];
+      let clientMarker = null;
+      let routeLine = null;
+      let currentPosition = SFAX_CENTER;
+      let clientCoords = null;
+      let clientAddressText = '';
 
-      // Escape helper to neutralize potential XSS vectors
+      // ============================================================
+      // 5. UTILITY FUNCTIONS
+      // ============================================================
       function sanitizeText(str) {
         return String(str)
           .replace(/&/g, '&amp;')
@@ -634,7 +995,181 @@
           .replace(/'/g, '&#039;');
       }
 
-      // Category Switching logic
+      function getShopAddresses() {
+        const inputs = document.querySelectorAll('.shop-input');
+        const shops = [];
+        inputs.forEach(input => {
+          const val = input.value.trim();
+          if (val.length > 2) {
+            shops.push(val);
+          }
+        });
+        return shops;
+      }
+
+      function calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+      }
+
+      // ============================================================
+      // 6. GEOLOCATION - تحديد موقع العميل تلقائياً
+      // ============================================================
+      function getClientLocation() {
+        const addressInput = document.getElementById('userAdresse');
+        const statusEl = document.getElementById('locationStatus');
+        const clientStatusEl = document.getElementById('client-status');
+        
+        if (!navigator.geolocation) {
+          addressInput.value = '';
+          addressInput.placeholder = 'متصفحك لا يدعم تحديد الموقع، اكتب عنوانك يدوياً';
+          addressInput.disabled = false;
+          statusEl.innerHTML = '<span class="icon">⚠️</span> متصفحك لا يدعم تحديد الموقع';
+          clientStatusEl.textContent = '❌ غير مدعوم';
+          return;
+        }
+
+        statusEl.innerHTML = '<span class="icon">⏳</span> جاري تحديد موقعك... اضغط "Autoriser" إذا طلب منك المتصفح';
+        clientStatusEl.textContent = '⏳ جاري التحديد...';
+        addressInput.className = 'form-input loading';
+        addressInput.value = '⏳ جاري التحديد...';
+        addressInput.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            clientCoords = [lat, lng];
+            
+            // تحويل الإحداثيات إلى عنوان
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18&addressdetails=1`)
+              .then(response => response.json())
+              .then(data => {
+                if (data && data.display_name) {
+                  let address = data.display_name;
+                  if (address.length > 100) {
+                    address = address.substring(0, 100) + '...';
+                  }
+                  addressInput.value = address;
+                  addressInput.className = 'form-input success';
+                  addressInput.disabled = false;
+                  statusEl.innerHTML = `<span class="icon">✅</span> تم تحديد موقعك: ${address}`;
+                  clientStatusEl.textContent = '✅ تم التحديد';
+                  clientAddressText = address;
+                  updateClientOnMap(lat, lng);
+                } else {
+                  addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                  addressInput.className = 'form-input success';
+                  addressInput.disabled = false;
+                  statusEl.innerHTML = `<span class="icon">✅</span> تم تحديد موقعك (إحداثيات)`;
+                  clientStatusEl.textContent = '✅ تم التحديد';
+                  clientAddressText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                  updateClientOnMap(lat, lng);
+                }
+              })
+              .catch(() => {
+                addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                addressInput.className = 'form-input success';
+                addressInput.disabled = false;
+                statusEl.innerHTML = `<span class="icon">✅</span> تم تحديد موقعك (إحداثيات)`;
+                clientStatusEl.textContent = '✅ تم التحديد';
+                clientAddressText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                updateClientOnMap(lat, lng);
+              });
+          },
+          function(error) {
+            console.error('Geolocation error:', error);
+            addressInput.value = '';
+            addressInput.placeholder = 'لم نتمكن من تحديد موقعك، اكتب عنوانك يدوياً';
+            addressInput.className = 'form-input error';
+            addressInput.disabled = false;
+            clientStatusEl.textContent = '❌ خطأ';
+            
+            if (error.code === 1) {
+              statusEl.innerHTML = '<span class="icon">❌</span> لقد رفضت إذن الموقع، اكتب عنوانك يدوياً';
+            } else {
+              statusEl.innerHTML = `<span class="icon">❌</span> ${error.message}`;
+            }
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+      }
+
+      function updateClientOnMap(lat, lng) {
+        if (clientMarker) {
+          map.removeLayer(clientMarker);
+        }
+        
+        const clientIcon = L.divIcon({
+          className: 'client-marker',
+          html: '<div style="width:16px;height:16px;background:#27ae60;border-radius:50%;border:2px solid white;"></div>',
+          iconSize: [16, 16],
+          iconAnchor: [8, 8]
+        });
+        clientMarker = L.marker([lat, lng], { icon: clientIcon }).addTo(map);
+        clientMarker.bindPopup('🏠 دار العميل (موقعك)');
+        
+        updateRoute();
+        updateCartDisplay();
+      }
+
+      // ============================================================
+      // 7. SHOPS MANAGEMENT
+      // ============================================================
+      document.getElementById('addShopBtn').addEventListener('click', function() {
+        const container = document.getElementById('shops-container');
+        const entry = document.createElement('div');
+        entry.className = 'shop-entry';
+        
+        const count = container.children.length + 1;
+        
+        const numberSpan = document.createElement('span');
+        numberSpan.className = 'shop-number';
+        numberSpan.textContent = count;
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'shop-input';
+        input.placeholder = 'اسم المحل + عنوانه (مثال: سوق الخضرة، صفاقس)';
+        input.addEventListener('input', function() {
+          updateMapMarkers();
+          updateCartDisplay();
+        });
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-shop';
+        removeBtn.textContent = '×';
+        removeBtn.title = 'حذف هذا المحل';
+        removeBtn.addEventListener('click', function() {
+          if (container.children.length > 1) {
+            entry.remove();
+            container.querySelectorAll('.shop-entry').forEach((el, i) => {
+              el.querySelector('.shop-number').textContent = i + 1;
+            });
+            updateMapMarkers();
+            updateCartDisplay();
+          } else {
+            alert('⚠️ لازم يكون على الأقل محل واحد');
+          }
+        });
+        
+        entry.appendChild(numberSpan);
+        entry.appendChild(input);
+        entry.appendChild(removeBtn);
+        container.appendChild(entry);
+        updateMapMarkers();
+        updateCartDisplay();
+      });
+
+      // ============================================================
+      // 8. CATEGORY SWITCHING
+      // ============================================================
       document.querySelectorAll('.category-nav-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           document.querySelectorAll('.category-nav-btn').forEach(b => b.classList.remove('active'));
@@ -655,6 +1190,9 @@
         });
       });
 
+      // ============================================================
+      // 9. RENDER MENU
+      // ============================================================
       function renderMenu() {
         Object.keys(menuData).forEach(category => {
           const container = document.getElementById(`${category}-menu`);
@@ -671,7 +1209,6 @@
           const card = document.createElement('div');
           card.className = 'menu-card';
           
-          // Construct using safe DOM methods / properties to avoid DOM-XSS
           const headerDiv = document.createElement('div');
           headerDiv.className = 'item-header';
           
@@ -792,7 +1329,7 @@
             };
             
             cart.push(newItem);
-            updateCart();
+            updateCartDisplay();
             
             quantityInput.value = 1;
             updatePrice();
@@ -802,13 +1339,166 @@
         });
       }
 
-      function updateCart() {
+      // ============================================================
+      // 10. MAP FUNCTIONS
+      // ============================================================
+      function initMap() {
+        map = L.map('map').setView(SFAX_CENTER, 14);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19
+        }).addTo(map);
+        
+        const customIcon = L.divIcon({
+          className: 'custom-marker',
+          html: '<div style="width:20px;height:20px;background:#e74c3c;border-radius:50%;border:3px solid white;box-shadow:0 0 20px rgba(231,76,60,0.6);"></div>',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+        
+        livreurMarker = L.marker(SFAX_CENTER, { icon: customIcon }).addTo(map);
+        livreurMarker.bindPopup('📍 المندوب');
+        
+        updateMapMarkers();
+        updateRoute();
+      }
+
+      function getShopCoords(index) {
+        const offsets = [
+          [0.002, 0.003],
+          [-0.003, 0.002],
+          [0.004, -0.003],
+          [-0.002, -0.004],
+          [0.005, 0.005],
+          [-0.005, -0.005]
+        ];
+        const off = offsets[index % offsets.length];
+        return [SFAX_CENTER[0] + off[0], SFAX_CENTER[1] + off[1]];
+      }
+
+      function updateMapMarkers() {
+        shopMarkers.forEach(marker => map.removeLayer(marker));
+        shopMarkers = [];
+        
+        const shops = getShopAddresses();
+        
+        shops.forEach((shop, index) => {
+          const coords = getShopCoords(index);
+          
+          const shopIcon = L.divIcon({
+            className: 'shop-marker',
+            html: `<div style="width:16px;height:16px;background:#1a73e8;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;color:white;font-size:8px;font-weight:bold;">${index + 1}</div>`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+          });
+          
+          const marker = L.marker(coords, { icon: shopIcon }).addTo(map);
+          marker.bindPopup(`🏪 ${shop}`);
+          shopMarkers.push(marker);
+        });
+        
+        if (clientCoords && clientMarker) {
+          clientMarker.setLatLng(clientCoords);
+        }
+        
+        updateRoute();
+        updateCartDisplay();
+      }
+
+      function updateRoute() {
+        if (routeLine) {
+          map.removeLayer(routeLine);
+          routeLine = null;
+        }
+        
+        const points = [];
+        
+        if (currentPosition) {
+          points.push([currentPosition[0], currentPosition[1]]);
+        }
+        
+        const shops = getShopAddresses();
+        shops.forEach((shop, index) => {
+          points.push(getShopCoords(index));
+        });
+        
+        if (clientCoords) {
+          points.push(clientCoords);
+        } else {
+          points.push([SFAX_CENTER[0] + 0.004, SFAX_CENTER[1] + 0.005]);
+        }
+        
+        if (points.length > 1) {
+          routeLine = L.polyline(points, {
+            color: '#e74c3c',
+            weight: 4,
+            opacity: 0.7,
+            dashArray: '10, 10'
+          }).addTo(map);
+          
+          try {
+            map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+          } catch(e) {
+            map.setView(SFAX_CENTER, 14);
+          }
+        }
+        
+        calculateTotalDistance();
+      }
+
+      function calculateTotalDistance() {
+        const points = [];
+        
+        if (currentPosition) {
+          points.push(currentPosition);
+        }
+        
+        const shops = getShopAddresses();
+        shops.forEach((shop, index) => {
+          points.push(getShopCoords(index));
+        });
+        
+        if (clientCoords) {
+          points.push(clientCoords);
+        } else {
+          points.push([SFAX_CENTER[0] + 0.004, SFAX_CENTER[1] + 0.005]);
+        }
+        
+        let total = 0;
+        for (let i = 0; i < points.length - 1; i++) {
+          total += calculateDistance(
+            points[i][0], points[i][1],
+            points[i+1][0], points[i+1][1]
+          );
+        }
+        
+        totalDistance = total;
+        deliveryFee = totalDistance * DELIVERY_PRICE_PER_KM;
+        
+        document.getElementById('map-distance').textContent = totalDistance.toFixed(1);
+        updateCartDisplay();
+      }
+
+      // ============================================================
+      // 11. CART DISPLAY
+      // ============================================================
+      function updateCartDisplay() {
         const cartList = document.getElementById('cart-items');
         const cartCount = document.getElementById('cart-count');
-        const totalPrice = document.getElementById('total-price');
+        const totalPriceEl = document.getElementById('total-price');
+        const deliveryFeeEl = document.getElementById('delivery-fee-display');
+        const shopsDisplay = document.getElementById('shops-display');
         
         cartList.innerHTML = '';
-        let total = 0;
+        let subtotal = 0;
+        
+        const shops = getShopAddresses();
+        if (shops.length === 0) {
+          shopsDisplay.textContent = 'أضف متاجر';
+        } else {
+          shopsDisplay.innerHTML = shops.map(s => `<span class="shop-item">${s}</span>`).join(' ');
+        }
         
         if (cart.length === 0) {
           const emptyLi = document.createElement('li');
@@ -820,7 +1510,7 @@
           cartCount.textContent = '0';
         } else {
           cart.forEach((item, index) => {
-            total += item.totalPrice;
+            subtotal += item.totalPrice;
             
             const li = document.createElement('li');
             
@@ -851,7 +1541,7 @@
             removeBtn.textContent = 'حذف';
             removeBtn.addEventListener('click', function() {
               cart.splice(index, 1);
-              updateCart();
+              updateCartDisplay();
             });
             
             actionDiv.appendChild(removeBtn);
@@ -866,34 +1556,145 @@
           cartCount.textContent = cart.length;
         }
         
-        totalPrice.textContent = (total + DELIVERY_FEE + SERVICE_FEE).toFixed(3) + ' DT';
+        deliveryFeeEl.textContent = `+ توصيل: ${deliveryFee.toFixed(3)} DT (${totalDistance.toFixed(1)} كم)`;
+        const totalWithFees = subtotal + deliveryFee + SERVICE_FEE;
+        totalPriceEl.textContent = totalWithFees.toFixed(3) + ' DT';
       }
 
+      // ============================================================
+      // 12. MAP CONTROLS
+      // ============================================================
+      document.getElementById('getLocationBtn').addEventListener('click', function() {
+        const statusSpan = document.querySelector('#map-status span:first-child span');
+        
+        if (!navigator.geolocation) {
+          alert('متصفحك لا يدعم خاصية تحديد الموقع');
+          return;
+        }
+        
+        statusSpan.className = 'loading';
+        statusSpan.textContent = 'جاري تحديد الموقع...';
+        this.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            currentPosition = [lat, lng];
+            
+            if (livreurMarker) {
+              livreurMarker.setLatLng([lat, lng]);
+            }
+            
+            statusSpan.className = 'online';
+            statusSpan.textContent = 'متصل ✓';
+            document.getElementById('getLocationBtn').disabled = false;
+            
+            updateRoute();
+            map.setView([lat, lng], 16);
+          },
+          function(error) {
+            statusSpan.className = 'offline';
+            statusSpan.textContent = 'خطأ في تحديد الموقع';
+            document.getElementById('getLocationBtn').disabled = false;
+            alert('⚠️ تعذر تحديد موقعك: ' + error.message);
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      });
+
+      document.getElementById('simulateRouteBtn').addEventListener('click', function() {
+        const shops = getShopAddresses();
+        if (shops.length === 0) {
+          alert('⚠️ أضف على الأقل محل واحد');
+          return;
+        }
+        
+        if (cart.length === 0) {
+          alert('⚠️ أضف منتجات للسلة أولاً');
+          return;
+        }
+        
+        const points = [];
+        points.push(currentPosition || SFAX_CENTER);
+        shops.forEach((shop, index) => {
+          points.push(getShopCoords(index));
+        });
+        
+        if (clientCoords) {
+          points.push(clientCoords);
+        } else {
+          points.push([SFAX_CENTER[0] + 0.004, SFAX_CENTER[1] + 0.005]);
+        }
+        
+        let index = 0;
+        const interval = setInterval(() => {
+          if (index >= points.length) {
+            clearInterval(interval);
+            return;
+          }
+          
+          const pos = points[index];
+          currentPosition = pos;
+          
+          if (livreurMarker) {
+            livreurMarker.setLatLng(pos);
+          }
+          
+          updateRoute();
+          map.setView(pos, 15);
+          index++;
+        }, 1200);
+      });
+
+      document.getElementById('resetMapBtn').addEventListener('click', function() {
+        currentPosition = SFAX_CENTER;
+        if (livreurMarker) {
+          livreurMarker.setLatLng(SFAX_CENTER);
+        }
+        document.querySelector('#map-status span:first-child span').className = 'offline';
+        document.querySelector('#map-status span:first-child span').textContent = 'غير متصل';
+        updateRoute();
+        map.setView(SFAX_CENTER, 14);
+      });
+
+      // ============================================================
+      // 13. SUBMIT ORDER
+      // ============================================================
       document.getElementById('submitOrder').addEventListener('click', function() {
         const name = document.getElementById('userName').value.trim();
         const phone = document.getElementById('userPhone').value.trim();
-        const zone = document.getElementById('userZone').value;
         const adresse = document.getElementById('userAdresse').value.trim();
+        const zone = document.getElementById('userZone').value;
         const notes = document.getElementById('userNotes').value.trim();
+        const shops = getShopAddresses();
         
-        if (!name || !phone || !zone) {
-          alert('⚠️ لازم تكتب اسمك ورقم هاتفك وتختار منطقة التوصيل');
+        if (!name || !phone) {
+          alert('⚠️ لازم تكتب اسمك ورقم هاتفك');
           return;
         }
 
-        // Strict Phone Number Validation (Tunisian phone format: 8 digits starting with 2, 4, 5, 9, etc.)
+        if (!adresse || adresse === '⏳ جاري التحميل...' || adresse === '⏳ جاري التحديد...') {
+          alert('⚠️ الرجاء انتظار تحديد موقعك أو اكتب عنوانك يدوياً');
+          return;
+        }
+
         const phoneRegex = /^(?:\+216)?\s?[234579]\d{7}$/;
         if (!phoneRegex.test(phone.replace(/\s+/g, ''))) {
           alert('⚠️ الرجاء إدخال رقم هاتف تونسي صحيح (8 أرقام)');
           return;
         }
         
+        if (shops.length === 0) {
+          alert('⚠️ أضف على الأقل محل واحد');
+          return;
+        }
+        
         if (cart.length === 0) {
-          alert('🥲 السلة فارغة! زيد مواد قبل ما تبعث الطلب');
+          alert('🥲 السلة فارغة! أضف منتجات');
           return;
         }
 
-        // SECURE PRICE RE-CALCULATION & ENFORCEMENT ON SUBMIT
         let verifiedSubtotal = 0;
         let orderDetails = '';
         
@@ -901,7 +1702,6 @@
           const cartItem = cart[i];
           const officialItem = itemRegistry[cartItem.id];
           
-          // Guard against client-side inspection manipulation of unit prices
           if (!officialItem || cartItem.unitPrice !== officialItem.pricePerUnit) {
             alert('⚠️ تم اكتشاف خطأ في الأسعار، الرجاء إعادة تحميل الصفحة وإعادة المحاولة.');
             return;
@@ -913,44 +1713,51 @@
           orderDetails += `${i + 1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
         }
 
-        const totalAmount = verifiedSubtotal + DELIVERY_FEE + SERVICE_FEE;
+        const totalAmount = verifiedSubtotal + deliveryFee + SERVICE_FEE;
         
         const orderMessage = `
-          🛒 طلب جديد من 9ATHYA.TN
+          🛒 طلب توصيل جديد - 9ATHYA.TN
           
           👤 الاسم: ${sanitizeText(name)}
           📞 الهاتف: ${sanitizeText(phone)}
-          📍 المنطقة: ${sanitizeText(zone)}
-          📍 العنوان: ${sanitizeText(adresse || 'غير محدد')}
+          📍 المنطقة: ${sanitizeText(zone || 'غير محددة')}
+          📍 عنوان العميل: ${sanitizeText(adresse)}
+          📍 إحداثيات العميل: ${clientCoords ? clientCoords[0].toFixed(6) + ', ' + clientCoords[1].toFixed(6) : 'غير محدد'}
           📝 ملاحظات: ${sanitizeText(notes || 'لا يوجد')}
           
-          📋 تفاصيل الطلب:
+          🏪 المتاجر المطلوبة:
+          ${shops.map((s, i) => `${i+1}. ${s}`).join('\n')}
+          
+          📋 المنتجات:
           ${orderDetails}
-          📦 رسوم التوصيل: ${DELIVERY_FEE.toFixed(3)} DT
+          
+          🗺️ المسافة: ${totalDistance.toFixed(1)} كم
+          🚗 سعر التوصيل: ${deliveryFee.toFixed(3)} DT
           💳 رسوم الخدمة: ${SERVICE_FEE.toFixed(3)} DT
           💰 المجموع الكلي: ${totalAmount.toFixed(3)} DT
           
-          ⏰ وقت الطلب: ${new Date().toLocaleString('ar-TN')}
+          📍 موقع المندوب: ${currentPosition ? currentPosition[0].toFixed(6) + ', ' + currentPosition[1].toFixed(6) : 'غير محدد'}
+          ⏰ الوقت: ${new Date().toLocaleString('ar-TN')}
         `;
         
-        // Disable submission button during fetch to prevent duplicate submissions
         const submitBtn = document.getElementById('submitOrder');
         submitBtn.disabled = true;
         submitBtn.textContent = 'جاري الإرسال...';
 
         fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({
-            _subject: `🛒 طلب جديد من ${sanitizeText(name)} - 9ATHYA.TN`,
+            _subject: `🛒 طلب توصيل من ${sanitizeText(name)} - 9ATHYA.TN`,
             name: sanitizeText(name),
             phone: sanitizeText(phone),
-            zone: sanitizeText(zone),
+            zone: sanitizeText(zone || 'غير محددة'),
             adresse: sanitizeText(adresse),
+            client_coords: clientCoords ? clientCoords[0].toFixed(6) + ', ' + clientCoords[1].toFixed(6) : 'غير محدد',
+            shops: shops.join('\n'),
             notes: sanitizeText(notes),
+            total_distance: totalDistance.toFixed(1) + ' كم',
+            delivery_fee: deliveryFee.toFixed(3) + ' DT',
             message: orderMessage,
             _captcha: 'false',
             _template: 'table'
@@ -958,14 +1765,16 @@
         })
         .then(response => response.json())
         .then(data => {
-          alert('✅ تم إرسال طلبك بنجاح! راح نتواصلوا معاك قريباً');
+          alert('✅ تم إرسال طلبك بنجاح!');
           cart.length = 0;
-          updateCart();
+          totalDistance = 0;
+          deliveryFee = 0;
+          updateCartDisplay();
           document.getElementById('userName').value = '';
           document.getElementById('userPhone').value = '';
           document.getElementById('userZone').value = '';
-          document.getElementById('userAdresse').value = '';
           document.getElementById('userNotes').value = '';
+          document.getElementById('map-distance').textContent = '0.0';
         })
         .catch(error => {
           alert('❌ مشكل في الإرسال، حاول مرة أخرى');
@@ -977,8 +1786,25 @@
         });
       });
 
+      // ============================================================
+      // 14. INIT
+      // ============================================================
       renderMenu();
-      updateCart();
+      updateCartDisplay();
+      
+      document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('shop-input')) {
+          updateMapMarkers();
+          updateCartDisplay();
+        }
+      });
+      
+      setTimeout(() => {
+        initMap();
+        setTimeout(() => {
+          getClientLocation();
+        }, 800);
+      }, 500);
     })();
   </script>
 </body>
