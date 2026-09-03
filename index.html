@@ -689,7 +689,7 @@
         <div style="font-size:0.85rem;font-weight:700;color:#555;">💰 المجموع الكلي</div>
         <div class="total-price" id="total-price">0.000 DT</div>
         <div class="delivery-fee" id="fees-line">3.000 DT رسوم الشركة</div>
-        <div class="delivery-alert">⚠️ تنبيه: + 0.500 دت/كم سعر التوصيل — يُضاف لاحقاً حسب المسافة الفعلية</div>
+        <div class="delivery-alert">⚠️ تنبيه: + 0.500 دت/كم سعر التوصيل (بحد أدنى 1.800 DT) — يُضاف لاحقاً حسب المسافة الفعلية</div>
       </div>
 
       <div class="user-form">
@@ -710,7 +710,7 @@
       <button id="submitOrder" class="submit-order-btn">📨 تأكيد الطلب</button>
 
       <div class="fees-info">
-        <strong>💳 رسوم الشركة:</strong> 3.000 DT &nbsp;|&nbsp; <strong>🚗 التوصيل:</strong> 0.500 دت/كم (يُضاف حسب المسافة)
+        <strong>💳 رسوم الشركة:</strong> 3.000 DT &nbsp;|&nbsp; <strong>🚗 التوصيل:</strong> 0.500 دت/كم (حد أدنى 1.800 DT)
       </div>
     </div>
   </div>
@@ -724,6 +724,8 @@
   // سعر التوصيل للعميل (يُعرض فقط كمعلومة، غير محتسب في المجموع لأن
   // المسافة الفعلية غير معروفة مسبقاً - يُحدَّد لاحقاً حسب المسافة الحقيقية)
   const DELIVERY_PRICE_PER_KM = 0.500;
+  // الحد الأدنى لسعر التوصيل
+  const MIN_DELIVERY_PRICE = 1.800;
   // رسوم الخدمة (ربحك)
   const SERVICE_FEE = 3.000;
   
@@ -1189,7 +1191,7 @@
 🏪 ${shops.length > 0 ? shops.map((s,i) => `${i+1}. ${s.name}${s.zone ? ' ('+s.zone+')' : ''}`).join('\n') : 'لم يتم تحديد متاجر'}
 📋 ${orderDetails}
 💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
-🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (يُحسب حسب المسافة الفعلية ويُضاف لاحقاً)
+🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT) - يُحسب حسب المسافة الفعلية ويُضاف لاحقاً
 💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
 ⏰ ${new Date().toLocaleString('ar-TN')}
     `;
@@ -1208,7 +1210,7 @@
         adresse: sanitizeText(adresse),
         shops: shops.length > 0 ? shops.map(s => s.name + (s.zone ? ' ('+s.zone+')' : '')).join('\n') : 'لم يتم تحديد متاجر',
         notes: sanitizeText(notes),
-        delivery_price_per_km: DELIVERY_PRICE_PER_KM.toFixed(3) + ' دت/كم (يُضاف لاحقاً حسب المسافة)',
+        delivery_price_per_km: DELIVERY_PRICE_PER_KM.toFixed(3) + ' دت/كم (حد أدنى ' + MIN_DELIVERY_PRICE.toFixed(3) + ' DT) - يُضاف لاحقاً حسب المسافة',
         service_fee: SERVICE_FEE.toFixed(3) + ' DT',
         message: orderMessage,
         _captcha: 'false',
