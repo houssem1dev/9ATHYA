@@ -1,0 +1,100 @@
+# ============================================================
+# .htaccess - أمان وحماية الموقع
+# ============================================================
+
+# تفعيل محرك إعادة الكتابة
+RewriteEngine On
+
+# ============================================================
+# 1. رؤوس الأمان (Security Headers)
+# ============================================================
+<IfModule mod_headers.c>
+    # سياسة أمان المحتوى (CSP)
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+    
+    # منع Clickjacking
+    Header set X-Frame-Options "DENY"
+    
+    # منع MIME sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # حماية XSS
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # سياسة الإحالة
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # سياسة الأذونات
+    Header set Permissions-Policy "geolocation=(self), microphone=(), camera=(), payment=()"
+    
+    # حماية من هجمات Cache Poisoning
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</IfModule>
+
+# ============================================================
+# 2. حماية الملفات والمجلدات
+# ============================================================
+
+# منع عرض قائمة الملفات
+Options -Indexes
+
+# منع الوصول إلى الملفات المخفية
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# حماية ملفات التكوين الحساسة
+<FilesMatch "^(config|database|settings)\.(php|json|ini|yml)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# حماية ملفات JS و CSS من التحميل المباشر
+<FilesMatch "\.(js|css|json|xml|txt)$">
+    <IfModule mod_headers.c>
+        Header set X-Content-Type-Options "nosniff"
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </IfModule>
+</FilesMatch>
+
+# حماية مجلدات معينة
+<DirectoryMatch "^(config|includes|lib|vendor|node_modules)">
+    Order allow,deny
+    Deny from all
+</DirectoryMatch>
+
+# ============================================================
+# 3. إعادة التوجيه إلى HTTPS
+# ============================================================
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# ============================================================
+# 4. حماية من هجمات SQL Injection و XSS (Basic)
+# ============================================================
+<IfModule mod_rewrite.c>
+    # منع محاولات SQL Injection في URL
+    RewriteCond %{QUERY_STRING} [^a-z0-9_] [NC]
+    RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+    RewriteRule .* index.php [F,L]
+</IfModule>
+
+# ============================================================
+# 5. ضغط الملفات
+# ============================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# ============================================================
+# 6. منع الوصول إلى الملفات المؤقتة
+# ============================================================
+<FilesMatch "\.(tmp|log|bak|swp)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
