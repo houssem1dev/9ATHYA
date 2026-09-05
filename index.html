@@ -585,7 +585,6 @@
       cursor: not-allowed;
     }
 
-    /* ===== Toast Notifications ===== */
     .toast-container {
       position: fixed;
       top: 20px;
@@ -752,21 +751,6 @@
     </div>
   </div>
 </div>
-
-<!-- نموذج الإرسال - يعمل 100% -->
-<form id="orderForm" action="https://formsubmit.co/houssemkessentini77@gmail.com" method="POST" target="_blank">
-  <input type="hidden" name="_captcha" value="false">
-  <input type="hidden" name="_template" value="table">
-  <input type="hidden" name="_subject" value="طلب جديد - 9ATHYA.TN">
-  <input type="text" name="name" id="formName">
-  <input type="text" name="phone" id="formPhone">
-  <input type="text" name="adresse" id="formAdresse">
-  <textarea name="message" id="formMessage"></textarea>
-  <input type="text" name="shops" id="formShops">
-  <input type="text" name="total" id="formTotal">
-  <input type="text" name="notes" id="formNotes">
-  <button type="submit" id="hiddenSubmit" style="display:none;"></button>
-</form>
 
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
@@ -1042,7 +1026,7 @@
         });
         updateCartDisplay();
       } else {
-        alert('⚠️ لازم يكون على الأقل محل واحد');
+        showToast('⚠️ لازم يكون على الأقل محل واحد', 'warning');
       }
     });
     
@@ -1259,7 +1243,7 @@
   }
 
   // ============================================================
-  // SUBMIT ORDER - يعمل 100%
+  // SUBMIT ORDER - يرسل إيميل عبر AJAX بدون فتح صفحة
   // ============================================================
   document.getElementById('submitOrder').addEventListener('click', function() {
     if (isSubmitting) {
@@ -1330,33 +1314,48 @@
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ جاري الإرسال...';
 
-    // تعبئة النموذج
-    document.getElementById('formName').value = sanitizeText(name);
-    document.getElementById('formPhone').value = sanitizeText(phone);
-    document.getElementById('formAdresse').value = sanitizeText(adresse);
-    document.getElementById('formMessage').value = orderMessage;
-    document.getElementById('formShops').value = shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : '')).join(', ');
-    document.getElementById('formTotal').value = totalAmount.toFixed(3) + ' DT';
-    document.getElementById('formNotes').value = sanitizeText(notes || 'لا يوجد');
+    // ============================================================
+    // إرسال البريد عبر formsubmit.co باستخدام AJAX (بدون فتح صفحة)
+    // ============================================================
+    const formData = new FormData();
+    formData.append('name', sanitizeText(name));
+    formData.append('phone', sanitizeText(phone));
+    formData.append('adresse', sanitizeText(adresse));
+    formData.append('message', orderMessage);
+    formData.append('shops', shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : '')).join(', '));
+    formData.append('total', totalAmount.toFixed(3) + ' DT');
+    formData.append('notes', sanitizeText(notes || 'لا يوجد'));
+    formData.append('_captcha', 'false');
+    formData.append('_template', 'table');
+    formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(name) + ' - 9ATHYA.TN');
 
-    // إرسال النموذج
-    document.getElementById('orderForm').submit();
-
-    // عرض رسالة
-    showToast('✅ جاري إرسال طلبك...', 'success');
-
-    // تفريغ السلة
-    setTimeout(function() {
+    fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('فشل الإرسال');
+      }
+      return response.json();
+    })
+    .then(data => {
+      showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
       cart.length = 0;
       updateCartDisplay();
       document.getElementById('userName').value = '';
       document.getElementById('userPhone').value = '';
       document.getElementById('userNotes').value = '';
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
+    })
+    .finally(() => {
       isSubmitting = false;
       submitBtn.disabled = false;
       submitBtn.textContent = '📨 تأكيد الطلب';
-      showToast('✅ تم إرسال طلبك بنجاح!', 'success');
-    }, 3000);
+    });
   });
 
   // ============================================================
@@ -1373,7 +1372,7 @@
   });
 
   console.log('✅ 9ATHYA.TN - يعمل 100%');
-  console.log('✅ نموذج الإرسال يعمل مع formsubmit.co');
+  console.log('✅ الإرسال عبر AJAX - لا يفتح صفحة جديدة');
 
 })();
 </script>
