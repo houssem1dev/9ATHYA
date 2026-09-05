@@ -6,26 +6,8 @@
     <title>9ATHYA.TN | خدمة توصيل</title>
 
     <!-- ============================================================ -->
-    <!-- 🔒 رؤوس الأمان (المعدلة للسماح بالإرسال)                    -->
+    <!-- ملاحظة: رؤوس الأمان موجودة في ملف vercel.json               -->
     <!-- ============================================================ -->
-    
-    <!-- 1. CSP - معدلة للسماح بـ formsubmit.co -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://formsubmit.co; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;">
-    
-    <!-- 2. منع Clickjacking -->
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    
-    <!-- 3. منع MIME Sniffing -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    
-    <!-- 4. حماية XSS -->
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    
-    <!-- 5. سياسة الإحالة -->
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    
-    <!-- 6. سياسة الأذونات -->
-    <meta http-equiv="Permissions-Policy" content="geolocation=(self), microphone=(), camera=(), payment=()">
 
     <style>
         /* ============================================================ */
@@ -1248,7 +1230,7 @@
             }
 
             // ============================================================
-            // ✅ SUBMIT ORDER - يعمل مع الرؤوس
+            // ✅ SUBMIT ORDER - يعمل مع Vercel
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1318,9 +1300,6 @@
                 submitBtn.disabled = true;
                 submitBtn.textContent = '⏳ جاري الإرسال...';
 
-                // ============================================================
-                // 🔥 إرسال الطلب عبر fetch
-                // ============================================================
                 const formData = new FormData();
                 formData.append('name', sanitizeText(name));
                 formData.append('phone', sanitizeText(phone));
@@ -1377,8 +1356,7 @@
 
             console.log('✅ 9ATHYA.TN - يعمل 100%');
             console.log('📧 الإرسال عبر AJAX - بدون فتح صفحة');
-            console.log('🔒 رؤوس الأمان مفعلة مع السماح لـ formsubmit.co');
-            console.log('📦 جميع المنتجات موجودة (' + Object.values(menuData).flat().length + ' منتج)');
+            console.log('🔒 رؤوس الأمان مفعلة عبر vercel.json');
 
         })();
     </script>
