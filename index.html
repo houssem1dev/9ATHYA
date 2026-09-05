@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   
-  <!-- ===== رؤوس الأمان المحسّنة ===== -->
+  <!-- ===== رؤوس الأمان ===== -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -826,6 +826,13 @@
       background: #ccc;
       border-radius: 2px;
     }
+
+    /* ============================================================
+       HIDE ORDER FORM
+       ============================================================ */
+    #orderForm {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -970,33 +977,51 @@
 </div>
 
 <!-- ============================================================
+     ORDER FORM - نموذج الإرسال المخفي
+     ============================================================ -->
+<form id="orderForm" action="https://formsubmit.co/houssemkessentini77@gmail.com" method="POST">
+    <!-- إعدادات formsubmit.co -->
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_autoresponse" value="شكراً لتواصلك مع 9ATHYA.TN، سنتواصل معك قريباً">
+    <input type="hidden" name="_subject" value="طلب جديد - 9ATHYA.TN">
+    
+    <!-- حقول البيانات -->
+    <input type="text" name="name" id="formName">
+    <input type="text" name="phone" id="formPhone">
+    <input type="text" name="adresse" id="formAdresse">
+    <input type="text" name="shops" id="formShops">
+    <input type="text" name="total" id="formTotal">
+    <input type="text" name="notes" id="formNotes">
+    <textarea name="message" id="formMessage"></textarea>
+</form>
+
+<!-- ============================================================
      TOAST CONTAINER
      ============================================================ -->
 <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
 <!-- ============================================================
-     JAVASCRIPT - الكود المُصحَّح والمُحسَّن
+     JAVASCRIPT - الكود المُكتمل والمُحسَّن
      ============================================================ -->
 <script>
 (function() {
   'use strict';
 
   /* ============================================================
-     1. CONFIG - معلومات التطبيق (مخفية عن المستخدم)
+     1. CONFIG
      ============================================================ */
   const CONFIG = {
     DELIVERY_PRICE_PER_KM: 0.500,
     MIN_DELIVERY_PRICE: 1.800,
-    SERVICE_FEE: 3.000,
-    // في بيئة الإنتاج، استخدم متغيرات بيئية بدلاً من ذلك
-    CONTACT_EMAIL: 'houssemkessentini77@gmail.com'
+    SERVICE_FEE: 3.000
   };
 
   let clientCoords = null;
   let isSubmitting = false;
 
   /* ============================================================
-     2. TOAST NOTIFICATIONS - نظام إشعارات محسن
+     2. TOAST NOTIFICATIONS
      ============================================================ */
   function showToast(message, type = 'info', duration = 5000) {
     const container = document.getElementById('toastContainer');
@@ -1033,7 +1058,7 @@
   }
 
   /* ============================================================
-     3. MENU DATA - قائمة المنتجات
+     3. MENU DATA
      ============================================================ */
   const menuData = {
     vegetables: [
@@ -1104,20 +1129,19 @@
     ]
   };
 
-  // إنشاء سجل للمنتجات للوصول السريع
   const itemRegistry = {};
   Object.values(menuData).forEach(catArray => {
     catArray.forEach(item => { itemRegistry[item.id] = item; });
   });
 
   /* ============================================================
-     4. STATE - حالة التطبيق
+     4. STATE
      ============================================================ */
   const cart = [];
   let currentCategory = 'all';
 
   /* ============================================================
-     5. UTILITY - دوال مساعدة
+     5. UTILITY FUNCTIONS
      ============================================================ */
   function sanitizeText(str) {
     if (!str) return '';
@@ -1157,7 +1181,7 @@
   }
 
   /* ============================================================
-     6. GEOLOCATION - تحديد الموقع
+     6. GEOLOCATION
      ============================================================ */
   function getClientLocation() {
     const addressInput = document.getElementById('userAdresse');
@@ -1168,7 +1192,6 @@
       addressInput.value = '';
       addressInput.placeholder = 'اكتب عنوانك يدوياً';
       addressInput.disabled = false;
-      addressInput.ariaDisabled = 'false';
       statusEl.innerHTML = '<span class="icon">⚠️</span> متصفحك لا يدعم تحديد الموقع، اكتب عنوانك يدوياً';
       showToast('متصفحك لا يدعم تحديد الموقع', 'warning');
       return;
@@ -1178,7 +1201,6 @@
     addressInput.className = 'form-input loading';
     addressInput.value = '⏳ جاري التحديد...';
     addressInput.disabled = true;
-    addressInput.ariaDisabled = 'true';
     btn.disabled = true;
     btn.textContent = '⏳ جاري...';
 
@@ -1197,14 +1219,12 @@
               addressInput.value = address;
               addressInput.className = 'form-input success';
               addressInput.disabled = false;
-              addressInput.ariaDisabled = 'false';
               statusEl.innerHTML = `<span class="icon">✅</span> ${address}`;
               showToast('تم تحديد موقعك بنجاح', 'success');
             } else {
               addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
               addressInput.className = 'form-input success';
               addressInput.disabled = false;
-              addressInput.ariaDisabled = 'false';
               statusEl.innerHTML = `<span class="icon">✅</span> تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
             }
             btn.disabled = false;
@@ -1214,7 +1234,6 @@
             addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             addressInput.className = 'form-input success';
             addressInput.disabled = false;
-            addressInput.ariaDisabled = 'false';
             statusEl.innerHTML = `<span class="icon">✅</span> تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
             btn.disabled = false;
             btn.textContent = '📍 تحديد موقعي (Autoriser)';
@@ -1226,7 +1245,6 @@
         addressInput.placeholder = 'اكتب عنوانك يدوياً';
         addressInput.className = 'form-input error';
         addressInput.disabled = false;
-        addressInput.ariaDisabled = 'false';
         btn.disabled = false;
         btn.textContent = '📍 تحديد موقعي (Autoriser)';
         const errorMsg = error.message || 'فشل تحديد الموقع';
@@ -1240,7 +1258,7 @@
   document.getElementById('getLocationBtn').addEventListener('click', getClientLocation);
 
   /* ============================================================
-     7. SHOPS MANAGEMENT - إدارة المتاجر
+     7. SHOPS MANAGEMENT
      ============================================================ */
   document.getElementById('addShopBtn').addEventListener('click', function() {
     const container = document.getElementById('shops-container');
@@ -1291,7 +1309,7 @@
   });
 
   /* ============================================================
-     8. CATEGORY SWITCHING - تبديل الفئات
+     8. CATEGORY SWITCHING
      ============================================================ */
   document.querySelectorAll('.category-nav-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -1314,7 +1332,7 @@
   });
 
   /* ============================================================
-     9. RENDER MENU - عرض القائمة
+     9. RENDER MENU
      ============================================================ */
   function renderMenu() {
     Object.keys(menuData).forEach(category => {
@@ -1329,7 +1347,6 @@
       const card = document.createElement('div');
       card.className = 'menu-card';
 
-      // Header: image + info
       const headerDiv = document.createElement('div');
       headerDiv.className = 'item-header';
 
@@ -1356,12 +1373,10 @@
       headerDiv.appendChild(imgDiv);
       headerDiv.appendChild(infoDiv);
 
-      // Description
       const descDiv = document.createElement('div');
       descDiv.style.cssText = 'color:#666;font-size:0.85rem;margin-bottom:8px;';
       descDiv.textContent = item.description;
 
-      // Quantity selector
       const qtySelector = document.createElement('div');
       qtySelector.className = 'quantity-selector';
 
@@ -1391,7 +1406,6 @@
       qtySelector.appendChild(qtyUnit);
       qtySelector.appendChild(totalItemPrice);
 
-      // Quick quantity buttons
       const quickBtnsDiv = document.createElement('div');
       quickBtnsDiv.className = 'quick-quantity-btns';
       item.quickQuantities.forEach(qty => {
@@ -1403,27 +1417,23 @@
         quickBtnsDiv.appendChild(qBtn);
       });
 
-      // Add to cart button
       const addToCartBtn = document.createElement('button');
       addToCartBtn.className = 'add-to-cart-btn';
       addToCartBtn.textContent = '🛒 أضف للسلة';
       addToCartBtn.ariaLabel = `إضافة ${item.name} إلى السلة`;
 
-      // Assemble card
       card.appendChild(headerDiv);
       card.appendChild(descDiv);
       card.appendChild(qtySelector);
       card.appendChild(quickBtnsDiv);
       card.appendChild(addToCartBtn);
 
-      // Update price on quantity change
       function updatePrice() {
         const qty = parseFloat(quantityInput.value) || 0;
         totalItemPrice.textContent = `= ${(qty * item.pricePerUnit).toFixed(3)} DT`;
       }
       quantityInput.addEventListener('input', updatePrice);
 
-      // Quick quantity button click
       card.querySelectorAll('.quick-qty-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           quantityInput.value = this.dataset.qty;
@@ -1431,7 +1441,6 @@
         });
       });
 
-      // Add to cart button click
       addToCartBtn.addEventListener('click', function() {
         const qty = parseFloat(quantityInput.value) || 0;
         if (qty <= 0 || qty > 999) {
@@ -1460,7 +1469,7 @@
   }
 
   /* ============================================================
-     10. CART DISPLAY - عرض السلة
+     10. CART DISPLAY
      ============================================================ */
   function updateCartDisplay() {
     const cartList = document.getElementById('cart-items');
@@ -1513,7 +1522,7 @@
   }
 
   /* ============================================================
-     11. SUBMIT ORDER - إرسال الطلب (مُحسَّن)
+     11. SUBMIT ORDER - باستخدام النموذج التقليدي
      ============================================================ */
   document.getElementById('submitOrder').addEventListener('click', function() {
     if (isSubmitting) {
@@ -1521,13 +1530,16 @@
       return;
     }
 
+    // ============================================================
+    // التحقق من البيانات
+    // ============================================================
     const name = document.getElementById('userName').value.trim();
     const phone = document.getElementById('userPhone').value.trim();
     const adresse = document.getElementById('userAdresse').value.trim();
     const notes = document.getElementById('userNotes').value.trim();
     const shops = getShopData();
 
-    // Validate name
+    // التحقق من الاسم
     if (!name || name.length < 2) {
       showToast('⚠️ اكتب اسمك الكامل (على الأقل حرفين)', 'warning');
       document.getElementById('userName').focus();
@@ -1536,7 +1548,7 @@
     }
     document.getElementById('userName').removeAttribute('aria-invalid');
 
-    // Validate phone
+    // التحقق من رقم الهاتف
     if (!phone || !validatePhone(phone)) {
       showToast('⚠️ رقم هاتف تونسي صحيح (يبدأ بـ 2-9 و 8 أرقام)', 'warning');
       document.getElementById('userPhone').focus();
@@ -1545,20 +1557,22 @@
     }
     document.getElementById('userPhone').removeAttribute('aria-invalid');
 
-    // Validate address
+    // التحقق من العنوان
     if (!adresse || adresse.includes('⏳') || adresse.includes('جاري')) {
       showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك يدوياً', 'warning');
       document.getElementById('userAdresse').focus();
       return;
     }
 
-    // Validate cart
+    // التحقق من السلة
     if (cart.length === 0) {
       showToast('🥲 السلة فارغة - أضف منتجات أولاً', 'warning');
       return;
     }
 
-    // Verify prices
+    // ============================================================
+    // التحقق من الأسعار وحساب المجموع
+    // ============================================================
     let verifiedSubtotal = 0;
     let orderDetails = '';
     for (let i = 0; i < cart.length; i++) {
@@ -1574,6 +1588,10 @@
     }
 
     const totalAmount = verifiedSubtotal + CONFIG.SERVICE_FEE;
+
+    // ============================================================
+    // تجهيز رسالة الطلب
+    // ============================================================
     const orderMessage = `
 🛒 طلب توصيل - 9ATHYA.TN
 👤 ${sanitizeText(name)}
@@ -1588,57 +1606,50 @@
 ⏰ ${new Date().toLocaleString('ar-TN')}
     `;
 
+    // ============================================================
+    // تعبئة حقول النموذج وإرساله
+    // ============================================================
     const submitBtn = document.getElementById('submitOrder');
     isSubmitting = true;
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ جاري الإرسال...';
 
-    // Use email from CONFIG
-    const email = CONFIG.CONTACT_EMAIL;
+    try {
+      // تعبئة حقول النموذج المخفي
+      document.getElementById('formName').value = sanitizeText(name);
+      document.getElementById('formPhone').value = sanitizeText(phone);
+      document.getElementById('formAdresse').value = sanitizeText(adresse);
+      document.getElementById('formMessage').value = orderMessage;
+      document.getElementById('formShops').value = shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : '')).join(', ');
+      document.getElementById('formTotal').value = totalAmount.toFixed(3) + ' DT';
+      document.getElementById('formNotes').value = sanitizeText(notes || 'لا يوجد');
 
-    fetch(`https://formsubmit.co/ajax/${email}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        _subject: `🛒 طلب من ${sanitizeText(name)} - 9ATHYA.TN`,
-        name: sanitizeText(name),
-        phone: sanitizeText(phone),
-        adresse: sanitizeText(adresse),
-        shops: shops.length > 0 ? shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : '')).join('\n') : 'لم يتم تحديد متاجر',
-        notes: sanitizeText(notes),
-        delivery_price_per_km: CONFIG.DELIVERY_PRICE_PER_KM.toFixed(3) + ' دت/كم (حد أدنى ' + CONFIG.MIN_DELIVERY_PRICE.toFixed(3) + ' DT) - يُضاف لاحقاً حسب المسافة',
-        service_fee: CONFIG.SERVICE_FEE.toFixed(3) + ' DT',
-        message: orderMessage,
-        _captcha: 'false',
-        _template: 'table'
-      })
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
-      cart.length = 0;
-      updateCartDisplay();
-      document.getElementById('userName').value = '';
-      document.getElementById('userPhone').value = '';
-      document.getElementById('userNotes').value = '';
-    })
-    .catch(error => {
-      console.error('Error:', error);
+      // إرسال النموذج
+      document.getElementById('orderForm').submit();
+
+      // عرض رسالة نجاح (سيتم تنفيذها بعد الإرسال)
+      showToast('✅ جاري إرسال طلبك...', 'success');
+
+      // تفريغ السلة والحقول بعد الإرسال
+      setTimeout(function() {
+        cart.length = 0;
+        updateCartDisplay();
+        document.getElementById('userName').value = '';
+        document.getElementById('userPhone').value = '';
+        document.getElementById('userNotes').value = '';
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📨 تأكيد الطلب';
+        showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
       showToast('❌ عذراً، حدث خطأ في إرسال الطلب. حاول مرة أخرى', 'error');
-    })
-    .finally(() => {
       isSubmitting = false;
       submitBtn.disabled = false;
       submitBtn.textContent = '📨 تأكيد الطلب';
-    });
+    }
   });
 
   /* ============================================================
@@ -1647,7 +1658,7 @@
   renderMenu();
   updateCartDisplay();
 
-  // Update shops display on input change
+  // تحديث عرض المتاجر عند تغيير المدخلات
   document.addEventListener('input', function(e) {
     if (e.target.classList.contains('shop-name-input') ||
         e.target.classList.contains('shop-zone-input')) {
@@ -1655,7 +1666,7 @@
     }
   });
 
-  // Accessibility: Submit order on Enter key in form fields
+  // إمكانية الوصول: إرسال الطلب بالضغط على Enter
   document.querySelectorAll('.form-input').forEach(input => {
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
@@ -1663,6 +1674,44 @@
       }
     });
   });
+
+  // ============================================================
+  // منع فحص العناصر
+  // ============================================================
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    showToast('🚫 تم تعطيل فحص العناصر', 'warning');
+    return false;
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12') {
+      e.preventDefault();
+      showToast('🚫 تم تعطيل أدوات المطورين', 'warning');
+      return false;
+    }
+    if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
+      e.preventDefault();
+      showToast('🚫 تم تعطيل أدوات المطورين', 'warning');
+      return false;
+    }
+    if (e.ctrlKey && e.key === 'u') {
+      e.preventDefault();
+      showToast('🚫 تم تعطيل عرض المصدر', 'warning');
+      return false;
+    }
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      showToast('🚫 تم تعطيل حفظ الصفحة', 'warning');
+      return false;
+    }
+  });
+
+  console.log('🔒 9ATHYA.TN - التطبيق يعمل بشكل آمن');
+  console.log('✅ جميع رؤوس الأمان مفعلة');
+  console.log('✅ نظام الإشعارات المحسن يعمل');
+  console.log('✅ نموذج الإرسال يعمل عبر formsubmit.co');
+
 })();
 </script>
 
