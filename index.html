@@ -616,6 +616,11 @@
                 opacity: 1;
             }
         }
+
+        /* إخفاء النموذج */
+        #orderForm {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -721,8 +726,8 @@
         </div>
     </div>
 
-    <!-- نموذج الإرسال المخفي - يعمل مع formsubmit.co -->
-    <form id="orderForm" action="https://formsubmit.co/houssemkessentini77@gmail.com" method="POST" style="display:none;">
+    <!-- نموذج الإرسال المخفي - مع target="_blank" لمنع إعادة التوجيه -->
+    <form id="orderForm" action="https://formsubmit.co/houssemkessentini77@gmail.com" method="POST" target="_blank">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_subject" value="طلب جديد - 9ATHYA.TN">
@@ -1201,7 +1206,7 @@
             }
 
             // ============================================================
-            // إرسال الطلب - يعمل 100%
+            // إرسال الطلب - عبر fetch بدون فتح صفحة
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1271,32 +1276,47 @@
                 submitBtn.disabled = true;
                 submitBtn.textContent = '⏳ جاري الإرسال...';
 
-                // تعبئة النموذج المخفي
-                document.getElementById('formName').value = sanitizeText(name);
-                document.getElementById('formPhone').value = sanitizeText(phone);
-                document.getElementById('formAdresse').value = sanitizeText(adresse);
-                document.getElementById('formMessage').value = orderMessage;
-                document.getElementById('formShops').value = shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ?
-                    ' (' + s.zone + ')' : '')).join(', ');
-                document.getElementById('formTotal').value = totalAmount.toFixed(3) + ' DT';
-                document.getElementById('formNotes').value = sanitizeText(notes || 'لا يوجد');
+                // إرسال عبر fetch (بدون فتح صفحة)
+                const formData = new FormData();
+                formData.append('name', sanitizeText(name));
+                formData.append('phone', sanitizeText(phone));
+                formData.append('adresse', sanitizeText(adresse));
+                formData.append('message', orderMessage);
+                formData.append('shops', shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone +
+                    ')' : '')).join(', '));
+                formData.append('total', totalAmount.toFixed(3) + ' DT');
+                formData.append('notes', sanitizeText(notes || 'لا يوجد'));
+                formData.append('_captcha', 'false');
+                formData.append('_template', 'table');
+                formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(name) + ' - 9ATHYA.TN');
 
-                // إرسال النموذج
-                document.getElementById('orderForm').submit();
-
-                showToast('✅ جاري إرسال طلبك...', 'success');
-
-                setTimeout(function() {
-                    cart.length = 0;
-                    updateCartDisplay();
-                    document.getElementById('userName').value = '';
-                    document.getElementById('userPhone').value = '';
-                    document.getElementById('userNotes').value = '';
-                    isSubmitting = false;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '📨 تأكيد الطلب';
-                    showToast('✅ تم إرسال طلبك بنجاح!', 'success');
-                }, 3000);
+                fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('فشل الإرسال');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
+                        cart.length = 0;
+                        updateCartDisplay();
+                        document.getElementById('userName').value = '';
+                        document.getElementById('userPhone').value = '';
+                        document.getElementById('userNotes').value = '';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
+                    })
+                    .finally(() => {
+                        isSubmitting = false;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '📨 تأكيد الطلب';
+                    });
             });
 
             renderMenu();
@@ -1309,7 +1329,7 @@
             });
 
             console.log('✅ 9ATHYA.TN - يعمل 100%');
-            console.log('📧 الإرسال عبر formsubmit.co');
+            console.log('📧 الإرسال عبر AJAX - بدون فتح صفحة');
 
         })();
     </script>
