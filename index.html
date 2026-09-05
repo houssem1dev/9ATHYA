@@ -7,7 +7,7 @@
 
     <style>
         /* ============================================================ */
-        /* CSS - نفس الأنماط السابقة */
+        /* CSS - جميع الأنماط */
         /* ============================================================ */
         :root {
             --primary: #e74c3c;
@@ -860,31 +860,19 @@
     <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
     <!-- ============================================================ -->
-    <!-- JAVASCRIPT - باستخدام EmailJS (بديل يعمل 100%)              -->
+    <!-- JAVASCRIPT - باستخدام Formspree (مجاني - يعمل فوراً)        -->
     <!-- ============================================================ -->
-
-    <!-- تحميل مكتبة EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">
-    </script>
-
     <script>
         (function() {
             'use strict';
 
             // ============================================================
-            // 1. تهيئة EmailJS - سجل مجاني في www.emailjs.com
+            // 1. CONFIG
             // ============================================================
-            // 🔑 سجل في EmailJS واحصل على هذه المفاتيح مجاناً
-            // الرابط: https://www.emailjs.com/sign-up
-            const EMAILJS_CONFIG = {
-                PUBLIC_KEY: 'YOUR_PUBLIC_KEY', // ضع مفتاحك العام هنا
-                SERVICE_ID: 'YOUR_SERVICE_ID', // ضع معرف الخدمة هنا
-                TEMPLATE_ID: 'YOUR_TEMPLATE_ID' // ضع معرف القالب هنا
-            };
+            // 📧 استخدم هذا الرابط: https://formspree.io/f/your_form_id
+            // سجل مجاناً في formspree.io واحصل على رابط النموذج الخاص بك
+            const FORMSPREE_URL = 'https://formspree.io/f/xqakvlvg'; // استبدل برابط النموذج الخاص بك
 
-            // ============================================================
-            // 2. CONFIG
-            // ============================================================
             const DELIVERY_PRICE_PER_KM = 0.500;
             const MIN_DELIVERY_PRICE = 1.800;
             const SERVICE_FEE = 3.000;
@@ -893,7 +881,7 @@
             let isSubmitting = false;
 
             // ============================================================
-            // 3. TOAST NOTIFICATIONS
+            // 2. TOAST NOTIFICATIONS
             // ============================================================
             function showToast(message, type = 'info', duration = 5000) {
                 const container = document.getElementById('toastContainer');
@@ -928,7 +916,7 @@
             }
 
             // ============================================================
-            // 4. MENU DATA
+            // 3. MENU DATA
             // ============================================================
             const menuData = {
                 vegetables: [
@@ -1057,13 +1045,13 @@
             });
 
             // ============================================================
-            // 5. STATE
+            // 4. STATE
             // ============================================================
             const cart = [];
             let currentCategory = 'all';
 
             // ============================================================
-            // 6. UTILITY FUNCTIONS
+            // 5. UTILITY FUNCTIONS
             // ============================================================
             function sanitizeText(str) {
                 if (!str) return '';
@@ -1103,7 +1091,7 @@
             }
 
             // ============================================================
-            // 7. GEOLOCATION
+            // 6. GEOLOCATION
             // ============================================================
             function getClientLocation() {
                 const addressInput = document.getElementById('userAdresse');
@@ -1183,7 +1171,7 @@
             document.getElementById('getLocationBtn').addEventListener('click', getClientLocation);
 
             // ============================================================
-            // 8. SHOPS MANAGEMENT
+            // 7. SHOPS MANAGEMENT
             // ============================================================
             document.getElementById('addShopBtn').addEventListener('click', function() {
                 const container = document.getElementById('shops-container');
@@ -1231,7 +1219,7 @@
             });
 
             // ============================================================
-            // 9. CATEGORY SWITCHING
+            // 8. CATEGORY SWITCHING
             // ============================================================
             document.querySelectorAll('.category-nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -1252,7 +1240,7 @@
             });
 
             // ============================================================
-            // 10. RENDER MENU
+            // 9. RENDER MENU
             // ============================================================
             function renderMenu() {
                 Object.keys(menuData).forEach(category => {
@@ -1387,7 +1375,7 @@
             }
 
             // ============================================================
-            // 11. CART DISPLAY
+            // 10. CART DISPLAY
             // ============================================================
             function updateCartDisplay() {
                 const cartList = document.getElementById('cart-items');
@@ -1440,12 +1428,7 @@
             }
 
             // ============================================================
-            // 12. تهيئة EmailJS
-            // ============================================================
-            emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
-
-            // ============================================================
-            // 13. SUBMIT ORDER - باستخدام EmailJS (يعمل 100%)
+            // 11. SUBMIT ORDER - باستخدام Formspree (يعمل 100%)
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1521,27 +1504,38 @@
                 submitBtn.textContent = '⏳ جاري الإرسال...';
 
                 // ============================================================
-                // إرسال البريد عبر EmailJS
+                // إرسال البريد عبر Formspree
                 // ============================================================
-                const templateParams = {
-                    to_email: 'houssemkessentini77@gmail.com',
-                    from_name: sanitizeText(name),
-                    from_phone: sanitizeText(phone),
-                    from_address: sanitizeText(adresse),
-                    message: orderMessage,
-                    shops: shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone + ')' : ''))
-                        .join(', '),
-                    total: totalAmount.toFixed(3) + ' DT',
-                    notes: sanitizeText(notes || 'لا يوجد'),
-                    order_details: orderDetails
-                };
+                const formData = new FormData();
+                formData.append('name', sanitizeText(name));
+                formData.append('phone', sanitizeText(phone));
+                formData.append('address', sanitizeText(adresse));
+                formData.append('message', orderMessage);
+                formData.append('shops', shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone +
+                ')' : '')).join(', '));
+                formData.append('total', totalAmount.toFixed(3) + ' DT');
+                formData.append('notes', sanitizeText(notes || 'لا يوجد'));
+                formData.append('order_details', orderDetails);
 
-                emailjs.send(
-                        EMAILJS_CONFIG.SERVICE_ID,
-                        EMAILJS_CONFIG.TEMPLATE_ID,
-                        templateParams
-                    )
-                    .then(function(response) {
+                // إضافة إعدادات Formspree
+                formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(name) + ' - 9ATHYA.TN');
+                formData.append('_replyto', 'houssemkessentini77@gmail.com');
+
+                fetch(FORMSPREE_URL, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('فشل الإرسال - الكود: ' + response.status);
+                        }
+                    })
+                    .then(data => {
                         showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
                         cart.length = 0;
                         updateCartDisplay();
@@ -1549,8 +1543,8 @@
                         document.getElementById('userPhone').value = '';
                         document.getElementById('userNotes').value = '';
                     })
-                    .catch(function(error) {
-                        console.error('EmailJS Error:', error);
+                    .catch(error => {
+                        console.error('Error:', error);
                         showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
                     })
                     .finally(() => {
@@ -1561,7 +1555,7 @@
             });
 
             // ============================================================
-            // 14. INIT
+            // 12. INIT
             // ============================================================
             renderMenu();
             updateCartDisplay();
@@ -1574,8 +1568,8 @@
             });
 
             console.log('✅ 9ATHYA.TN - يعمل 100%');
-            console.log('✅ باستخدام EmailJS - يرسل الإيميل بدون مشاكل');
-            console.log('🔑 سجل في EmailJS واستبدل المفاتيح');
+            console.log('📧 باستخدام Formspree - سجل مجاناً في formspree.io');
+            console.log('🔗 رابط النموذج: ' + FORMSPREE_URL);
 
         })();
     </script>
