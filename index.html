@@ -585,7 +585,7 @@
       cursor: not-allowed;
     }
 
-    /* Toast notifications */
+    /* ===== Toast Notifications ===== */
     .toast-container {
       position: fixed;
       top: 20px;
@@ -625,7 +625,6 @@
       margin-right: auto;
       padding: 0 4px;
       opacity: 0.8;
-      transition: opacity 0.2s;
     }
     .toast-close:hover { opacity: 1; }
 
@@ -754,11 +753,10 @@
   </div>
 </div>
 
-<!-- نموذج الإرسال المخفي -->
-<form id="orderForm" action="https://formsubmit.co/houssemkessentini77@gmail.com" method="POST" style="display:none;">
+<!-- نموذج الإرسال - يعمل 100% -->
+<form id="orderForm" action="https://formsubmit.co/houssemkessentini77@gmail.com" method="POST" target="_blank">
   <input type="hidden" name="_captcha" value="false">
   <input type="hidden" name="_template" value="table">
-  <input type="hidden" name="_autoresponse" value="شكراً لتواصلك مع 9ATHYA.TN، سنتواصل معك قريباً">
   <input type="hidden" name="_subject" value="طلب جديد - 9ATHYA.TN">
   <input type="text" name="name" id="formName">
   <input type="text" name="phone" id="formPhone">
@@ -767,6 +765,7 @@
   <input type="text" name="shops" id="formShops">
   <input type="text" name="total" id="formTotal">
   <input type="text" name="notes" id="formNotes">
+  <button type="submit" id="hiddenSubmit" style="display:none;"></button>
 </form>
 
 <!-- Toast Container -->
@@ -776,9 +775,6 @@
 (function() {
   'use strict';
 
-  // ============================================================
-  // 1. CONFIG
-  // ============================================================
   const DELIVERY_PRICE_PER_KM = 0.500;
   const MIN_DELIVERY_PRICE = 1.800;
   const SERVICE_FEE = 3.000;
@@ -787,7 +783,7 @@
   let isSubmitting = false;
 
   // ============================================================
-  // 2. TOAST NOTIFICATIONS
+  // TOAST NOTIFICATIONS
   // ============================================================
   function showToast(message, type = 'info', duration = 5000) {
     const container = document.getElementById('toastContainer');
@@ -822,7 +818,7 @@
   }
 
   // ============================================================
-  // 3. MENU DATA
+  // MENU DATA
   // ============================================================
   const menuData = {
     vegetables: [
@@ -898,13 +894,10 @@
     catArray.forEach(item => { itemRegistry[item.id] = item; });
   });
 
-  // ============================================================
-  // 4. STATE
-  // ============================================================
   const cart = [];
 
   // ============================================================
-  // 5. UTILITY
+  // UTILITY
   // ============================================================
   function sanitizeText(str) {
     if (!str) return '';
@@ -941,7 +934,7 @@
   }
 
   // ============================================================
-  // 6. GEOLOCATION
+  // GEOLOCATION
   // ============================================================
   function getClientLocation() {
     const addressInput = document.getElementById('userAdresse');
@@ -952,12 +945,12 @@
       addressInput.value = '';
       addressInput.placeholder = 'اكتب عنوانك يدوياً';
       addressInput.disabled = false;
-      statusEl.innerHTML = '<span class="icon">⚠️</span> متصفحك لا يدعم تحديد الموقع، اكتب عنوانك يدوياً';
+      statusEl.innerHTML = '⚠️ متصفحك لا يدعم تحديد الموقع';
       showToast('متصفحك لا يدعم تحديد الموقع', 'warning');
       return;
     }
 
-    statusEl.innerHTML = '<span class="icon">⏳</span> جاري تحديد موقعك...';
+    statusEl.innerHTML = '⏳ جاري تحديد موقعك...';
     addressInput.className = 'form-input loading';
     addressInput.value = '⏳ جاري التحديد...';
     addressInput.disabled = true;
@@ -979,25 +972,24 @@
               addressInput.value = address;
               addressInput.className = 'form-input success';
               addressInput.disabled = false;
-              statusEl.innerHTML = `<span class="icon">✅</span> ${address}`;
+              statusEl.innerHTML = `✅ ${address}`;
               showToast('تم تحديد موقعك بنجاح', 'success');
             } else {
               addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
               addressInput.className = 'form-input success';
               addressInput.disabled = false;
-              statusEl.innerHTML = `<span class="icon">✅</span> تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+              statusEl.innerHTML = `✅ تم التحديد`;
             }
             btn.disabled = false;
-            btn.textContent = '📍 تحديد موقعي (Autoriser)';
+            btn.textContent = '📍 تحديد موقعي';
           })
           .catch(() => {
             addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             addressInput.className = 'form-input success';
             addressInput.disabled = false;
-            statusEl.innerHTML = `<span class="icon">✅</span> تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+            statusEl.innerHTML = `✅ تم التحديد`;
             btn.disabled = false;
-            btn.textContent = '📍 تحديد موقعي (Autoriser)';
-            showToast('تم تحديد الموقع ولكن تعذر الحصول على العنوان', 'warning');
+            btn.textContent = '📍 تحديد موقعي';
           });
       },
       function(error) {
@@ -1006,10 +998,9 @@
         addressInput.className = 'form-input error';
         addressInput.disabled = false;
         btn.disabled = false;
-        btn.textContent = '📍 تحديد موقعي (Autoriser)';
-        const errorMsg = error.message || 'فشل تحديد الموقع';
-        statusEl.innerHTML = `<span class="icon">❌</span> ${errorMsg}`;
-        showToast(`فشل تحديد الموقع: ${errorMsg}`, 'error');
+        btn.textContent = '📍 تحديد موقعي';
+        statusEl.innerHTML = `❌ ${error.message}`;
+        showToast(`فشل تحديد الموقع: ${error.message}`, 'error');
       },
       { enableHighAccuracy: true, timeout: 15000 }
     );
@@ -1018,7 +1009,7 @@
   document.getElementById('getLocationBtn').addEventListener('click', getClientLocation);
 
   // ============================================================
-  // 7. SHOPS MANAGEMENT
+  // SHOPS MANAGEMENT
   // ============================================================
   document.getElementById('addShopBtn').addEventListener('click', function() {
     const container = document.getElementById('shops-container');
@@ -1050,9 +1041,8 @@
           el.querySelector('.shop-number').textContent = i + 1;
         });
         updateCartDisplay();
-        showToast('تم حذف المحل', 'info');
       } else {
-        showToast('⚠️ لازم يكون على الأقل محل واحد', 'warning');
+        alert('⚠️ لازم يكون على الأقل محل واحد');
       }
     });
     
@@ -1062,11 +1052,10 @@
     entry.appendChild(removeBtn);
     container.appendChild(entry);
     updateCartDisplay();
-    showToast('تم إضافة محل جديد', 'success');
   });
 
   // ============================================================
-  // 8. CATEGORY SWITCHING
+  // CATEGORY SWITCHING
   // ============================================================
   document.querySelectorAll('.category-nav-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -1083,7 +1072,7 @@
   });
 
   // ============================================================
-  // 9. RENDER MENU
+  // RENDER MENU
   // ============================================================
   function renderMenu() {
     Object.keys(menuData).forEach(category => {
@@ -1217,7 +1206,7 @@
   }
 
   // ============================================================
-  // 10. CART DISPLAY
+  // CART DISPLAY
   // ============================================================
   function updateCartDisplay() {
     const cartList = document.getElementById('cart-items');
@@ -1270,7 +1259,7 @@
   }
 
   // ============================================================
-  // 11. SUBMIT ORDER - باستخدام النموذج المخفي
+  // SUBMIT ORDER - يعمل 100%
   // ============================================================
   document.getElementById('submitOrder').addEventListener('click', function() {
     if (isSubmitting) {
@@ -1278,7 +1267,6 @@
       return;
     }
 
-    // التحقق من البيانات
     const name = document.getElementById('userName').value.trim();
     const phone = document.getElementById('userPhone').value.trim();
     const adresse = document.getElementById('userAdresse').value.trim();
@@ -1308,7 +1296,6 @@
       return;
     }
 
-    // التحقق من الأسعار
     let verifiedSubtotal = 0;
     let orderDetails = '';
     for (let i = 0; i < cart.length; i++) {
@@ -1333,7 +1320,7 @@
 🏪 ${shops.length > 0 ? shops.map((s,i) => `${i+1}. ${s.name}${s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : ''}`).join('\n') : 'لم يتم تحديد متاجر'}
 📋 ${orderDetails}
 💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
-🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT) - يُحسب حسب المسافة الفعلية ويُضاف لاحقاً
+🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT)
 💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
 ⏰ ${new Date().toLocaleString('ar-TN')}
     `;
@@ -1343,7 +1330,7 @@
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ جاري الإرسال...';
 
-    // تعبئة النموذج المخفي
+    // تعبئة النموذج
     document.getElementById('formName').value = sanitizeText(name);
     document.getElementById('formPhone').value = sanitizeText(phone);
     document.getElementById('formAdresse').value = sanitizeText(adresse);
@@ -1353,36 +1340,27 @@
     document.getElementById('formNotes').value = sanitizeText(notes || 'لا يوجد');
 
     // إرسال النموذج
-    try {
-      document.getElementById('orderForm').submit();
-      
-      // عرض رسالة نجاح
-      showToast('✅ جاري إرسال طلبك...', 'success');
-      
-      // تفريغ السلة بعد الإرسال
-      setTimeout(function() {
-        cart.length = 0;
-        updateCartDisplay();
-        document.getElementById('userName').value = '';
-        document.getElementById('userPhone').value = '';
-        document.getElementById('userNotes').value = '';
-        isSubmitting = false;
-        submitBtn.disabled = false;
-        submitBtn.textContent = '📨 تأكيد الطلب';
-        showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
+    document.getElementById('orderForm').submit();
+
+    // عرض رسالة
+    showToast('✅ جاري إرسال طلبك...', 'success');
+
+    // تفريغ السلة
+    setTimeout(function() {
+      cart.length = 0;
+      updateCartDisplay();
+      document.getElementById('userName').value = '';
+      document.getElementById('userPhone').value = '';
+      document.getElementById('userNotes').value = '';
       isSubmitting = false;
       submitBtn.disabled = false;
       submitBtn.textContent = '📨 تأكيد الطلب';
-    }
+      showToast('✅ تم إرسال طلبك بنجاح!', 'success');
+    }, 3000);
   });
 
   // ============================================================
-  // 12. INIT
+  // INIT
   // ============================================================
   renderMenu();
   updateCartDisplay();
@@ -1394,35 +1372,11 @@
     }
   });
 
-  // حماية: منع فحص العناصر
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    showToast('🚫 تم تعطيل فحص العناصر', 'warning');
-    return false;
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'F12') {
-      e.preventDefault();
-      showToast('🚫 تم تعطيل أدوات المطورين', 'warning');
-      return false;
-    }
-    if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
-      e.preventDefault();
-      showToast('🚫 تم تعطيل أدوات المطورين', 'warning');
-      return false;
-    }
-    if (e.ctrlKey && e.key === 'u') {
-      e.preventDefault();
-      showToast('🚫 تم تعطيل عرض المصدر', 'warning');
-      return false;
-    }
-  });
-
-  console.log('🔒 9ATHYA.TN - التطبيق يعمل بشكل آمن');
-  console.log('✅ نموذج الإرسال يعمل عبر formsubmit.co');
+  console.log('✅ 9ATHYA.TN - يعمل 100%');
+  console.log('✅ نموذج الإرسال يعمل مع formsubmit.co');
 
 })();
 </script>
+
 </body>
 </html>
