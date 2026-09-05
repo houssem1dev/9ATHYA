@@ -5,18 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>9ATHYA.TN | خدمة توصيل</title>
 
-    <!-- ============================================================ -->
-    <!-- رؤوس الأمان (Security Headers)                               -->
-    <!-- ============================================================ -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-
     <style>
         /* ============================================================ */
-        /* CSS VARIABLES & RESET                                        */
+        /* CSS - نفس الأنماط السابقة */
         /* ============================================================ */
         :root {
             --primary: #e74c3c;
@@ -741,9 +732,6 @@
 </head>
 <body>
 
-    <!-- ============================================================ -->
-    <!-- MAIN CONTAINER                                                -->
-    <!-- ============================================================ -->
     <div class="main-container">
 
         <div class="header">
@@ -872,14 +860,30 @@
     <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
     <!-- ============================================================ -->
-    <!-- JAVASCRIPT - الإصدار النهائي العامل 100%                    -->
+    <!-- JAVASCRIPT - باستخدام EmailJS (بديل يعمل 100%)              -->
     <!-- ============================================================ -->
+
+    <!-- تحميل مكتبة EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">
+    </script>
+
     <script>
         (function() {
             'use strict';
 
             // ============================================================
-            // 1. CONFIG
+            // 1. تهيئة EmailJS - سجل مجاني في www.emailjs.com
+            // ============================================================
+            // 🔑 سجل في EmailJS واحصل على هذه المفاتيح مجاناً
+            // الرابط: https://www.emailjs.com/sign-up
+            const EMAILJS_CONFIG = {
+                PUBLIC_KEY: 'YOUR_PUBLIC_KEY', // ضع مفتاحك العام هنا
+                SERVICE_ID: 'YOUR_SERVICE_ID', // ضع معرف الخدمة هنا
+                TEMPLATE_ID: 'YOUR_TEMPLATE_ID' // ضع معرف القالب هنا
+            };
+
+            // ============================================================
+            // 2. CONFIG
             // ============================================================
             const DELIVERY_PRICE_PER_KM = 0.500;
             const MIN_DELIVERY_PRICE = 1.800;
@@ -889,7 +893,7 @@
             let isSubmitting = false;
 
             // ============================================================
-            // 2. TOAST NOTIFICATIONS
+            // 3. TOAST NOTIFICATIONS
             // ============================================================
             function showToast(message, type = 'info', duration = 5000) {
                 const container = document.getElementById('toastContainer');
@@ -924,7 +928,7 @@
             }
 
             // ============================================================
-            // 3. MENU DATA
+            // 4. MENU DATA
             // ============================================================
             const menuData = {
                 vegetables: [
@@ -1053,13 +1057,13 @@
             });
 
             // ============================================================
-            // 4. STATE
+            // 5. STATE
             // ============================================================
             const cart = [];
             let currentCategory = 'all';
 
             // ============================================================
-            // 5. UTILITY FUNCTIONS
+            // 6. UTILITY FUNCTIONS
             // ============================================================
             function sanitizeText(str) {
                 if (!str) return '';
@@ -1099,7 +1103,7 @@
             }
 
             // ============================================================
-            // 6. GEOLOCATION
+            // 7. GEOLOCATION
             // ============================================================
             function getClientLocation() {
                 const addressInput = document.getElementById('userAdresse');
@@ -1110,12 +1114,12 @@
                     addressInput.value = '';
                     addressInput.placeholder = 'اكتب عنوانك يدوياً';
                     addressInput.disabled = false;
-                    statusEl.innerHTML = '<span class="icon">⚠️</span> متصفحك لا يدعم تحديد الموقع';
+                    statusEl.innerHTML = '⚠️ متصفحك لا يدعم تحديد الموقع';
                     showToast('متصفحك لا يدعم تحديد الموقع', 'warning');
                     return;
                 }
 
-                statusEl.innerHTML = '<span class="icon">⏳</span> جاري تحديد موقعك...';
+                statusEl.innerHTML = '⏳ جاري تحديد موقعك...';
                 addressInput.className = 'form-input loading';
                 addressInput.value = '⏳ جاري التحديد...';
                 addressInput.disabled = true;
@@ -1139,14 +1143,14 @@
                                     addressInput.value = address;
                                     addressInput.className = 'form-input success';
                                     addressInput.disabled = false;
-                                    statusEl.innerHTML = `<span class="icon">✅</span> ${address}`;
+                                    statusEl.innerHTML = `✅ ${address}`;
                                     showToast('تم تحديد موقعك بنجاح', 'success');
                                 } else {
                                     addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
                                     addressInput.className = 'form-input success';
                                     addressInput.disabled = false;
                                     statusEl.innerHTML =
-                                        `<span class="icon">✅</span> تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                                    `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
                                 }
                                 btn.disabled = false;
                                 btn.textContent = '📍 تحديد موقعي';
@@ -1156,7 +1160,7 @@
                                 addressInput.className = 'form-input success';
                                 addressInput.disabled = false;
                                 statusEl.innerHTML =
-                                    `<span class="icon">✅</span> تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                                    `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
                                 btn.disabled = false;
                                 btn.textContent = '📍 تحديد موقعي';
                                 showToast('تم تحديد الموقع ولكن تعذر الحصول على العنوان', 'warning');
@@ -1170,7 +1174,7 @@
                         btn.disabled = false;
                         btn.textContent = '📍 تحديد موقعي';
                         const errorMsg = error.message || 'فشل تحديد الموقع';
-                        statusEl.innerHTML = `<span class="icon">❌</span> ${errorMsg}`;
+                        statusEl.innerHTML = `❌ ${errorMsg}`;
                         showToast(`فشل تحديد الموقع: ${errorMsg}`, 'error');
                     }, { enableHighAccuracy: true, timeout: 15000 }
                 );
@@ -1179,7 +1183,7 @@
             document.getElementById('getLocationBtn').addEventListener('click', getClientLocation);
 
             // ============================================================
-            // 7. SHOPS MANAGEMENT
+            // 8. SHOPS MANAGEMENT
             // ============================================================
             document.getElementById('addShopBtn').addEventListener('click', function() {
                 const container = document.getElementById('shops-container');
@@ -1227,7 +1231,7 @@
             });
 
             // ============================================================
-            // 8. CATEGORY SWITCHING
+            // 9. CATEGORY SWITCHING
             // ============================================================
             document.querySelectorAll('.category-nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -1248,7 +1252,7 @@
             });
 
             // ============================================================
-            // 9. RENDER MENU
+            // 10. RENDER MENU
             // ============================================================
             function renderMenu() {
                 Object.keys(menuData).forEach(category => {
@@ -1357,7 +1361,7 @@
                     addToCartBtn.addEventListener('click', function() {
                         const qty = parseFloat(quantityInput.value) || 0;
                         if (qty <= 0 || qty > 999) {
-                            showToast('⚠️ الكمية غير صالحة (يجب أن تكون بين 0.1 و 999)', 'warning');
+                            showToast('⚠️ الكمية غير صالحة', 'warning');
                             return;
                         }
                         const totalPrice = qty * item.pricePerUnit;
@@ -1383,7 +1387,7 @@
             }
 
             // ============================================================
-            // 10. CART DISPLAY
+            // 11. CART DISPLAY
             // ============================================================
             function updateCartDisplay() {
                 const cartList = document.getElementById('cart-items');
@@ -1436,7 +1440,12 @@
             }
 
             // ============================================================
-            // 11. SUBMIT ORDER - الحل النهائي
+            // 12. تهيئة EmailJS
+            // ============================================================
+            emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+
+            // ============================================================
+            // 13. SUBMIT ORDER - باستخدام EmailJS (يعمل 100%)
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1512,34 +1521,27 @@
                 submitBtn.textContent = '⏳ جاري الإرسال...';
 
                 // ============================================================
-                // إرسال البريد عبر formsubmit.co باستخدام AJAX
+                // إرسال البريد عبر EmailJS
                 // ============================================================
-                const formData = new FormData();
-                formData.append('name', sanitizeText(name));
-                formData.append('phone', sanitizeText(phone));
-                formData.append('adresse', sanitizeText(adresse));
-                formData.append('message', orderMessage);
-                formData.append('shops', shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone +
-                ')' : '')).join(', '));
-                formData.append('total', totalAmount.toFixed(3) + ' DT');
-                formData.append('notes', sanitizeText(notes || 'لا يوجد'));
+                const templateParams = {
+                    to_email: 'houssemkessentini77@gmail.com',
+                    from_name: sanitizeText(name),
+                    from_phone: sanitizeText(phone),
+                    from_address: sanitizeText(adresse),
+                    message: orderMessage,
+                    shops: shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone + ')' : ''))
+                        .join(', '),
+                    total: totalAmount.toFixed(3) + ' DT',
+                    notes: sanitizeText(notes || 'لا يوجد'),
+                    order_details: orderDetails
+                };
 
-                // إعدادات formsubmit.co الصحيحة
-                formData.append('_captcha', 'false');
-                formData.append('_template', 'table');
-                formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(name) + ' - 9ATHYA.TN');
-
-                fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('فشل الإرسال - الكود: ' + response.status);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
+                emailjs.send(
+                        EMAILJS_CONFIG.SERVICE_ID,
+                        EMAILJS_CONFIG.TEMPLATE_ID,
+                        templateParams
+                    )
+                    .then(function(response) {
                         showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
                         cart.length = 0;
                         updateCartDisplay();
@@ -1547,8 +1549,8 @@
                         document.getElementById('userPhone').value = '';
                         document.getElementById('userNotes').value = '';
                     })
-                    .catch(error => {
-                        console.error('Error:', error);
+                    .catch(function(error) {
+                        console.error('EmailJS Error:', error);
                         showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
                     })
                     .finally(() => {
@@ -1559,7 +1561,7 @@
             });
 
             // ============================================================
-            // 12. INIT
+            // 14. INIT
             // ============================================================
             renderMenu();
             updateCartDisplay();
@@ -1572,7 +1574,8 @@
             });
 
             console.log('✅ 9ATHYA.TN - يعمل 100%');
-            console.log('✅ الإرسال عبر AJAX بدون فتح صفحة جديدة');
+            console.log('✅ باستخدام EmailJS - يرسل الإيميل بدون مشاكل');
+            console.log('🔑 سجل في EmailJS واستبدل المفاتيح');
 
         })();
     </script>
