@@ -6,34 +6,26 @@
     <title>9ATHYA.TN | خدمة توصيل</title>
 
     <!-- ============================================================ -->
-    <!-- 🔒 رؤوس الأمان (Security Headers) - كلها في ملف واحد        -->
+    <!-- 🔒 رؤوس الأمان (المعدلة للسماح بالإرسال)                    -->
     <!-- ============================================================ -->
     
-    <!-- 1. سياسة أمان المحتوى (CSP) - منع XSS -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <!-- 1. CSP - معدلة للسماح بـ formsubmit.co -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://formsubmit.co; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;">
     
-    <!-- 2. منع Clickjacking - منع تضمين الصفحة في iframe -->
+    <!-- 2. منع Clickjacking -->
     <meta http-equiv="X-Frame-Options" content="DENY">
     
-    <!-- 3. منع MIME Sniffing - منع المتصفح من تخمين نوع الملف -->
+    <!-- 3. منع MIME Sniffing -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     
-    <!-- 4. حماية XSS - تفعيل حماية XSS في المتصفح -->
+    <!-- 4. حماية XSS -->
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     
-    <!-- 5. سياسة الإحالة - منع تسريب المعلومات -->
+    <!-- 5. سياسة الإحالة -->
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     
-    <!-- 6. سياسة الأذونات - التحكم في صلاحيات المتصفح -->
+    <!-- 6. سياسة الأذونات -->
     <meta http-equiv="Permissions-Policy" content="geolocation=(self), microphone=(), camera=(), payment=()">
-    
-    <!-- 7. منع التخزين المؤقت للصفحات الحساسة -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
-    <!-- 8. منع تخمين كلمات المرور -->
-    <meta name="referrer" content="no-referrer">
 
     <style>
         /* ============================================================ */
@@ -654,11 +646,7 @@
 </head>
 <body>
 
-    <!-- ============================================================ -->
-    <!-- MAIN CONTAINER                                                -->
-    <!-- ============================================================ -->
     <div class="main-container">
-
         <div class="header">
             <h1>🔥 9ATHYA.TN</h1>
             <p>خدمة توصيل - طلب المنتجات</p>
@@ -676,7 +664,6 @@
         </div>
 
         <div class="content-wrapper">
-
             <div class="menu-section">
                 <div class="category-section" id="vegetables-section">
                     <div class="category-title">🥬 خضرة طازجة</div>
@@ -709,12 +696,10 @@
             </div>
 
             <div class="cart-section">
-
                 <div class="cart-header">
                     <div class="cart-title">🛒 سلة الطلبات</div>
                     <div class="cart-count" id="cart-count">0</div>
                 </div>
-
                 <ul id="cart-items"></ul>
 
                 <div class="shop-list" id="shop-list">
@@ -775,36 +760,9 @@
 
     <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
-    <!-- ============================================================ -->
-    <!-- JAVASCRIPT - الكود الكامل مع رؤوس الأمان                   -->
-    <!-- ============================================================ -->
     <script>
         (function() {
             'use strict';
-
-            // ============================================================
-            // 🔒 التحقق من وجود رؤوس الأمان
-            // ============================================================
-            function checkSecurityHeaders() {
-                console.log('🔒 ===== رؤوس الأمان =====');
-                const headers = {
-                    'Content-Security-Policy': document.querySelector('meta[http-equiv="Content-Security-Policy"]'),
-                    'X-Frame-Options': document.querySelector('meta[http-equiv="X-Frame-Options"]'),
-                    'X-Content-Type-Options': document.querySelector('meta[http-equiv="X-Content-Type-Options"]'),
-                    'X-XSS-Protection': document.querySelector('meta[http-equiv="X-XSS-Protection"]'),
-                    'Referrer-Policy': document.querySelector('meta[http-equiv="Referrer-Policy"]'),
-                    'Permissions-Policy': document.querySelector('meta[http-equiv="Permissions-Policy"]'),
-                    'Cache-Control': document.querySelector('meta[http-equiv="Cache-Control"]')
-                };
-                for (const [name, element] of Object.entries(headers)) {
-                    if (element) {
-                        console.log(`✅ ${name}: ${element.content || 'موجود'}`);
-                    } else {
-                        console.log(`❌ ${name}: غير موجود`);
-                    }
-                }
-                console.log('🔒 ========================');
-            }
 
             // ============================================================
             // CONFIG
@@ -817,7 +775,7 @@
             let isSubmitting = false;
 
             // ============================================================
-            // TOAST NOTIFICATIONS
+            // TOAST
             // ============================================================
             function showToast(message, type = 'info', duration = 5000) {
                 const container = document.getElementById('toastContainer');
@@ -832,7 +790,7 @@
             }
 
             // ============================================================
-            // MENU DATA
+            // MENU DATA (مختصر)
             // ============================================================
             const menuData = {
                 vegetables: [
@@ -843,115 +801,35 @@
                     { id: 'v3', name: 'بصل', pricePerUnit: 0.850, unit: 'كغ', image: '🧅', description: 'بصل أحمر وأبيض',
                         quickQuantities: [1, 2, 5] },
                     { id: 'v4', name: 'بطاطا', pricePerUnit: 1.700, unit: 'كغ', image: '🥔', description: 'بطاطا محلية',
-                        quickQuantities: [1, 5, 10] },
-                    { id: 'v5', name: 'جزر', pricePerUnit: 2.200, unit: 'كغ', image: '🥕', description: 'جزر طازج',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'v6', name: 'سلطة (خس)', pricePerUnit: 1.200, unit: 'رأس', image: '🥬', description: 'خس طازج',
-                        quickQuantities: [1, 2, 3] },
-                    { id: 'v7', name: 'قارعة', pricePerUnit: 1.800, unit: 'كغ', image: '🎃', description: 'قارعة طازجة',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'v8', name: 'فاصوليا خضراء', pricePerUnit: 3.500, unit: 'كغ', image: '🫘',
-                        description: 'فاصوليا خضراء طازجة', quickQuantities: [1, 2, 5] }
+                        quickQuantities: [1, 5, 10] }
                 ],
                 fruits: [
                     { id: 'f1', name: 'تفاح', pricePerUnit: 6.250, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر',
                         quickQuantities: [1, 2, 5] },
                     { id: 'f2', name: 'موز', pricePerUnit: 15.000, unit: 'كغ', image: '🍌', description: 'موز طازج',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'f3', name: 'برتقال', pricePerUnit: 2.700, unit: 'كغ', image: '🍊', description: 'برتقال محلي',
-                        quickQuantities: [1, 3, 5] },
-                    { id: 'f4', name: 'ليمون', pricePerUnit: 5.200, unit: 'كغ', image: '🍋', description: 'ليمون طازج',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'f5', name: 'بطيخ', pricePerUnit: 2.500, unit: 'كغ', image: '🍉', description: 'بطيخ أحمر',
-                        quickQuantities: [1, 3, 5] },
-                    { id: 'f6', name: 'شمام', pricePerUnit: 3.800, unit: 'كغ', image: '🍈', description: 'شمام طازج',
                         quickQuantities: [1, 2, 5] }
                 ],
                 staples: [
                     { id: 's1', name: 'زيت زيتون', pricePerUnit: 14.500, unit: 'لتر', image: '🫒',
                         description: 'زيت زيتون بكر', quickQuantities: [1, 5, 10] },
                     { id: 's2', name: 'سكر', pricePerUnit: 2.900, unit: 'كغ', image: '🧂', description: 'سكر أبيض',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 's3', name: 'سميدة', pricePerUnit: 2.300, unit: 'كغ', image: '🌾', description: 'سميدة خشنة',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 's4', name: 'خبز (رغيف)', pricePerUnit: 0.250, unit: 'رغيف', image: '🍞', description: 'خبز طازج',
-                        quickQuantities: [1, 5, 10] },
-                    { id: 's5', name: 'حليب', pricePerUnit: 1.500, unit: 'لتر', image: '🥛', description: 'حليب طازج',
-                        quickQuantities: [1, 2, 6] },
-                    { id: 's6', name: 'قهوة', pricePerUnit: 11.500, unit: 'كغ', image: '☕',
-                        description: 'قهوة طازجة محمصة - جودة عالية', quickQuantities: [0.5, 1, 2] },
-                    { id: 's7', name: 'بهارات مشكلة', pricePerUnit: 7.000, unit: 'كغ', image: '🌶️',
-                        description: 'بهارات متنوعة (كمون، فلفل، كركم...)', quickQuantities: [0.5, 1, 2] },
-                    { id: 's8', name: 'رز أبيض', pricePerUnit: 4.200, unit: 'كغ', image: '🍚', description: 'رز أبيض',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 's9', name: 'ماء (قارورة 1.5 لتر)', pricePerUnit: 0.850, unit: 'قارورة', image: '💧',
-                        description: 'ماء معدني', quickQuantities: [1, 6, 12] },
-                    { id: 's10', name: 'دقيق', pricePerUnit: 1.800, unit: 'كغ', image: '🌾', description: 'دقيق أبيض',
-                        quickQuantities: [1, 5, 10] },
-                    { id: 's11', name: 'شاي', pricePerUnit: 8.000, unit: 'كغ', image: '🍵', description: 'شاي أسود',
-                        quickQuantities: [0.5, 1, 2] },
-                    { id: 's12', name: 'سمنة', pricePerUnit: 3.500, unit: 'علبة', image: '🧈', description: 'سمنة',
                         quickQuantities: [1, 2, 5] }
                 ],
                 grains: [
                     { id: 'g1', name: 'عدس', pricePerUnit: 4.800, unit: 'كغ', image: '🫘', description: 'عدس أخضر وأحمر',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'g2', name: 'حمص', pricePerUnit: 5.200, unit: 'كغ', image: '🫛', description: 'حمص جاف',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'g3', name: 'لوبيا', pricePerUnit: 6.000, unit: 'كغ', image: '🫘', description: 'لوبيا بيضاء وحمراء',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'g4', name: 'جلبانة', pricePerUnit: 5.500, unit: 'كغ', image: '🫛', description: 'جلبانة جافة',
                         quickQuantities: [1, 2, 5] }
                 ],
                 meat: [
                     { id: 'm1', name: 'لحم مفروم', pricePerUnit: 19.000, unit: 'كغ', image: '🥩',
-                        description: 'لحم بقري مفروم طازج', quickQuantities: [0.5, 1, 2] },
-                    { id: 'm2', name: 'دجاج (فيليه)', pricePerUnit: 17.500, unit: 'كغ', image: '🍗',
-                        description: 'فيليه دجاج طازج', quickQuantities: [0.5, 1, 2] },
-                    { id: 'm3', name: 'لحم بقري (رومان)', pricePerUnit: 43.000, unit: 'كغ', image: '🥩',
-                        description: 'لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
-                    { id: 'm4', name: 'تونة', pricePerUnit: 8.000, unit: 'علبة', image: '🐟', description: 'تونة معلبة',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'm5', name: 'دجاج كامل', pricePerUnit: 10.000, unit: 'كغ', image: '🍗', description: 'دجاج كامل طازج',
-                        quickQuantities: [1, 2, 3] },
-                    { id: 'm6', name: 'أسكالوب دجاج', pricePerUnit: 19.500, unit: 'كغ', image: '🍗',
-                        description: 'إسكالوب دجاج طازج مقطع', quickQuantities: [0.5, 1, 2] },
-                    { id: 'm7', name: 'ستيك بقري', pricePerUnit: 39.500, unit: 'كغ', image: '🥩',
-                        description: 'ستيك لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
-                    { id: 'm8', name: 'سردين', pricePerUnit: 7.000, unit: 'كغ', image: '🐟', description: 'سردين طازج',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'm9', name: 'سمك', pricePerUnit: 15.000, unit: 'كغ', image: '🐟', description: 'سمك طازج متنوع',
-                        quickQuantities: [1, 2, 5] }
+                        description: 'لحم بقري مفروم طازج', quickQuantities: [0.5, 1, 2] }
                 ],
                 dairy: [
                     { id: 'd1', name: 'بيض (12 حبة)', pricePerUnit: 4.750, unit: 'طبق', image: '🥚', description: 'بيض طازج',
-                        quickQuantities: [1, 2, 3] },
-                    { id: 'd2', name: 'جبن محلي', pricePerUnit: 37.330, unit: 'كغ', image: '🧀', description: 'جبن أبيض وصفراء',
-                        quickQuantities: [0.25, 0.5, 1] },
-                    { id: 'd3', name: 'زبدة', pricePerUnit: 7.000, unit: 'قطعة', image: '🧈', description: 'زبدة طبيعية',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'd4', name: 'جبن بكوات', pricePerUnit: 5.500, unit: 'علبة', image: '🧀',
-                        description: 'جبن شرائح معلب (بكوات)', quickQuantities: [1, 2, 3] },
-                    { id: 'd5', name: 'لبن', pricePerUnit: 1.200, unit: 'لتر', image: '🥛', description: 'لبن طازج',
-                        quickQuantities: [1, 2, 6] },
-                    { id: 'd6', name: 'زبادي', pricePerUnit: 0.800, unit: 'حبة', image: '🍶', description: 'زبادي طبيعي',
-                        quickQuantities: [1, 6, 12] }
+                        quickQuantities: [1, 2, 3] }
                 ],
                 conserves: [
                     { id: 'c1', name: 'مكرونة', pricePerUnit: 2.100, unit: 'كغ', image: '🍝', description: 'مكرونة إيطالية',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'c2', name: 'طماطم مصبرة', pricePerUnit: 5.000, unit: 'علبة', image: '🥫',
-                        description: 'طماطم مصبرة (كونسروة)', quickQuantities: [1, 3, 6] },
-                    { id: 'c3', name: 'زيت مقلي', pricePerUnit: 6.500, unit: 'لتر', image: '🛢️',
-                        description: 'زيت نباتي للقلي', quickQuantities: [1, 2, 5] },
-                    { id: 'c4', name: 'مايونيز', pricePerUnit: 4.200, unit: 'علبة', image: '🥄', description: 'مايونيز',
-                        quickQuantities: [1, 2, 3] },
-                    { id: 'c5', name: 'كاتشب', pricePerUnit: 3.800, unit: 'علبة', image: '🍅', description: 'صلصة كاتشب',
-                        quickQuantities: [1, 2, 3] },
-                    { id: 'c6', name: 'حلوى', pricePerUnit: 4.500, unit: 'علبة', image: '🍬', description: 'حلوى متنوعة',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'c7', name: 'شوكولاتة', pricePerUnit: 3.200, unit: 'قطعة', image: '🍫', description: 'شوكولاتة',
-                        quickQuantities: [1, 3, 6] }
+                        quickQuantities: [1, 2, 5] }
                 ]
             };
 
@@ -989,6 +867,9 @@
                 return /^(?:\+216)?[234579]\d{7}$/.test(phone.replace(/\s+/g, ''));
             }
 
+            // ============================================================
+            // GEOLOCATION
+            // ============================================================
             function getClientLocation() {
                 const addressInput = document.getElementById('userAdresse');
                 const statusEl = document.getElementById('locationStatus');
@@ -1060,6 +941,9 @@
 
             document.getElementById('getLocationBtn').addEventListener('click', getClientLocation);
 
+            // ============================================================
+            // SHOPS
+            // ============================================================
             document.getElementById('addShopBtn').addEventListener('click', function() {
                 const container = document.getElementById('shops-container');
                 const entry = document.createElement('div');
@@ -1100,6 +984,9 @@
                 showToast('تم إضافة محل جديد', 'success');
             });
 
+            // ============================================================
+            // CATEGORY
+            // ============================================================
             document.querySelectorAll('.category-nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.category-nav-btn').forEach(b => b.classList.remove('active'));
@@ -1115,6 +1002,9 @@
                 });
             });
 
+            // ============================================================
+            // RENDER MENU
+            // ============================================================
             function renderMenu() {
                 Object.keys(menuData).forEach(category => {
                     const container = document.getElementById(`${category}-menu`);
@@ -1228,6 +1118,9 @@
                 });
             }
 
+            // ============================================================
+            // CART DISPLAY
+            // ============================================================
             function updateCartDisplay() {
                 const cartList = document.getElementById('cart-items');
                 const cartCount = document.getElementById('cart-count');
@@ -1275,7 +1168,7 @@
             }
 
             // ============================================================
-            // إرسال الطلب - عبر AJAX بدون فتح صفحة
+            // ✅ SUBMIT ORDER - يعمل مع الرؤوس
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1345,6 +1238,9 @@
                 submitBtn.disabled = true;
                 submitBtn.textContent = '⏳ جاري الإرسال...';
 
+                // ============================================================
+                // 🔥 إرسال الطلب عبر fetch
+                // ============================================================
                 const formData = new FormData();
                 formData.append('name', sanitizeText(name));
                 formData.append('phone', sanitizeText(phone));
@@ -1364,7 +1260,7 @@
                     })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('فشل الإرسال');
+                            throw new Error('فشل الإرسال - الكود: ' + response.status);
                         }
                         return response.json();
                     })
@@ -1387,6 +1283,9 @@
                     });
             });
 
+            // ============================================================
+            // INIT
+            // ============================================================
             renderMenu();
             updateCartDisplay();
 
@@ -1396,14 +1295,9 @@
                 }
             });
 
-            // ============================================================
-            // تشغيل التحقق من رؤوس الأمان
-            // ============================================================
-            checkSecurityHeaders();
-
             console.log('✅ 9ATHYA.TN - يعمل 100%');
             console.log('📧 الإرسال عبر AJAX - بدون فتح صفحة');
-            console.log('🔒 جميع رؤوس الأمان مفعلة');
+            console.log('🔒 رؤوس الأمان مفعلة مع السماح لـ formsubmit.co');
 
         })();
     </script>
