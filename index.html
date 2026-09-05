@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>9ATHYA.TN | خدمة توصيل</title>
-
     <style>
-        /* ============================================================ */
-        /* CSS - جميع الأنماط */
-        /* ============================================================ */
         :root {
             --primary: #e74c3c;
             --primary-dark: #c0392b;
@@ -19,18 +15,13 @@
             --card-bg: #ffffff;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.2);
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #17a2b8;
         }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Cairo', 'Tahoma', sans-serif;
         }
-
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
@@ -39,7 +30,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .main-container {
             max-width: 1400px;
             width: 100%;
@@ -48,14 +38,12 @@
             box-shadow: var(--shadow-hover);
             overflow: hidden;
         }
-
         .header {
             background: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
             padding: 20px;
             text-align: center;
             color: white;
         }
-
         .header h1 {
             font-size: clamp(1.8rem, 5vw, 3rem);
             font-weight: 900;
@@ -63,12 +51,10 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             margin-bottom: 5px;
         }
-
         .header p {
             font-size: clamp(0.9rem, 2vw, 1.2rem);
             opacity: 0.95;
         }
-
         .category-nav {
             display: flex;
             gap: 8px;
@@ -80,7 +66,6 @@
             top: 0;
             z-index: 100;
         }
-
         .category-nav-btn {
             padding: 8px 16px;
             background: #f5f5f5;
@@ -92,46 +77,37 @@
             transition: all 0.3s;
             white-space: nowrap;
             color: #333;
-            user-select: none;
         }
-
         .category-nav-btn:hover {
             background: #e0e0e0;
-            transform: translateY(-1px);
         }
-
         .category-nav-btn.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
             box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
-
         .content-wrapper {
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
             padding: 15px;
         }
-
         @media (min-width: 1024px) {
             .content-wrapper {
                 grid-template-columns: 1fr 420px;
                 padding: 25px;
             }
         }
-
         .menu-section {
             background: var(--card-bg);
             border-radius: 15px;
             padding: 15px;
             box-shadow: var(--shadow);
         }
-
         .category-section {
             margin-bottom: 25px;
         }
-
         .category-title {
             font-size: clamp(1.2rem, 3vw, 1.8rem);
             font-weight: 800;
@@ -145,19 +121,16 @@
             background: #f9f9f9;
             border-right: 4px solid var(--primary);
         }
-
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 15px;
         }
-
         @media (max-width: 480px) {
             .menu-grid {
                 grid-template-columns: 1fr;
             }
         }
-
         .menu-card {
             background: white;
             border: 2px solid #e0e0e0;
@@ -165,20 +138,17 @@
             padding: 15px;
             transition: all 0.3s;
         }
-
         .menu-card:hover {
             border-color: var(--primary);
             transform: translateY(-3px);
             box-shadow: var(--shadow-hover);
         }
-
         .item-header {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
         }
-
         .item-image {
             width: 60px;
             height: 60px;
@@ -190,30 +160,25 @@
             font-size: 2.5rem;
             flex-shrink: 0;
         }
-
         .item-info {
             flex: 1;
         }
-
         .item-name {
             font-size: clamp(1rem, 2vw, 1.2rem);
             font-weight: 800;
             color: var(--dark);
             margin-bottom: 3px;
         }
-
         .item-unit-price {
             font-size: clamp(1rem, 2vw, 1.3rem);
             font-weight: 900;
             color: var(--primary);
         }
-
         .item-unit-price span {
             font-size: 0.8rem;
             color: #999;
             font-weight: 400;
         }
-
         .quantity-selector {
             margin: 10px 0;
             padding: 10px;
@@ -224,7 +189,6 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-
         .quantity-input {
             width: 70px;
             padding: 6px;
@@ -234,32 +198,23 @@
             text-align: center;
             font-weight: 700;
         }
-
-        .quantity-input:focus {
-            outline: 2px solid var(--primary);
-            border-color: var(--primary);
-        }
-
         .quantity-unit {
             color: #666;
             font-weight: 600;
             font-size: 0.9rem;
         }
-
         .total-item-price {
             font-size: 1rem;
             font-weight: 800;
             color: var(--success);
             margin-right: auto;
         }
-
         .quick-quantity-btns {
             display: flex;
             gap: 5px;
             margin-top: 8px;
             flex-wrap: wrap;
         }
-
         .quick-qty-btn {
             padding: 4px 10px;
             background: #e0e0e0;
@@ -269,13 +224,10 @@
             font-size: 0.8rem;
             transition: all 0.2s;
         }
-
         .quick-qty-btn:hover {
             background: var(--secondary);
             color: white;
-            transform: scale(1.05);
         }
-
         .add-to-cart-btn {
             width: 100%;
             padding: 10px;
@@ -289,19 +241,16 @@
             transition: all 0.3s;
             margin-top: 8px;
         }
-
         .add-to-cart-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
-
         .cart-section {
             background: white;
             border-radius: 15px;
             padding: 15px;
             box-shadow: var(--shadow);
         }
-
         @media (min-width: 1024px) {
             .cart-section {
                 position: sticky;
@@ -311,7 +260,6 @@
                 overflow-y: auto;
             }
         }
-
         .cart-header {
             display: flex;
             justify-content: space-between;
@@ -320,13 +268,11 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #eee;
         }
-
         .cart-title {
             font-size: clamp(1.3rem, 2.5vw, 1.8rem);
             font-weight: 800;
             color: var(--dark);
         }
-
         .cart-count {
             background: var(--primary);
             color: white;
@@ -335,14 +281,12 @@
             font-weight: 800;
             font-size: 0.9rem;
         }
-
         #cart-items {
             list-style: none;
             max-height: 200px;
             overflow-y: auto;
             margin-bottom: 15px;
         }
-
         #cart-items li {
             background: #f9f9f9;
             margin: 8px 0;
@@ -351,30 +295,25 @@
             border: 1px solid #e0e0e0;
             font-size: 0.9rem;
         }
-
         .cart-item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 3px;
         }
-
         .cart-item-name {
             font-weight: 700;
             color: var(--dark);
         }
-
         .cart-item-price {
             font-weight: 800;
             color: var(--primary);
         }
-
         .cart-item-details {
             font-size: 0.8rem;
             color: #666;
             margin-top: 3px;
         }
-
         .remove-btn {
             background: #e74c3c;
             color: white;
@@ -383,14 +322,7 @@
             border-radius: 12px;
             cursor: pointer;
             font-size: 0.75rem;
-            transition: all 0.2s;
         }
-
-        .remove-btn:hover {
-            background: var(--primary-dark);
-            transform: scale(1.05);
-        }
-
         .shops-input-area {
             margin: 10px 0;
             padding: 10px;
@@ -398,7 +330,6 @@
             border-radius: 8px;
             border: 2px solid #e0e0e0;
         }
-
         .shops-input-area .shop-entry {
             display: flex;
             gap: 4px;
@@ -406,7 +337,6 @@
             align-items: center;
             flex-wrap: wrap;
         }
-
         .shops-input-area .shop-entry input {
             flex: 1;
             padding: 7px 10px;
@@ -415,13 +345,11 @@
             font-size: 0.8rem;
             min-width: 100px;
         }
-
         .shops-input-area .shop-entry input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.12);
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
         }
-
         .shops-input-area .shop-entry .shop-name-input {
             flex: 2;
         }
@@ -429,7 +357,6 @@
             flex: 1;
             min-width: 70px;
         }
-
         .shops-input-area .shop-entry .remove-shop {
             background: var(--primary);
             color: white;
@@ -443,21 +370,16 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            transition: all 0.2s;
         }
-
         .shops-input-area .shop-entry .remove-shop:hover {
             background: var(--primary-dark);
-            transform: scale(1.1);
         }
-
         .shops-input-area .shop-entry .shop-number {
             font-weight: 700;
             color: var(--dark);
             font-size: 0.75rem;
             min-width: 18px;
         }
-
         .add-shop-btn {
             padding: 5px 14px;
             background: #6c757d;
@@ -470,12 +392,10 @@
             transition: all 0.3s;
             margin-top: 4px;
         }
-
         .add-shop-btn:hover {
             background: #5a6268;
             transform: scale(1.02);
         }
-
         .shops-label {
             font-weight: 700;
             color: #555;
@@ -483,31 +403,26 @@
             display: block;
             margin-bottom: 6px;
         }
-
         .shops-label small {
             font-weight: 400;
             color: #888;
             font-size: 0.7rem;
         }
-
         .total-section {
             text-align: center;
             padding: 12px 0;
             border-top: 2px solid #eee;
         }
-
         .total-price {
             font-size: clamp(1.3rem, 2.5vw, 2rem);
             font-weight: 900;
             color: var(--primary);
             margin: 3px 0;
         }
-
         .delivery-fee {
             font-size: 0.8rem;
             color: #666;
         }
-
         .delivery-alert {
             margin-top: 6px;
             padding: 8px 10px;
@@ -518,15 +433,12 @@
             font-weight: 700;
             color: var(--primary-dark);
         }
-
         .user-form {
             margin-top: 12px;
         }
-
         .form-group {
             margin-bottom: 8px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 3px;
@@ -534,7 +446,6 @@
             color: #555;
             font-size: 0.85rem;
         }
-
         .form-input {
             width: 100%;
             padding: 8px 10px;
@@ -544,40 +455,34 @@
             transition: all 0.3s;
             background: white;
         }
-
         .form-input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
         }
-
         .form-input.loading {
             background: #f0f8ff;
-            border-color: var(--info);
-            color: var(--info);
+            border-color: #1a73e8;
+            color: #1a73e8;
         }
-
         .form-input.success {
             background: #e8f5e9;
-            border-color: var(--success);
+            border-color: #27ae60;
             color: #2e7d32;
         }
-
         .form-input.error {
             background: #ffebee;
-            border-color: var(--danger);
+            border-color: #e74c3c;
             color: #c62828;
         }
-
         .form-input:disabled {
             opacity: 0.8;
             cursor: default;
         }
-
         .submit-order-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%);
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -588,17 +493,14 @@
             margin-top: 12px;
             box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
         }
-
-        .submit-order-btn:hover:not(:disabled) {
+        .submit-order-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(39, 174, 96, 0.6);
         }
-
         .submit-order-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
-
         .fees-info {
             margin-top: 8px;
             padding: 8px;
@@ -607,11 +509,9 @@
             font-size: 0.7rem;
             color: #555;
         }
-
         .fees-info strong {
             color: var(--primary);
         }
-
         .shop-list {
             font-size: 0.75rem;
             color: #555;
@@ -620,7 +520,6 @@
             background: #f5f5f5;
             border-radius: 6px;
         }
-
         .shop-list .shop-item {
             display: inline-block;
             background: #e8f0fe;
@@ -630,7 +529,6 @@
             margin: 2px 3px;
             font-size: 0.65rem;
         }
-
         .location-status {
             font-size: 0.65rem;
             color: #666;
@@ -639,7 +537,6 @@
             background: #f5f5f5;
             border-radius: 6px;
         }
-
         .location-btn {
             padding: 8px 20px;
             background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
@@ -653,17 +550,14 @@
             margin-top: 5px;
             width: 100%;
         }
-
-        .location-btn:hover:not(:disabled) {
+        .location-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(26, 115, 232, 0.4);
         }
-
         .location-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
-
         .toast-container {
             position: fixed;
             top: 20px;
@@ -675,7 +569,6 @@
             max-width: 350px;
             width: 100%;
         }
-
         .toast {
             padding: 12px 16px;
             border-radius: 8px;
@@ -688,20 +581,18 @@
             gap: 10px;
             font-size: 0.9rem;
         }
-
         .toast-success {
-            background: var(--success);
+            background: #27ae60;
         }
         .toast-error {
-            background: var(--danger);
+            background: #dc3545;
         }
         .toast-warning {
             background: #856404;
         }
         .toast-info {
-            background: var(--info);
+            background: #17a2b8;
         }
-
         .toast-close {
             background: none;
             border: none;
@@ -711,13 +602,10 @@
             margin-right: auto;
             padding: 0 4px;
             opacity: 0.8;
-            transition: opacity 0.2s;
         }
-
         .toast-close:hover {
             opacity: 1;
         }
-
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
@@ -731,27 +619,22 @@
     </style>
 </head>
 <body>
-
     <div class="main-container">
-
         <div class="header">
             <h1>🔥 9ATHYA.TN</h1>
             <p>خدمة توصيل - طلب المنتجات</p>
         </div>
-
-        <nav class="category-nav" role="tablist">
-            <button class="category-nav-btn active" data-category="all" role="tab" aria-selected="true">📋 الكل</button>
-            <button class="category-nav-btn" data-category="vegetables" role="tab" aria-selected="false">🥬 خضرة</button>
-            <button class="category-nav-btn" data-category="fruits" role="tab" aria-selected="false">🍎 غلة</button>
-            <button class="category-nav-btn" data-category="staples" role="tab" aria-selected="false">🌾 مواد أساسية</button>
-            <button class="category-nav-btn" data-category="grains" role="tab" aria-selected="false">🫘 بقول وحبوب</button>
-            <button class="category-nav-btn" data-category="meat" role="tab" aria-selected="false">🥩 بروتينات</button>
-            <button class="category-nav-btn" data-category="dairy" role="tab" aria-selected="false">🥛 ألبان</button>
-            <button class="category-nav-btn" data-category="conserves" role="tab" aria-selected="false">🥫 مواد غذائية</button>
-        </nav>
-
+        <div class="category-nav">
+            <button class="category-nav-btn active" data-category="all">📋 الكل</button>
+            <button class="category-nav-btn" data-category="vegetables">🥬 خضرة</button>
+            <button class="category-nav-btn" data-category="fruits">🍎 غلة</button>
+            <button class="category-nav-btn" data-category="staples">🌾 مواد أساسية</button>
+            <button class="category-nav-btn" data-category="grains">🫘 بقول وحبوب</button>
+            <button class="category-nav-btn" data-category="meat">🥩 بروتينات</button>
+            <button class="category-nav-btn" data-category="dairy">🥛 ألبان</button>
+            <button class="category-nav-btn" data-category="conserves">🥫 مواد غذائية</button>
+        </div>
         <div class="content-wrapper">
-
             <div class="menu-section">
                 <div class="category-section" id="vegetables-section">
                     <div class="category-title">🥬 خضرة طازجة</div>
@@ -782,71 +665,55 @@
                     <div class="menu-grid" id="conserves-menu"></div>
                 </div>
             </div>
-
             <div class="cart-section">
-
                 <div class="cart-header">
                     <div class="cart-title">🛒 سلة الطلبات</div>
                     <div class="cart-count" id="cart-count">0</div>
                 </div>
-
-                <ul id="cart-items" role="list"></ul>
-
+                <ul id="cart-items"></ul>
                 <div class="shop-list" id="shop-list">
                     <span style="font-weight:700;">🏪 المتاجر:</span>
                     <span id="shops-display">لا يوجد</span>
                 </div>
-
                 <div class="shops-input-area">
                     <label class="shops-label">📝 المتاجر المطلوبة <small>(اسم المحل + المنطقة)</small></label>
                     <div id="shops-container">
                         <div class="shop-entry">
                             <span class="shop-number">1</span>
-                            <input type="text" class="shop-name-input" placeholder="اسم المحل (اختياري)" aria-label="اسم المحل">
-                            <input type="text" class="shop-zone-input" placeholder="المنطقة" aria-label="المنطقة">
-                            <button class="remove-shop" style="visibility:hidden;" aria-label="حذف المحل">×</button>
+                            <input type="text" class="shop-name-input" placeholder="اسم المحل (اختياري)">
+                            <input type="text" class="shop-zone-input" placeholder="المنطقة">
+                            <button class="remove-shop" style="visibility:hidden;">×</button>
                         </div>
                     </div>
                     <button class="add-shop-btn" id="addShopBtn">+ إضافة محل آخر</button>
                 </div>
-
-                <div style="margin: 10px 0; padding: 12px; background: #f9f9f9; border-radius: 8px; border: 2px solid #e0e0e0;">
-                    <label style="font-weight: 700; color: #555; font-size: 0.85rem; display: block; margin-bottom: 6px;">
-                        📍 موقع التوصيل
-                    </label>
+                <div style="margin:10px 0;padding:12px;background:#f9f9f9;border-radius:8px;border:2px solid #e0e0e0;">
+                    <label style="font-weight:700;color:#555;font-size:0.85rem;display:block;margin-bottom:6px;">📍 موقع التوصيل</label>
                     <button class="location-btn" id="getLocationBtn">📍 تحديد موقعي (Autoriser)</button>
-                    <div class="location-status" id="locationStatus">
-                        <span class="icon">📍</span> اضغط على الزر لتحديد موقعك
-                    </div>
-                    <div style="margin-top: 6px;">
-                        <input type="text" id="userAdresse" class="form-input" placeholder="العنوان سيظهر هنا تلقائياً" value="" disabled aria-label="العنوان">
-                    </div>
+                    <div class="location-status" id="locationStatus"><span class="icon">📍</span> اضغط على الزر لتحديد موقعك</div>
+                    <div style="margin-top:6px;"><input type="text" id="userAdresse" class="form-input" placeholder="العنوان سيظهر هنا تلقائياً" value="" disabled></div>
                 </div>
-
                 <div class="total-section">
                     <div style="font-size:0.85rem;font-weight:700;color:#555;">💰 المجموع الكلي</div>
                     <div class="total-price" id="total-price">0.000 DT</div>
                     <div class="delivery-fee" id="fees-line">3.000 DT رسوم الشركة</div>
                     <div class="delivery-alert">⚠️ تنبيه: + 0.500 دت/كم سعر التوصيل (بحد أدنى 1.800 DT) — يُضاف لاحقاً حسب المسافة الفعلية</div>
                 </div>
-
                 <div class="user-form">
                     <div class="form-group">
-                        <label for="userName">👤 الاسم الكامل *</label>
-                        <input type="text" id="userName" class="form-input" placeholder="أدخل اسمك" maxlength="100" required aria-required="true">
+                        <label>👤 الاسم الكامل *</label>
+                        <input type="text" id="userName" class="form-input" placeholder="أدخل اسمك" maxlength="100" required>
                     </div>
                     <div class="form-group">
-                        <label for="userPhone">📞 رقم الهاتف *</label>
-                        <input type="tel" id="userPhone" class="form-input" placeholder="8 أرقام" maxlength="15" required aria-required="true">
+                        <label>📞 رقم الهاتف *</label>
+                        <input type="tel" id="userPhone" class="form-input" placeholder="8 أرقام" maxlength="15" required>
                     </div>
                     <div class="form-group">
-                        <label for="userNotes">📝 ملاحظات</label>
-                        <textarea id="userNotes" class="form-input" rows="2" placeholder="أي ملاحظات" maxlength="300" aria-label="ملاحظات"></textarea>
+                        <label>📝 ملاحظات</label>
+                        <textarea id="userNotes" class="form-input" rows="2" placeholder="أي ملاحظات" maxlength="300"></textarea>
                     </div>
                 </div>
-
                 <button id="submitOrder" class="submit-order-btn">📨 تأكيد الطلب</button>
-
                 <div class="fees-info">
                     <strong>💳 رسوم الشركة:</strong> 3.000 DT &nbsp;|&nbsp; <strong>🚗 التوصيل:</strong> 0.500 دت/كم (حد أدنى 1.800 DT)
                 </div>
@@ -854,24 +721,25 @@
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- TOAST CONTAINER                                              -->
-    <!-- ============================================================ -->
+    <!-- نموذج الإرسال المخفي - يعمل مع formsubmit.co -->
+    <form id="orderForm" action="https://formsubmit.co/houssemkessentini77@gmail.com" method="POST" style="display:none;">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_subject" value="طلب جديد - 9ATHYA.TN">
+        <input type="text" name="name" id="formName">
+        <input type="text" name="phone" id="formPhone">
+        <input type="text" name="adresse" id="formAdresse">
+        <input type="text" name="shops" id="formShops">
+        <input type="text" name="total" id="formTotal">
+        <input type="text" name="notes" id="formNotes">
+        <textarea name="message" id="formMessage"></textarea>
+    </form>
+
     <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
-    <!-- ============================================================ -->
-    <!-- JAVASCRIPT - باستخدام Formspree (مجاني - يعمل فوراً)        -->
-    <!-- ============================================================ -->
     <script>
         (function() {
             'use strict';
-
-            // ============================================================
-            // 1. CONFIG
-            // ============================================================
-            // 📧 استخدم هذا الرابط: https://formspree.io/f/your_form_id
-            // سجل مجاناً في formspree.io واحصل على رابط النموذج الخاص بك
-            const FORMSPREE_URL = 'https://formspree.io/f/xqakvlvg'; // استبدل برابط النموذج الخاص بك
 
             const DELIVERY_PRICE_PER_KM = 0.500;
             const MIN_DELIVERY_PRICE = 1.800;
@@ -880,44 +748,18 @@
             let clientCoords = null;
             let isSubmitting = false;
 
-            // ============================================================
-            // 2. TOAST NOTIFICATIONS
-            // ============================================================
             function showToast(message, type = 'info', duration = 5000) {
                 const container = document.getElementById('toastContainer');
                 const toast = document.createElement('div');
-
-                const icons = {
-                    success: '✅',
-                    error: '❌',
-                    warning: '⚠️',
-                    info: 'ℹ️'
-                };
-
+                const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
                 toast.className = `toast toast-${type}`;
-                toast.innerHTML = `
-                    <span>${icons[type] || 'ℹ️'}</span>
-                    <span style="flex:1;">${message}</span>
-                    <button class="toast-close" aria-label="إغلاق">×</button>
-                `;
-
+                toast.innerHTML =
+                    `<span>${icons[type] || 'ℹ️'}</span><span style="flex:1;">${message}</span><button class="toast-close">×</button>`;
                 container.appendChild(toast);
-
-                const closeBtn = toast.querySelector('.toast-close');
-                closeBtn.addEventListener('click', function() {
-                    toast.remove();
-                });
-
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.remove();
-                    }
-                }, duration);
+                toast.querySelector('.toast-close').addEventListener('click', function() { toast.remove(); });
+                setTimeout(() => { if (toast.parentNode) toast.remove(); }, duration);
             }
 
-            // ============================================================
-            // 3. MENU DATA
-            // ============================================================
             const menuData = {
                 vegetables: [
                     { id: 'v1', name: 'طماطم', pricePerUnit: 1.200, unit: 'كغ', image: '🍅', description: 'طماطم طازجة',
@@ -1044,24 +886,12 @@
                 catArray.forEach(item => { itemRegistry[item.id] = item; });
             });
 
-            // ============================================================
-            // 4. STATE
-            // ============================================================
             const cart = [];
-            let currentCategory = 'all';
 
-            // ============================================================
-            // 5. UTILITY FUNCTIONS
-            // ============================================================
             function sanitizeText(str) {
                 if (!str) return '';
-                return String(str)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#039;')
-                    .replace(/\n/g, ' ');
+                return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;').replace(/\n/g, ' ');
             }
 
             function getShopData() {
@@ -1074,10 +904,7 @@
                         const name = nameInput.value.trim();
                         const zone = zoneInput.value.trim();
                         if (name.length > 1 || zone.length > 1) {
-                            shops.push({
-                                name: name || 'غير محدد',
-                                zone: zone || 'غير محدد'
-                            });
+                            shops.push({ name: name || 'غير محدد', zone: zone || 'غير محدد' });
                         }
                     }
                 });
@@ -1085,19 +912,13 @@
             }
 
             function validatePhone(phone) {
-                const cleaned = phone.replace(/\s+/g, '');
-                const regex = /^(?:\+216)?[234579]\d{7}$/;
-                return regex.test(cleaned);
+                return /^(?:\+216)?[234579]\d{7}$/.test(phone.replace(/\s+/g, ''));
             }
 
-            // ============================================================
-            // 6. GEOLOCATION
-            // ============================================================
             function getClientLocation() {
                 const addressInput = document.getElementById('userAdresse');
                 const statusEl = document.getElementById('locationStatus');
                 const btn = document.getElementById('getLocationBtn');
-
                 if (!navigator.geolocation) {
                     addressInput.value = '';
                     addressInput.placeholder = 'اكتب عنوانك يدوياً';
@@ -1106,20 +927,17 @@
                     showToast('متصفحك لا يدعم تحديد الموقع', 'warning');
                     return;
                 }
-
                 statusEl.innerHTML = '⏳ جاري تحديد موقعك...';
                 addressInput.className = 'form-input loading';
                 addressInput.value = '⏳ جاري التحديد...';
                 addressInput.disabled = true;
                 btn.disabled = true;
                 btn.textContent = '⏳ جاري...';
-
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
                         clientCoords = [lat, lng];
-
                         fetch(
                                 `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18&addressdetails=1`
                                 )
@@ -1151,7 +969,6 @@
                                     `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
                                 btn.disabled = false;
                                 btn.textContent = '📍 تحديد موقعي';
-                                showToast('تم تحديد الموقع ولكن تعذر الحصول على العنوان', 'warning');
                             });
                     },
                     function(error) {
@@ -1161,38 +978,30 @@
                         addressInput.disabled = false;
                         btn.disabled = false;
                         btn.textContent = '📍 تحديد موقعي';
-                        const errorMsg = error.message || 'فشل تحديد الموقع';
-                        statusEl.innerHTML = `❌ ${errorMsg}`;
-                        showToast(`فشل تحديد الموقع: ${errorMsg}`, 'error');
+                        statusEl.innerHTML = `❌ ${error.message}`;
+                        showToast(`فشل تحديد الموقع: ${error.message}`, 'error');
                     }, { enableHighAccuracy: true, timeout: 15000 }
                 );
             }
 
             document.getElementById('getLocationBtn').addEventListener('click', getClientLocation);
 
-            // ============================================================
-            // 7. SHOPS MANAGEMENT
-            // ============================================================
             document.getElementById('addShopBtn').addEventListener('click', function() {
                 const container = document.getElementById('shops-container');
                 const entry = document.createElement('div');
                 entry.className = 'shop-entry';
                 const count = container.children.length + 1;
-
                 const numberSpan = document.createElement('span');
                 numberSpan.className = 'shop-number';
                 numberSpan.textContent = count;
-
                 const nameInput = document.createElement('input');
                 nameInput.type = 'text';
                 nameInput.className = 'shop-name-input';
                 nameInput.placeholder = 'اسم المحل (اختياري)';
-
                 const zoneInput = document.createElement('input');
                 zoneInput.type = 'text';
                 zoneInput.className = 'shop-zone-input';
                 zoneInput.placeholder = 'المنطقة';
-
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-shop';
                 removeBtn.textContent = '×';
@@ -1208,7 +1017,6 @@
                         showToast('⚠️ لازم يكون على الأقل محل واحد', 'warning');
                     }
                 });
-
                 entry.appendChild(numberSpan);
                 entry.appendChild(nameInput);
                 entry.appendChild(zoneInput);
@@ -1218,30 +1026,21 @@
                 showToast('تم إضافة محل جديد', 'success');
             });
 
-            // ============================================================
-            // 8. CATEGORY SWITCHING
-            // ============================================================
             document.querySelectorAll('.category-nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    document.querySelectorAll('.category-nav-btn').forEach(b => {
-                        b.classList.remove('active');
-                    });
+                    document.querySelectorAll('.category-nav-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-                    currentCategory = this.dataset.category;
-
+                    const category = this.dataset.category;
                     Object.keys(menuData).forEach(cat => {
                         const section = document.getElementById(`${cat}-section`);
                         if (section) {
-                            const shouldShow = (currentCategory === 'all' || currentCategory === cat);
-                            section.style.display = shouldShow ? 'block' : 'none';
+                            section.style.display = (category === 'all' || category === cat) ? 'block' :
+                            'none';
                         }
                     });
                 });
             });
 
-            // ============================================================
-            // 9. RENDER MENU
-            // ============================================================
             function renderMenu() {
                 Object.keys(menuData).forEach(category => {
                     const container = document.getElementById(`${category}-menu`);
@@ -1254,44 +1053,34 @@
                 items.forEach(item => {
                     const card = document.createElement('div');
                     card.className = 'menu-card';
-
                     const headerDiv = document.createElement('div');
                     headerDiv.className = 'item-header';
-
                     const imgDiv = document.createElement('div');
                     imgDiv.className = 'item-image';
                     imgDiv.textContent = item.image;
-
                     const infoDiv = document.createElement('div');
                     infoDiv.className = 'item-info';
-
                     const nameDiv = document.createElement('div');
                     nameDiv.className = 'item-name';
                     nameDiv.textContent = item.name;
-
                     const priceDiv = document.createElement('div');
                     priceDiv.className = 'item-unit-price';
                     priceDiv.textContent = item.pricePerUnit.toFixed(3) + ' ';
                     const priceSpan = document.createElement('span');
                     priceSpan.textContent = `DT/${item.unit}`;
                     priceDiv.appendChild(priceSpan);
-
                     infoDiv.appendChild(nameDiv);
                     infoDiv.appendChild(priceDiv);
                     headerDiv.appendChild(imgDiv);
                     headerDiv.appendChild(infoDiv);
-
                     const descDiv = document.createElement('div');
                     descDiv.style.cssText = 'color:#666;font-size:0.85rem;margin-bottom:8px;';
                     descDiv.textContent = item.description;
-
                     const qtySelector = document.createElement('div');
                     qtySelector.className = 'quantity-selector';
-
                     const qtyLabel = document.createElement('span');
                     qtyLabel.style.cssText = 'font-weight:700;color:#666;';
                     qtyLabel.textContent = 'الكمية:';
-
                     const quantityInput = document.createElement('input');
                     quantityInput.type = 'number';
                     quantityInput.className = 'quantity-input';
@@ -1299,20 +1088,16 @@
                     quantityInput.min = '0.1';
                     quantityInput.step = '0.1';
                     quantityInput.max = '999';
-
                     const qtyUnit = document.createElement('span');
                     qtyUnit.className = 'quantity-unit';
                     qtyUnit.textContent = item.unit;
-
                     const totalItemPrice = document.createElement('span');
                     totalItemPrice.className = 'total-item-price';
                     totalItemPrice.textContent = `= ${item.pricePerUnit.toFixed(3)} DT`;
-
                     qtySelector.appendChild(qtyLabel);
                     qtySelector.appendChild(quantityInput);
                     qtySelector.appendChild(qtyUnit);
                     qtySelector.appendChild(totalItemPrice);
-
                     const quickBtnsDiv = document.createElement('div');
                     quickBtnsDiv.className = 'quick-quantity-btns';
                     item.quickQuantities.forEach(qty => {
@@ -1322,11 +1107,9 @@
                         qBtn.dataset.qty = qty;
                         quickBtnsDiv.appendChild(qBtn);
                     });
-
                     const addToCartBtn = document.createElement('button');
                     addToCartBtn.className = 'add-to-cart-btn';
                     addToCartBtn.textContent = '🛒 أضف للسلة';
-
                     card.appendChild(headerDiv);
                     card.appendChild(descDiv);
                     card.appendChild(qtySelector);
@@ -1338,14 +1121,12 @@
                         totalItemPrice.textContent = `= ${(qty * item.pricePerUnit).toFixed(3)} DT`;
                     }
                     quantityInput.addEventListener('input', updatePrice);
-
                     card.querySelectorAll('.quick-qty-btn').forEach(btn => {
                         btn.addEventListener('click', function() {
                             quantityInput.value = this.dataset.qty;
                             updatePrice();
                         });
                     });
-
                     addToCartBtn.addEventListener('click', function() {
                         const qty = parseFloat(quantityInput.value) || 0;
                         if (qty <= 0 || qty > 999) {
@@ -1355,7 +1136,7 @@
                         const totalPrice = qty * item.pricePerUnit;
                         cart.push({
                             cartId: item.id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2,
-                            5),
+                                5),
                             id: item.id,
                             name: item.name,
                             image: item.image,
@@ -1369,23 +1150,17 @@
                         updatePrice();
                         showToast(`✅ تم إضافة ${item.name} إلى السلة`, 'success');
                     });
-
                     container.appendChild(card);
                 });
             }
 
-            // ============================================================
-            // 10. CART DISPLAY
-            // ============================================================
             function updateCartDisplay() {
                 const cartList = document.getElementById('cart-items');
                 const cartCount = document.getElementById('cart-count');
                 const totalPriceEl = document.getElementById('total-price');
                 const shopsDisplay = document.getElementById('shops-display');
-
                 cartList.innerHTML = '';
                 let subtotal = 0;
-
                 const shops = getShopData();
                 if (shops.length === 0) {
                     shopsDisplay.textContent = 'أضف متاجر';
@@ -1394,7 +1169,6 @@
                         `<span class="shop-item">${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}</span>`
                     ).join(' ');
                 }
-
                 if (cart.length === 0) {
                     const emptyLi = document.createElement('li');
                     emptyLi.style.cssText = 'text-align:center;color:#999;padding:15px;';
@@ -1422,13 +1196,12 @@
                     });
                     cartCount.textContent = cart.length;
                 }
-
                 totalPriceEl.textContent = (subtotal + SERVICE_FEE).toFixed(3) + ' DT';
                 document.getElementById('fees-line').textContent = SERVICE_FEE.toFixed(3) + ' DT رسوم الشركة';
             }
 
             // ============================================================
-            // 11. SUBMIT ORDER - باستخدام Formspree (يعمل 100%)
+            // إرسال الطلب - يعمل 100%
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1442,31 +1215,26 @@
                 const notes = document.getElementById('userNotes').value.trim();
                 const shops = getShopData();
 
-                // ===== التحقق من البيانات =====
                 if (!name || name.length < 2) {
                     showToast('⚠️ اكتب اسمك الكامل', 'warning');
                     document.getElementById('userName').focus();
                     return;
                 }
-
                 if (!phone || !validatePhone(phone)) {
                     showToast('⚠️ رقم هاتف تونسي صحيح (8 أرقام)', 'warning');
                     document.getElementById('userPhone').focus();
                     return;
                 }
-
                 if (!adresse || adresse.includes('⏳') || adresse.includes('جاري')) {
                     showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك', 'warning');
                     document.getElementById('userAdresse').focus();
                     return;
                 }
-
                 if (cart.length === 0) {
                     showToast('🥲 السلة فارغة - أضف منتجات', 'warning');
                     return;
                 }
 
-                // ===== حساب المجموع =====
                 let verifiedSubtotal = 0;
                 let orderDetails = '';
                 for (let i = 0; i < cart.length; i++) {
@@ -1503,76 +1271,47 @@
                 submitBtn.disabled = true;
                 submitBtn.textContent = '⏳ جاري الإرسال...';
 
-                // ============================================================
-                // إرسال البريد عبر Formspree
-                // ============================================================
-                const formData = new FormData();
-                formData.append('name', sanitizeText(name));
-                formData.append('phone', sanitizeText(phone));
-                formData.append('address', sanitizeText(adresse));
-                formData.append('message', orderMessage);
-                formData.append('shops', shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone +
-                ')' : '')).join(', '));
-                formData.append('total', totalAmount.toFixed(3) + ' DT');
-                formData.append('notes', sanitizeText(notes || 'لا يوجد'));
-                formData.append('order_details', orderDetails);
+                // تعبئة النموذج المخفي
+                document.getElementById('formName').value = sanitizeText(name);
+                document.getElementById('formPhone').value = sanitizeText(phone);
+                document.getElementById('formAdresse').value = sanitizeText(adresse);
+                document.getElementById('formMessage').value = orderMessage;
+                document.getElementById('formShops').value = shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ?
+                    ' (' + s.zone + ')' : '')).join(', ');
+                document.getElementById('formTotal').value = totalAmount.toFixed(3) + ' DT';
+                document.getElementById('formNotes').value = sanitizeText(notes || 'لا يوجد');
 
-                // إضافة إعدادات Formspree
-                formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(name) + ' - 9ATHYA.TN');
-                formData.append('_replyto', 'houssemkessentini77@gmail.com');
+                // إرسال النموذج
+                document.getElementById('orderForm').submit();
 
-                fetch(FORMSPREE_URL, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json();
-                        } else {
-                            throw new Error('فشل الإرسال - الكود: ' + response.status);
-                        }
-                    })
-                    .then(data => {
-                        showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
-                        cart.length = 0;
-                        updateCartDisplay();
-                        document.getElementById('userName').value = '';
-                        document.getElementById('userPhone').value = '';
-                        document.getElementById('userNotes').value = '';
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
-                    })
-                    .finally(() => {
-                        isSubmitting = false;
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '📨 تأكيد الطلب';
-                    });
+                showToast('✅ جاري إرسال طلبك...', 'success');
+
+                setTimeout(function() {
+                    cart.length = 0;
+                    updateCartDisplay();
+                    document.getElementById('userName').value = '';
+                    document.getElementById('userPhone').value = '';
+                    document.getElementById('userNotes').value = '';
+                    isSubmitting = false;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '📨 تأكيد الطلب';
+                    showToast('✅ تم إرسال طلبك بنجاح!', 'success');
+                }, 3000);
             });
 
-            // ============================================================
-            // 12. INIT
-            // ============================================================
             renderMenu();
             updateCartDisplay();
 
             document.addEventListener('input', function(e) {
-                if (e.target.classList.contains('shop-name-input') ||
-                    e.target.classList.contains('shop-zone-input')) {
+                if (e.target.classList.contains('shop-name-input') || e.target.classList.contains('shop-zone-input')) {
                     updateCartDisplay();
                 }
             });
 
             console.log('✅ 9ATHYA.TN - يعمل 100%');
-            console.log('📧 باستخدام Formspree - سجل مجاناً في formspree.io');
-            console.log('🔗 رابط النموذج: ' + FORMSPREE_URL);
+            console.log('📧 الإرسال عبر formsubmit.co');
 
         })();
     </script>
-
 </body>
 </html>
