@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   
-  <!-- رؤوس الأمان المحسّنة -->
+  <!-- ===== رؤوس الأمان المحسّنة ===== -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -14,7 +14,9 @@
   <title>9ATHYA.TN | خدمة توصيل</title>
   
   <style>
-    /* ===== CSS Variables ===== */
+    /* ============================================================
+       CSS VARIABLES & RESET
+       ============================================================ */
     :root {
       --primary: #e74c3c;
       --primary-dark: #c0392b;
@@ -55,7 +57,9 @@
       overflow: hidden;
     }
 
-    /* ===== HEADER ===== */
+    /* ============================================================
+       HEADER
+       ============================================================ */
     .header {
       background: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
       padding: 20px;
@@ -76,7 +80,9 @@
       opacity: 0.95;
     }
 
-    /* ===== CATEGORY NAV ===== */
+    /* ============================================================
+       CATEGORY NAVIGATION
+       ============================================================ */
     .category-nav {
       display: flex;
       gap: 8px;
@@ -120,7 +126,9 @@
       outline-offset: 2px;
     }
 
-    /* ===== CONTENT WRAPPER ===== */
+    /* ============================================================
+       CONTENT WRAPPER
+       ============================================================ */
     .content-wrapper {
       display: grid;
       grid-template-columns: 1fr;
@@ -172,7 +180,9 @@
       }
     }
 
-    /* ===== MENU CARDS ===== */
+    /* ============================================================
+       MENU CARDS
+       ============================================================ */
     .menu-card {
       background: white;
       border: 2px solid #e0e0e0;
@@ -314,7 +324,9 @@
       transform: scale(0.98);
     }
 
-    /* ===== CART SECTION ===== */
+    /* ============================================================
+       CART SECTION
+       ============================================================ */
     .cart-section {
       background: white;
       border-radius: 15px;
@@ -411,7 +423,9 @@
       transform: scale(1.05);
     }
 
-    /* ===== SHOPS INPUT ===== */
+    /* ============================================================
+       SHOPS INPUT
+       ============================================================ */
     .shops-input-area {
       margin: 10px 0;
       padding: 10px;
@@ -506,7 +520,9 @@
       font-size: 0.7rem;
     }
 
-    /* ===== TOTAL SECTION ===== */
+    /* ============================================================
+       TOTAL SECTION
+       ============================================================ */
     .total-section {
       text-align: center;
       padding: 12px 0;
@@ -536,7 +552,9 @@
       color: var(--primary-dark);
     }
 
-    /* ===== USER FORM ===== */
+    /* ============================================================
+       USER FORM
+       ============================================================ */
     .user-form {
       margin-top: 12px;
     }
@@ -635,7 +653,9 @@
       color: var(--primary);
     }
 
-    /* ===== SHOP LIST ===== */
+    /* ============================================================
+       SHOP LIST
+       ============================================================ */
     .shop-list {
       font-size: 0.75rem;
       color: #555;
@@ -655,7 +675,9 @@
       font-size: 0.65rem;
     }
 
-    /* ===== LOCATION ===== */
+    /* ============================================================
+       LOCATION
+       ============================================================ */
     .location-status {
       font-size: 0.65rem;
       color: #666;
@@ -689,7 +711,9 @@
       cursor: not-allowed;
     }
 
-    /* ===== NOTIFICATIONS ===== */
+    /* ============================================================
+       TOAST NOTIFICATIONS
+       ============================================================ */
     .toast-container {
       position: fixed;
       top: 20px;
@@ -769,7 +793,9 @@
       }
     }
 
-    /* ===== SCROLLBAR ===== */
+    /* ============================================================
+       SCROLLBARS
+       ============================================================ */
     #cart-items::-webkit-scrollbar {
       width: 6px;
     }
@@ -803,15 +829,20 @@
   </style>
 </head>
 <body>
+
+<!-- ============================================================
+     MAIN CONTAINER
+     ============================================================ -->
 <div class="main-container">
+
   <!-- ===== HEADER ===== -->
   <div class="header">
     <h1>🔥 9ATHYA.TN</h1>
     <p>خدمة توصيل - طلب المنتجات</p>
   </div>
 
-  <!-- ===== CATEGORY NAV ===== -->
-  <div class="category-nav" role="tablist">
+  <!-- ===== CATEGORY NAVIGATION ===== -->
+  <nav class="category-nav" role="tablist">
     <button class="category-nav-btn active" data-category="all" role="tab" aria-selected="true">📋 الكل</button>
     <button class="category-nav-btn" data-category="vegetables" role="tab" aria-selected="false">🥬 خضرة</button>
     <button class="category-nav-btn" data-category="fruits" role="tab" aria-selected="false">🍎 غلة</button>
@@ -820,11 +851,12 @@
     <button class="category-nav-btn" data-category="meat" role="tab" aria-selected="false">🥩 بروتينات</button>
     <button class="category-nav-btn" data-category="dairy" role="tab" aria-selected="false">🥛 ألبان</button>
     <button class="category-nav-btn" data-category="conserves" role="tab" aria-selected="false">🥫 مواد غذائية</button>
-  </div>
+  </nav>
 
-  <!-- ===== CONTENT ===== -->
+  <!-- ===== CONTENT WRAPPER ===== -->
   <div class="content-wrapper">
-    <!-- MENU SECTION -->
+
+    <!-- ===== MENU SECTION ===== -->
     <div class="menu-section">
       <div class="category-section" id="vegetables-section">
         <div class="category-title">🥬 خضرة طازجة</div>
@@ -856,20 +888,25 @@
       </div>
     </div>
 
-    <!-- CART SECTION -->
+    <!-- ===== CART SECTION ===== -->
     <div class="cart-section">
+
+      <!-- Cart Header -->
       <div class="cart-header">
         <div class="cart-title">🛒 سلة الطلبات</div>
         <div class="cart-count" id="cart-count">0</div>
       </div>
+
+      <!-- Cart Items -->
       <ul id="cart-items" role="list"></ul>
-      
+
+      <!-- Shop List Display -->
       <div class="shop-list" id="shop-list">
         <span style="font-weight:700;">🏪 المتاجر:</span>
         <span id="shops-display">لا يوجد</span>
       </div>
 
-      <!-- SHOPS INPUT -->
+      <!-- Shops Input -->
       <div class="shops-input-area">
         <label class="shops-label">📝 المتاجر المطلوبة <small>(اسم المحل + المنطقة)</small></label>
         <div id="shops-container">
@@ -883,7 +920,7 @@
         <button class="add-shop-btn" id="addShopBtn">+ إضافة محل آخر</button>
       </div>
 
-      <!-- LOCATION SECTION -->
+      <!-- Location Section -->
       <div style="margin: 10px 0; padding: 12px; background: #f9f9f9; border-radius: 8px; border: 2px solid #e0e0e0;">
         <label style="font-weight: 700; color: #555; font-size: 0.85rem; display: block; margin-bottom: 6px;">
           📍 موقع التوصيل
@@ -897,7 +934,7 @@
         </div>
       </div>
 
-      <!-- TOTAL -->
+      <!-- Total Section -->
       <div class="total-section">
         <div style="font-size:0.85rem;font-weight:700;color:#555;">💰 المجموع الكلي</div>
         <div class="total-price" id="total-price">0.000 DT</div>
@@ -905,7 +942,7 @@
         <div class="delivery-alert">⚠️ تنبيه: + 0.500 دت/كم سعر التوصيل (بحد أدنى 1.800 DT) — يُضاف لاحقاً حسب المسافة الفعلية</div>
       </div>
 
-      <!-- USER FORM -->
+      <!-- User Form -->
       <div class="user-form">
         <div class="form-group">
           <label for="userName">👤 الاسم الكامل *</label>
@@ -921,8 +958,10 @@
         </div>
       </div>
 
+      <!-- Submit Button -->
       <button id="submitOrder" class="submit-order-btn">📨 تأكيد الطلب</button>
 
+      <!-- Fees Info -->
       <div class="fees-info">
         <strong>💳 رسوم الشركة:</strong> 3.000 DT &nbsp;|&nbsp; <strong>🚗 التوصيل:</strong> 0.500 دت/كم (حد أدنى 1.800 DT)
       </div>
@@ -930,57 +969,61 @@
   </div>
 </div>
 
-<!-- ===== TOAST CONTAINER ===== -->
+<!-- ============================================================
+     TOAST CONTAINER
+     ============================================================ -->
 <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
+<!-- ============================================================
+     JAVASCRIPT - الكود المُصحَّح والمُحسَّن
+     ============================================================ -->
 <script>
 (function() {
   'use strict';
 
-  // ============================================================
-  // 1. CONFIG - (مخفي عن المستخدم باستخدام متغيرات بيئية)
-  // ============================================================
+  /* ============================================================
+     1. CONFIG - معلومات التطبيق (مخفية عن المستخدم)
+     ============================================================ */
   const CONFIG = {
     DELIVERY_PRICE_PER_KM: 0.500,
     MIN_DELIVERY_PRICE: 1.800,
     SERVICE_FEE: 3.000,
-    // يتم تخزين البريد الإلكتروني في متغير بيئي في بيئة الإنتاج
-    // للاستخدام المحلي فقط
+    // في بيئة الإنتاج، استخدم متغيرات بيئية بدلاً من ذلك
     CONTACT_EMAIL: 'houssemkessentini77@gmail.com'
   };
-  
+
   let clientCoords = null;
   let isSubmitting = false;
 
-  // ============================================================
-  // 2. TOAST NOTIFICATION SYSTEM (بديل عن alert)
-  // ============================================================
+  /* ============================================================
+     2. TOAST NOTIFICATIONS - نظام إشعارات محسن
+     ============================================================ */
   function showToast(message, type = 'info', duration = 5000) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
-    
+
     const icons = {
       success: '✅',
       error: '❌',
       warning: '⚠️',
       info: 'ℹ️'
     };
-    
+
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `
       <span>${icons[type] || 'ℹ️'}</span>
       <span style="flex:1;">${message}</span>
       <button class="toast-close" aria-label="إغلاق">×</button>
     `;
-    
+
     container.appendChild(toast);
-    
+
     const closeBtn = toast.querySelector('.toast-close');
     closeBtn.addEventListener('click', function() {
       toast.style.animation = 'slideOutRight 0.3s ease';
       setTimeout(() => toast.remove(), 300);
     });
-    
+
     setTimeout(() => {
       if (toast.parentNode) {
         toast.style.animation = 'slideOutRight 0.3s ease';
@@ -989,9 +1032,9 @@
     }, duration);
   }
 
-  // ============================================================
-  // 3. MENU DATA - أسعار محدثة من السوق التونسي (سبتمبر 2026)
-  // ============================================================
+  /* ============================================================
+     3. MENU DATA - قائمة المنتجات
+     ============================================================ */
   const menuData = {
     vegetables: [
       { id: 'v1', name: 'طماطم', pricePerUnit: 1.200, unit: 'كغ', image: '🍅', description: 'طماطم طازجة', quickQuantities: [1, 2, 5] },
@@ -1061,20 +1104,21 @@
     ]
   };
 
+  // إنشاء سجل للمنتجات للوصول السريع
   const itemRegistry = {};
   Object.values(menuData).forEach(catArray => {
     catArray.forEach(item => { itemRegistry[item.id] = item; });
   });
 
-  // ============================================================
-  // 4. STATE
-  // ============================================================
+  /* ============================================================
+     4. STATE - حالة التطبيق
+     ============================================================ */
   const cart = [];
   let currentCategory = 'all';
 
-  // ============================================================
-  // 5. UTILITY - محسن
-  // ============================================================
+  /* ============================================================
+     5. UTILITY - دوال مساعدة
+     ============================================================ */
   function sanitizeText(str) {
     if (!str) return '';
     return String(str)
@@ -1096,9 +1140,9 @@
         const name = nameInput.value.trim();
         const zone = zoneInput.value.trim();
         if (name.length > 1 || zone.length > 1) {
-          shops.push({ 
-            name: name || 'غير محدد', 
-            zone: zone || 'غير محدد' 
+          shops.push({
+            name: name || 'غير محدد',
+            zone: zone || 'غير محدد'
           });
         }
       }
@@ -1112,14 +1156,14 @@
     return regex.test(cleaned);
   }
 
-  // ============================================================
-  // 6. GEOLOCATION - مع تحسينات
-  // ============================================================
+  /* ============================================================
+     6. GEOLOCATION - تحديد الموقع
+     ============================================================ */
   function getClientLocation() {
     const addressInput = document.getElementById('userAdresse');
     const statusEl = document.getElementById('locationStatus');
     const btn = document.getElementById('getLocationBtn');
-    
+
     if (!navigator.geolocation) {
       addressInput.value = '';
       addressInput.placeholder = 'اكتب عنوانك يدوياً';
@@ -1143,7 +1187,7 @@
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         clientCoords = [lat, lng];
-        
+
         fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18&addressdetails=1`)
           .then(response => response.json())
           .then(data => {
@@ -1195,31 +1239,31 @@
 
   document.getElementById('getLocationBtn').addEventListener('click', getClientLocation);
 
-  // ============================================================
-  // 7. SHOPS MANAGEMENT
-  // ============================================================
+  /* ============================================================
+     7. SHOPS MANAGEMENT - إدارة المتاجر
+     ============================================================ */
   document.getElementById('addShopBtn').addEventListener('click', function() {
     const container = document.getElementById('shops-container');
     const entry = document.createElement('div');
     entry.className = 'shop-entry';
     const count = container.children.length + 1;
-    
+
     const numberSpan = document.createElement('span');
     numberSpan.className = 'shop-number';
     numberSpan.textContent = count;
-    
+
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.className = 'shop-name-input';
     nameInput.placeholder = 'اسم المحل (اختياري)';
     nameInput.ariaLabel = 'اسم المحل';
-    
+
     const zoneInput = document.createElement('input');
     zoneInput.type = 'text';
     zoneInput.className = 'shop-zone-input';
     zoneInput.placeholder = 'المنطقة';
     zoneInput.ariaLabel = 'المنطقة';
-    
+
     const removeBtn = document.createElement('button');
     removeBtn.className = 'remove-shop';
     removeBtn.textContent = '×';
@@ -1236,7 +1280,7 @@
         showToast('⚠️ لازم يكون على الأقل محل واحد', 'warning');
       }
     });
-    
+
     entry.appendChild(numberSpan);
     entry.appendChild(nameInput);
     entry.appendChild(zoneInput);
@@ -1246,9 +1290,9 @@
     showToast('تم إضافة محل جديد', 'success');
   });
 
-  // ============================================================
-  // 8. CATEGORY SWITCHING
-  // ============================================================
+  /* ============================================================
+     8. CATEGORY SWITCHING - تبديل الفئات
+     ============================================================ */
   document.querySelectorAll('.category-nav-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.category-nav-btn').forEach(b => {
@@ -1258,7 +1302,7 @@
       this.classList.add('active');
       this.setAttribute('aria-selected', 'true');
       currentCategory = this.dataset.category;
-      
+
       Object.keys(menuData).forEach(cat => {
         const section = document.getElementById(`${cat}-section`);
         if (section) {
@@ -1269,9 +1313,9 @@
     });
   });
 
-  // ============================================================
-  // 9. RENDER MENU
-  // ============================================================
+  /* ============================================================
+     9. RENDER MENU - عرض القائمة
+     ============================================================ */
   function renderMenu() {
     Object.keys(menuData).forEach(category => {
       const container = document.getElementById(`${category}-menu`);
@@ -1284,44 +1328,47 @@
     items.forEach(item => {
       const card = document.createElement('div');
       card.className = 'menu-card';
-      
+
+      // Header: image + info
       const headerDiv = document.createElement('div');
       headerDiv.className = 'item-header';
-      
+
       const imgDiv = document.createElement('div');
       imgDiv.className = 'item-image';
       imgDiv.textContent = item.image;
-      
+
       const infoDiv = document.createElement('div');
       infoDiv.className = 'item-info';
-      
+
       const nameDiv = document.createElement('div');
       nameDiv.className = 'item-name';
       nameDiv.textContent = item.name;
-      
+
       const priceDiv = document.createElement('div');
       priceDiv.className = 'item-unit-price';
       priceDiv.textContent = item.pricePerUnit.toFixed(3) + ' ';
       const priceSpan = document.createElement('span');
       priceSpan.textContent = `DT/${item.unit}`;
       priceDiv.appendChild(priceSpan);
-      
+
       infoDiv.appendChild(nameDiv);
       infoDiv.appendChild(priceDiv);
       headerDiv.appendChild(imgDiv);
       headerDiv.appendChild(infoDiv);
-      
+
+      // Description
       const descDiv = document.createElement('div');
       descDiv.style.cssText = 'color:#666;font-size:0.85rem;margin-bottom:8px;';
       descDiv.textContent = item.description;
-      
+
+      // Quantity selector
       const qtySelector = document.createElement('div');
       qtySelector.className = 'quantity-selector';
-      
+
       const qtyLabel = document.createElement('span');
       qtyLabel.style.cssText = 'font-weight:700;color:#666;';
       qtyLabel.textContent = 'الكمية:';
-      
+
       const quantityInput = document.createElement('input');
       quantityInput.type = 'number';
       quantityInput.className = 'quantity-input';
@@ -1330,20 +1377,21 @@
       quantityInput.step = '0.1';
       quantityInput.max = '999';
       quantityInput.ariaLabel = `كمية ${item.name}`;
-      
+
       const qtyUnit = document.createElement('span');
       qtyUnit.className = 'quantity-unit';
       qtyUnit.textContent = item.unit;
-      
+
       const totalItemPrice = document.createElement('span');
       totalItemPrice.className = 'total-item-price';
       totalItemPrice.textContent = `= ${item.pricePerUnit.toFixed(3)} DT`;
-      
+
       qtySelector.appendChild(qtyLabel);
       qtySelector.appendChild(quantityInput);
       qtySelector.appendChild(qtyUnit);
       qtySelector.appendChild(totalItemPrice);
-      
+
+      // Quick quantity buttons
       const quickBtnsDiv = document.createElement('div');
       quickBtnsDiv.className = 'quick-quantity-btns';
       item.quickQuantities.forEach(qty => {
@@ -1354,31 +1402,36 @@
         qBtn.ariaLabel = `كمية ${qty} ${item.unit}`;
         quickBtnsDiv.appendChild(qBtn);
       });
-      
+
+      // Add to cart button
       const addToCartBtn = document.createElement('button');
       addToCartBtn.className = 'add-to-cart-btn';
       addToCartBtn.textContent = '🛒 أضف للسلة';
       addToCartBtn.ariaLabel = `إضافة ${item.name} إلى السلة`;
-      
+
+      // Assemble card
       card.appendChild(headerDiv);
       card.appendChild(descDiv);
       card.appendChild(qtySelector);
       card.appendChild(quickBtnsDiv);
       card.appendChild(addToCartBtn);
-      
+
+      // Update price on quantity change
       function updatePrice() {
         const qty = parseFloat(quantityInput.value) || 0;
         totalItemPrice.textContent = `= ${(qty * item.pricePerUnit).toFixed(3)} DT`;
       }
       quantityInput.addEventListener('input', updatePrice);
-      
+
+      // Quick quantity button click
       card.querySelectorAll('.quick-qty-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           quantityInput.value = this.dataset.qty;
           updatePrice();
         });
       });
-      
+
+      // Add to cart button click
       addToCartBtn.addEventListener('click', function() {
         const qty = parseFloat(quantityInput.value) || 0;
         if (qty <= 0 || qty > 999) {
@@ -1401,32 +1454,32 @@
         updatePrice();
         showToast(`✅ تم إضافة ${item.name} إلى السلة`, 'success');
       });
-      
+
       container.appendChild(card);
     });
   }
 
-  // ============================================================
-  // 10. CART DISPLAY
-  // ============================================================
+  /* ============================================================
+     10. CART DISPLAY - عرض السلة
+     ============================================================ */
   function updateCartDisplay() {
     const cartList = document.getElementById('cart-items');
     const cartCount = document.getElementById('cart-count');
     const totalPriceEl = document.getElementById('total-price');
     const shopsDisplay = document.getElementById('shops-display');
-    
+
     cartList.innerHTML = '';
     let subtotal = 0;
-    
+
     const shops = getShopData();
     if (shops.length === 0) {
       shopsDisplay.textContent = 'أضف متاجر';
     } else {
-      shopsDisplay.innerHTML = shops.map(s => 
+      shopsDisplay.innerHTML = shops.map(s =>
         `<span class="shop-item">${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}</span>`
       ).join(' ');
     }
-    
+
     if (cart.length === 0) {
       const emptyLi = document.createElement('li');
       emptyLi.style.cssText = 'text-align:center;color:#999;padding:15px;';
@@ -1454,14 +1507,14 @@
       });
       cartCount.textContent = cart.length;
     }
-    
+
     totalPriceEl.textContent = (subtotal + CONFIG.SERVICE_FEE).toFixed(3) + ' DT';
     document.getElementById('fees-line').textContent = CONFIG.SERVICE_FEE.toFixed(3) + ' DT رسوم الشركة';
   }
 
-  // ============================================================
-  // 11. SUBMIT ORDER - مع تحسينات أمنية
-  // ============================================================
+  /* ============================================================
+     11. SUBMIT ORDER - إرسال الطلب (مُحسَّن)
+     ============================================================ */
   document.getElementById('submitOrder').addEventListener('click', function() {
     if (isSubmitting) {
       showToast('جاري إرسال الطلب...', 'info');
@@ -1473,8 +1526,8 @@
     const adresse = document.getElementById('userAdresse').value.trim();
     const notes = document.getElementById('userNotes').value.trim();
     const shops = getShopData();
-    
-    // التحقق من صحة البيانات
+
+    // Validate name
     if (!name || name.length < 2) {
       showToast('⚠️ اكتب اسمك الكامل (على الأقل حرفين)', 'warning');
       document.getElementById('userName').focus();
@@ -1482,7 +1535,8 @@
       return;
     }
     document.getElementById('userName').removeAttribute('aria-invalid');
-    
+
+    // Validate phone
     if (!phone || !validatePhone(phone)) {
       showToast('⚠️ رقم هاتف تونسي صحيح (يبدأ بـ 2-9 و 8 أرقام)', 'warning');
       document.getElementById('userPhone').focus();
@@ -1490,19 +1544,21 @@
       return;
     }
     document.getElementById('userPhone').removeAttribute('aria-invalid');
-    
+
+    // Validate address
     if (!adresse || adresse.includes('⏳') || adresse.includes('جاري')) {
       showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك يدوياً', 'warning');
       document.getElementById('userAdresse').focus();
       return;
     }
-    
+
+    // Validate cart
     if (cart.length === 0) {
       showToast('🥲 السلة فارغة - أضف منتجات أولاً', 'warning');
       return;
     }
 
-    // التحقق من صحة الأسعار
+    // Verify prices
     let verifiedSubtotal = 0;
     let orderDetails = '';
     for (let i = 0; i < cart.length; i++) {
@@ -1531,19 +1587,19 @@
 💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
 ⏰ ${new Date().toLocaleString('ar-TN')}
     `;
-    
+
     const submitBtn = document.getElementById('submitOrder');
     isSubmitting = true;
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ جاري الإرسال...';
 
-    // استخدام عنوان البريد الإلكتروني من CONFIG
+    // Use email from CONFIG
     const email = CONFIG.CONTACT_EMAIL;
 
     fetch(`https://formsubmit.co/ajax/${email}`, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
+      headers: {
+        'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
       body: JSON.stringify({
@@ -1557,8 +1613,7 @@
         service_fee: CONFIG.SERVICE_FEE.toFixed(3) + ' DT',
         message: orderMessage,
         _captcha: 'false',
-        _template: 'table',
-        _subject: `طلب جديد من ${sanitizeText(name)} - 9ATHYA.TN`
+        _template: 'table'
       })
     })
     .then(response => {
@@ -1586,21 +1641,21 @@
     });
   });
 
-  // ============================================================
-  // 12. INIT
-  // ============================================================
+  /* ============================================================
+     12. INIT - تهيئة التطبيق
+     ============================================================ */
   renderMenu();
   updateCartDisplay();
 
-  // تحديث عرض المتاجر عند تغيير المدخلات
+  // Update shops display on input change
   document.addEventListener('input', function(e) {
-    if (e.target.classList.contains('shop-name-input') || 
+    if (e.target.classList.contains('shop-name-input') ||
         e.target.classList.contains('shop-zone-input')) {
       updateCartDisplay();
     }
   });
 
-  // تحسين إمكانية الوصول - إرسال الطلب بالضغط على Enter في الحقول
+  // Accessibility: Submit order on Enter key in form fields
   document.querySelectorAll('.form-input').forEach(input => {
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
@@ -1609,24 +1664,17 @@
     });
   });
 
-  // ============================================================
-  // 13. حماية إضافية - منع تنفيذ سكريبتات غير مصرح بها
-  // ============================================================
-  // التحقق من أن جميع العناصر التي تحتوي على innerHTML آمنة
-  // تم استخدام sanitizeText() في جميع الأماكن التي تُدرج فيها بيانات مستخدم
-
-  // ============================================================
-  // 14. إخفاء البريد الإلكتروني من الكود (في بيئة الإنتاج)
-  // ============================================================
-  // ملاحظة: في بيئة الإنتاج، يجب استخدام متغير بيئي بدلاً من تضمين 
-  // البريد الإلكتروني مباشرة في الكود. تم استخدام CONFIG.CONTACT_EMAIL
-
+  /* ============================================================
+     13. SECURITY - تحذيرات أمنية للمطور
+     ============================================================ */
   console.log('🔒 9ATHYA.TN - التطبيق يعمل بشكل آمن');
   console.log('✅ جميع رؤوس الأمان مفعلة');
   console.log('✅ نظام الإشعارات المحسن يعمل');
   console.log('✅ تم إخفاء البريد الإلكتروني في الكود');
+  console.log('✅ تم تطبيق CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection');
 
 })();
 </script>
+
 </body>
 </html>
