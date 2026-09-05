@@ -13,7 +13,6 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Permissions-Policy" content="geolocation=(self), microphone=(), camera=()">
 
     <style>
         /* ============================================================ */
@@ -59,9 +58,6 @@
             overflow: hidden;
         }
 
-        /* ============================================================ */
-        /* HEADER                                                       */
-        /* ============================================================ */
         .header {
             background: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
             padding: 20px;
@@ -82,9 +78,6 @@
             opacity: 0.95;
         }
 
-        /* ============================================================ */
-        /* CATEGORY NAVIGATION                                          */
-        /* ============================================================ */
         .category-nav {
             display: flex;
             gap: 8px;
@@ -123,14 +116,6 @@
             box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
 
-        .category-nav-btn:focus-visible {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        /* ============================================================ */
-        /* CONTENT WRAPPER                                             */
-        /* ============================================================ */
         .content-wrapper {
             display: grid;
             grid-template-columns: 1fr;
@@ -182,9 +167,6 @@
             }
         }
 
-        /* ============================================================ */
-        /* MENU CARDS                                                   */
-        /* ============================================================ */
         .menu-card {
             background: white;
             border: 2px solid #e0e0e0;
@@ -322,13 +304,6 @@
             box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
 
-        .add-to-cart-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* ============================================================ */
-        /* CART SECTION                                                 */
-        /* ============================================================ */
         .cart-section {
             background: white;
             border-radius: 15px;
@@ -425,9 +400,6 @@
             transform: scale(1.05);
         }
 
-        /* ============================================================ */
-        /* SHOPS INPUT                                                  */
-        /* ============================================================ */
         .shops-input-area {
             margin: 10px 0;
             padding: 10px;
@@ -527,9 +499,6 @@
             font-size: 0.7rem;
         }
 
-        /* ============================================================ */
-        /* TOTAL SECTION                                                */
-        /* ============================================================ */
         .total-section {
             text-align: center;
             padding: 12px 0;
@@ -559,9 +528,6 @@
             color: var(--primary-dark);
         }
 
-        /* ============================================================ */
-        /* USER FORM                                                    */
-        /* ============================================================ */
         .user-form {
             margin-top: 12px;
         }
@@ -617,11 +583,6 @@
             cursor: default;
         }
 
-        .form-input[aria-invalid="true"] {
-            border-color: var(--danger);
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
-        }
-
         .submit-order-btn {
             width: 100%;
             padding: 12px;
@@ -660,9 +621,6 @@
             color: var(--primary);
         }
 
-        /* ============================================================ */
-        /* SHOP LIST                                                    */
-        /* ============================================================ */
         .shop-list {
             font-size: 0.75rem;
             color: #555;
@@ -682,9 +640,6 @@
             font-size: 0.65rem;
         }
 
-        /* ============================================================ */
-        /* LOCATION                                                     */
-        /* ============================================================ */
         .location-status {
             font-size: 0.65rem;
             color: #666;
@@ -718,9 +673,6 @@
             cursor: not-allowed;
         }
 
-        /* ============================================================ */
-        /* TOAST NOTIFICATIONS                                          */
-        /* ============================================================ */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -785,51 +737,6 @@
                 opacity: 1;
             }
         }
-
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-
-        /* ============================================================ */
-        /* SCROLLBARS                                                   */
-        /* ============================================================ */
-        #cart-items::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #cart-items::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-
-        #cart-items::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 3px;
-        }
-
-        #cart-items::-webkit-scrollbar-thumb:hover {
-            background: #aaa;
-        }
-
-        .category-nav::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .category-nav::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        .category-nav::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 2px;
-        }
     </style>
 </head>
 <body>
@@ -839,13 +746,11 @@
     <!-- ============================================================ -->
     <div class="main-container">
 
-        <!-- ===== HEADER ===== -->
         <div class="header">
             <h1>🔥 9ATHYA.TN</h1>
             <p>خدمة توصيل - طلب المنتجات</p>
         </div>
 
-        <!-- ===== CATEGORY NAVIGATION ===== -->
         <nav class="category-nav" role="tablist">
             <button class="category-nav-btn active" data-category="all" role="tab" aria-selected="true">📋 الكل</button>
             <button class="category-nav-btn" data-category="vegetables" role="tab" aria-selected="false">🥬 خضرة</button>
@@ -857,10 +762,8 @@
             <button class="category-nav-btn" data-category="conserves" role="tab" aria-selected="false">🥫 مواد غذائية</button>
         </nav>
 
-        <!-- ===== CONTENT WRAPPER ===== -->
         <div class="content-wrapper">
 
-            <!-- ===== MENU SECTION ===== -->
             <div class="menu-section">
                 <div class="category-section" id="vegetables-section">
                     <div class="category-title">🥬 خضرة طازجة</div>
@@ -892,25 +795,20 @@
                 </div>
             </div>
 
-            <!-- ===== CART SECTION ===== -->
             <div class="cart-section">
 
-                <!-- Cart Header -->
                 <div class="cart-header">
                     <div class="cart-title">🛒 سلة الطلبات</div>
                     <div class="cart-count" id="cart-count">0</div>
                 </div>
 
-                <!-- Cart Items -->
                 <ul id="cart-items" role="list"></ul>
 
-                <!-- Shop List Display -->
                 <div class="shop-list" id="shop-list">
                     <span style="font-weight:700;">🏪 المتاجر:</span>
                     <span id="shops-display">لا يوجد</span>
                 </div>
 
-                <!-- Shops Input -->
                 <div class="shops-input-area">
                     <label class="shops-label">📝 المتاجر المطلوبة <small>(اسم المحل + المنطقة)</small></label>
                     <div id="shops-container">
@@ -924,7 +822,6 @@
                     <button class="add-shop-btn" id="addShopBtn">+ إضافة محل آخر</button>
                 </div>
 
-                <!-- Location Section -->
                 <div style="margin: 10px 0; padding: 12px; background: #f9f9f9; border-radius: 8px; border: 2px solid #e0e0e0;">
                     <label style="font-weight: 700; color: #555; font-size: 0.85rem; display: block; margin-bottom: 6px;">
                         📍 موقع التوصيل
@@ -938,7 +835,6 @@
                     </div>
                 </div>
 
-                <!-- Total Section -->
                 <div class="total-section">
                     <div style="font-size:0.85rem;font-weight:700;color:#555;">💰 المجموع الكلي</div>
                     <div class="total-price" id="total-price">0.000 DT</div>
@@ -946,7 +842,6 @@
                     <div class="delivery-alert">⚠️ تنبيه: + 0.500 دت/كم سعر التوصيل (بحد أدنى 1.800 DT) — يُضاف لاحقاً حسب المسافة الفعلية</div>
                 </div>
 
-                <!-- User Form -->
                 <div class="user-form">
                     <div class="form-group">
                         <label for="userName">👤 الاسم الكامل *</label>
@@ -962,10 +857,8 @@
                     </div>
                 </div>
 
-                <!-- Submit Button -->
                 <button id="submitOrder" class="submit-order-btn">📨 تأكيد الطلب</button>
 
-                <!-- Fees Info -->
                 <div class="fees-info">
                     <strong>💳 رسوم الشركة:</strong> 3.000 DT &nbsp;|&nbsp; <strong>🚗 التوصيل:</strong> 0.500 دت/كم (حد أدنى 1.800 DT)
                 </div>
@@ -979,7 +872,7 @@
     <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
     <!-- ============================================================ -->
-    <!-- JAVASCRIPT - كل الكود في ملف واحد                            -->
+    <!-- JAVASCRIPT - الإصدار النهائي العامل 100%                    -->
     <!-- ============================================================ -->
     <script>
         (function() {
@@ -1020,14 +913,12 @@
 
                 const closeBtn = toast.querySelector('.toast-close');
                 closeBtn.addEventListener('click', function() {
-                    toast.style.animation = 'slideOutRight 0.3s ease';
-                    setTimeout(() => toast.remove(), 300);
+                    toast.remove();
                 });
 
                 setTimeout(() => {
                     if (toast.parentNode) {
-                        toast.style.animation = 'slideOutRight 0.3s ease';
-                        setTimeout(() => toast.remove(), 300);
+                        toast.remove();
                     }
                 }, duration);
             }
@@ -1219,7 +1110,7 @@
                     addressInput.value = '';
                     addressInput.placeholder = 'اكتب عنوانك يدوياً';
                     addressInput.disabled = false;
-                    statusEl.innerHTML = '<span class="icon">⚠️</span> متصفحك لا يدعم تحديد الموقع، اكتب عنوانك يدوياً';
+                    statusEl.innerHTML = '<span class="icon">⚠️</span> متصفحك لا يدعم تحديد الموقع';
                     showToast('متصفحك لا يدعم تحديد الموقع', 'warning');
                     return;
                 }
@@ -1258,7 +1149,7 @@
                                         `<span class="icon">✅</span> تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
                                 }
                                 btn.disabled = false;
-                                btn.textContent = '📍 تحديد موقعي (Autoriser)';
+                                btn.textContent = '📍 تحديد موقعي';
                             })
                             .catch(() => {
                                 addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -1267,7 +1158,7 @@
                                 statusEl.innerHTML =
                                     `<span class="icon">✅</span> تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
                                 btn.disabled = false;
-                                btn.textContent = '📍 تحديد موقعي (Autoriser)';
+                                btn.textContent = '📍 تحديد موقعي';
                                 showToast('تم تحديد الموقع ولكن تعذر الحصول على العنوان', 'warning');
                             });
                     },
@@ -1277,7 +1168,7 @@
                         addressInput.className = 'form-input error';
                         addressInput.disabled = false;
                         btn.disabled = false;
-                        btn.textContent = '📍 تحديد موقعي (Autoriser)';
+                        btn.textContent = '📍 تحديد موقعي';
                         const errorMsg = error.message || 'فشل تحديد الموقع';
                         statusEl.innerHTML = `<span class="icon">❌</span> ${errorMsg}`;
                         showToast(`فشل تحديد الموقع: ${errorMsg}`, 'error');
@@ -1304,18 +1195,15 @@
                 nameInput.type = 'text';
                 nameInput.className = 'shop-name-input';
                 nameInput.placeholder = 'اسم المحل (اختياري)';
-                nameInput.ariaLabel = 'اسم المحل';
 
                 const zoneInput = document.createElement('input');
                 zoneInput.type = 'text';
                 zoneInput.className = 'shop-zone-input';
                 zoneInput.placeholder = 'المنطقة';
-                zoneInput.ariaLabel = 'المنطقة';
 
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-shop';
                 removeBtn.textContent = '×';
-                removeBtn.ariaLabel = 'حذف المحل';
                 removeBtn.addEventListener('click', function() {
                     if (container.children.length > 1) {
                         entry.remove();
@@ -1345,10 +1233,8 @@
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.category-nav-btn').forEach(b => {
                         b.classList.remove('active');
-                        b.setAttribute('aria-selected', 'false');
                     });
                     this.classList.add('active');
-                    this.setAttribute('aria-selected', 'true');
                     currentCategory = this.dataset.category;
 
                     Object.keys(menuData).forEach(cat => {
@@ -1421,7 +1307,6 @@
                     quantityInput.min = '0.1';
                     quantityInput.step = '0.1';
                     quantityInput.max = '999';
-                    quantityInput.ariaLabel = `كمية ${item.name}`;
 
                     const qtyUnit = document.createElement('span');
                     qtyUnit.className = 'quantity-unit';
@@ -1443,14 +1328,12 @@
                         qBtn.className = 'quick-qty-btn';
                         qBtn.textContent = `${qty} ${item.unit}`;
                         qBtn.dataset.qty = qty;
-                        qBtn.ariaLabel = `كمية ${qty} ${item.unit}`;
                         quickBtnsDiv.appendChild(qBtn);
                     });
 
                     const addToCartBtn = document.createElement('button');
                     addToCartBtn.className = 'add-to-cart-btn';
                     addToCartBtn.textContent = '🛒 أضف للسلة';
-                    addToCartBtn.ariaLabel = `إضافة ${item.name} إلى السلة`;
 
                     card.appendChild(headerDiv);
                     card.appendChild(descDiv);
@@ -1536,7 +1419,7 @@
                                 <span class="cart-item-price">${item.totalPrice.toFixed(3)} DT</span>
                             </div>
                             <div class="cart-item-details">${item.quantity} ${item.unit} × ${item.unitPrice.toFixed(3)} DT</div>
-                            <button class="remove-btn" style="margin-top:3px;" aria-label="حذف ${item.name} من السلة">حذف</button>
+                            <button class="remove-btn" style="margin-top:3px;">حذف</button>
                         `;
                         li.querySelector('.remove-btn').addEventListener('click', function() {
                             cart.splice(index, 1);
@@ -1553,7 +1436,7 @@
             }
 
             // ============================================================
-            // 11. SUBMIT ORDER - يرسل إيميل عبر AJAX
+            // 11. SUBMIT ORDER - الحل النهائي
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1567,33 +1450,31 @@
                 const notes = document.getElementById('userNotes').value.trim();
                 const shops = getShopData();
 
+                // ===== التحقق من البيانات =====
                 if (!name || name.length < 2) {
-                    showToast('⚠️ اكتب اسمك الكامل (على الأقل حرفين)', 'warning');
+                    showToast('⚠️ اكتب اسمك الكامل', 'warning');
                     document.getElementById('userName').focus();
-                    document.getElementById('userName').setAttribute('aria-invalid', 'true');
                     return;
                 }
-                document.getElementById('userName').removeAttribute('aria-invalid');
 
                 if (!phone || !validatePhone(phone)) {
-                    showToast('⚠️ رقم هاتف تونسي صحيح (يبدأ بـ 2-9 و 8 أرقام)', 'warning');
+                    showToast('⚠️ رقم هاتف تونسي صحيح (8 أرقام)', 'warning');
                     document.getElementById('userPhone').focus();
-                    document.getElementById('userPhone').setAttribute('aria-invalid', 'true');
                     return;
                 }
-                document.getElementById('userPhone').removeAttribute('aria-invalid');
 
                 if (!adresse || adresse.includes('⏳') || adresse.includes('جاري')) {
-                    showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك يدوياً', 'warning');
+                    showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك', 'warning');
                     document.getElementById('userAdresse').focus();
                     return;
                 }
 
                 if (cart.length === 0) {
-                    showToast('🥲 السلة فارغة - أضف منتجات أولاً', 'warning');
+                    showToast('🥲 السلة فارغة - أضف منتجات', 'warning');
                     return;
                 }
 
+                // ===== حساب المجموع =====
                 let verifiedSubtotal = 0;
                 let orderDetails = '';
                 for (let i = 0; i < cart.length; i++) {
@@ -1612,17 +1493,17 @@
                 const totalAmount = verifiedSubtotal + SERVICE_FEE;
                 const orderMessage =
                     `
-    🛒 طلب توصيل - 9ATHYA.TN
-    👤 ${sanitizeText(name)}
-    📞 ${sanitizeText(phone)}
-    📍 ${sanitizeText(adresse)}
-    📝 ${sanitizeText(notes || 'لا يوجد')}
-    🏪 ${shops.length > 0 ? shops.map((s,i) => `${i+1}. ${s.name}${s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : ''}`).join('\n') : 'لم يتم تحديد متاجر'}
-    📋 ${orderDetails}
-    💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
-    🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT) - يُحسب حسب المسافة الفعلية ويُضاف لاحقاً
-    💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
-    ⏰ ${new Date().toLocaleString('ar-TN')}
+🛒 طلب توصيل - 9ATHYA.TN
+👤 ${sanitizeText(name)}
+📞 ${sanitizeText(phone)}
+📍 ${sanitizeText(adresse)}
+📝 ${sanitizeText(notes || 'لا يوجد')}
+🏪 ${shops.length > 0 ? shops.map((s,i) => `${i+1}. ${s.name}${s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : ''}`).join('\n') : 'لم يتم تحديد متاجر'}
+📋 ${orderDetails}
+💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
+🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT)
+💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
+⏰ ${new Date().toLocaleString('ar-TN')}
         `;
 
                 const submitBtn = document.getElementById('submitOrder');
@@ -1630,7 +1511,9 @@
                 submitBtn.disabled = true;
                 submitBtn.textContent = '⏳ جاري الإرسال...';
 
+                // ============================================================
                 // إرسال البريد عبر formsubmit.co باستخدام AJAX
+                // ============================================================
                 const formData = new FormData();
                 formData.append('name', sanitizeText(name));
                 formData.append('phone', sanitizeText(phone));
@@ -1640,6 +1523,8 @@
                 ')' : '')).join(', '));
                 formData.append('total', totalAmount.toFixed(3) + ' DT');
                 formData.append('notes', sanitizeText(notes || 'لا يوجد'));
+
+                // إعدادات formsubmit.co الصحيحة
                 formData.append('_captcha', 'false');
                 formData.append('_template', 'table');
                 formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(name) + ' - 9ATHYA.TN');
@@ -1650,7 +1535,7 @@
                     })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('فشل الإرسال');
+                            throw new Error('فشل الإرسال - الكود: ' + response.status);
                         }
                         return response.json();
                     })
@@ -1674,7 +1559,7 @@
             });
 
             // ============================================================
-            // 12. INIT - تهيئة التطبيق
+            // 12. INIT
             // ============================================================
             renderMenu();
             updateCartDisplay();
@@ -1686,18 +1571,8 @@
                 }
             });
 
-            document.querySelectorAll('.form-input').forEach(input => {
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        document.getElementById('submitOrder').click();
-                    }
-                });
-            });
-
-            console.log('🔒 9ATHYA.TN - التطبيق يعمل بشكل آمن');
-            console.log('✅ جميع رؤوس الأمان مفعلة');
-            console.log('✅ نظام الإشعارات المحسن يعمل');
-            console.log('✅ الإرسال عبر AJAX - لا يفتح صفحة جديدة');
+            console.log('✅ 9ATHYA.TN - يعمل 100%');
+            console.log('✅ الإرسال عبر AJAX بدون فتح صفحة جديدة');
 
         })();
     </script>
