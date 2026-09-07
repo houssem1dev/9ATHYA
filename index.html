@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>9ATHYA.TN | خدمة توصيل</title>
-
-    <!-- ============================================================ -->
-    <!-- ملاحظة: رؤوس الأمان موجودة في ملف vercel.json               -->
-    <!-- ============================================================ -->
-
     <style>
         /* ============================================================ */
         /* CSS - جميع الأنماط                                           */
@@ -772,7 +767,7 @@
             }
 
             // ============================================================
-            // MENU DATA - جميع المنتجات (كاملة)
+            // MENU DATA - بأسماء تونسية (زبدّة، دلاع، فقّوس، بطيخ، شمام، فلفل، طماطم...)
             // ============================================================
             const menuData = {
                 vegetables: [
@@ -791,7 +786,11 @@
                     { id: 'v7', name: 'قارعة', pricePerUnit: 1.800, unit: 'كغ', image: '🎃', description: 'قارعة طازجة',
                         quickQuantities: [1, 2, 5] },
                     { id: 'v8', name: 'فاصوليا خضراء', pricePerUnit: 3.500, unit: 'كغ', image: '🫘',
-                        description: 'فاصوليا خضراء طازجة', quickQuantities: [1, 2, 5] }
+                        description: 'فاصوليا خضراء طازجة', quickQuantities: [1, 2, 5] },
+                    { id: 'v9', name: 'زبدّة', pricePerUnit: 4.200, unit: 'كغ', image: '🥒', description: 'زبدّة طازجة (خيار)',
+                        quickQuantities: [1, 2, 5] },
+                    { id: 'v10', name: 'فقّوس', pricePerUnit: 3.800, unit: 'كغ', image: '🥒', description: 'فقّوس طازج',
+                        quickQuantities: [1, 2, 5] }
                 ],
                 fruits: [
                     { id: 'f1', name: 'تفاح', pricePerUnit: 6.250, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر',
@@ -805,7 +804,9 @@
                     { id: 'f5', name: 'بطيخ', pricePerUnit: 2.500, unit: 'كغ', image: '🍉', description: 'بطيخ أحمر',
                         quickQuantities: [1, 3, 5] },
                     { id: 'f6', name: 'شمام', pricePerUnit: 3.800, unit: 'كغ', image: '🍈', description: 'شمام طازج',
-                        quickQuantities: [1, 2, 5] }
+                        quickQuantities: [1, 2, 5] },
+                    { id: 'f7', name: 'دلاع', pricePerUnit: 2.900, unit: 'كغ', image: '🍉', description: 'دلاع (بطيخ) طازج',
+                        quickQuantities: [1, 3, 5] }
                 ],
                 staples: [
                     { id: 's1', name: 'زيت زيتون', pricePerUnit: 14.500, unit: 'لتر', image: '🫒',
@@ -878,19 +879,17 @@
                         quickQuantities: [1, 6, 12] }
                 ],
                 conserves: [
-                    { id: 'c1', name: 'مكرونة', pricePerUnit: 2.100, unit: 'كغ', image: '🍝', description: 'مكرونة إيطالية',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'c2', name: 'طماطم مصبرة', pricePerUnit: 5.000, unit: 'علبة', image: '🥫',
+                    
+                    { id: 'c1', name: 'طماطم مصبرة', pricePerUnit: 5.000, unit: 'علبة', image: '🥫',
                         description: 'طماطم مصبرة (كونسروة)', quickQuantities: [1, 3, 6] },
-                    { id: 'c3', name: 'زيت مقلي', pricePerUnit: 6.500, unit: 'لتر', image: '🛢️',
+                    { id: 'c2', name: 'زيت قلي', pricePerUnit: 6.500, unit: 'لتر', image: '🛢️',
                         description: 'زيت نباتي للقلي', quickQuantities: [1, 2, 5] },
-                    { id: 'c4', name: 'مايونيز', pricePerUnit: 4.200, unit: 'علبة', image: '🥄', description: 'مايونيز',
+                    { id: 'c3', name: 'مايونيز', pricePerUnit: 4.200, unit: 'علبة', image: '🥄', description: 'مايونيز',
                         quickQuantities: [1, 2, 3] },
-                    { id: 'c5', name: 'كاتشب', pricePerUnit: 3.800, unit: 'علبة', image: '🍅', description: 'صلصة كاتشب',
+                    { id: 'c4', name: 'كاتشب', pricePerUnit: 3.800, unit: 'علبة', image: '🍅', description: 'صلصة كاتشب',
                         quickQuantities: [1, 2, 3] },
-                    { id: 'c6', name: 'حلوى', pricePerUnit: 4.500, unit: 'علبة', image: '🍬', description: 'حلوى متنوعة',
-                        quickQuantities: [1, 2, 5] },
-                    { id: 'c7', name: 'شوكولاتة', pricePerUnit: 3.200, unit: 'قطعة', image: '🍫', description: 'شوكولاتة',
+                
+                    { id: 'c5', name: 'شوكولاتة', pricePerUnit: 3.200, unit: 'قطعة', image: '🍫', description: 'شوكولاتة',
                         quickQuantities: [1, 3, 6] }
                 ]
             };
