@@ -36,7 +36,7 @@
   ],
   "functions": {
     "api/chat.js": {
-      "maxDuration": 10,
+      "maxDuration": 30,
       "memory": 1024
     }
   }
