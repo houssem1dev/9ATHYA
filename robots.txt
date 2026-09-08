@@ -1,2 +1,11 @@
 User-agent: *
-Disallow: /
+Disallow: /api/
+Allow: /
+
+# Prevent indexing of sensitive paths
+Disallow: /chat.js
+Disallow: /vercel.json
+Disallow: /*.json
+
+# Sitemap (if you have one)
+# Sitemap: https://9athya.tn/sitemap.xml
