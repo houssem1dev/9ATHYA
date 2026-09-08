@@ -42,26 +42,6 @@
         {
           "key": "Expires",
           "value": "0"
-        },
-        {
-          "key": "RateLimit-Limit",
-          "value": "100"
-        },
-        {
-          "key": "RateLimit-Remaining",
-          "value": "100"
-        },
-        {
-          "key": "RateLimit-Reset",
-          "value": "60"
-        },
-        {
-          "key": "X-RateLimit-Limit",
-          "value": "100"
-        },
-        {
-          "key": "X-RateLimit-Remaining",
-          "value": "100"
         }
       ]
     },
