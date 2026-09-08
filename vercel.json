@@ -65,23 +65,23 @@
         }
       ]
     },
+   {
+  "source": "/chat",
+  "headers": [
     {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "https://9athya.tn"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "POST, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        }
-      ]
+      "key": "Access-Control-Allow-Origin",
+      "value": "https://9athya.tn"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "POST, OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Authorization"
     }
+  ]
+}
   ],
   "functions": {
     "chat.js": {
