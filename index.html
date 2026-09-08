@@ -1014,7 +1014,7 @@
     <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
     <!-- ============================================================ -->
-    <!-- AI ASSISTANT - مع Gemini API (آمن)                           -->
+    <!-- AI ASSISTANT - ينادي على API آمن في الخادم                  -->
     <!-- ============================================================ -->
     <button class="ai-assistant-toggle" id="aiToggle" aria-label="افتح المساعد الذكي">
         🤖
@@ -1047,7 +1047,7 @@
             <button id="aiSendBtn">إرسال</button>
         </div>
         <div class="ai-chat-footer">
-            ⚡ يعمل بـ Gemini AI &bull; يتم جمع البيانات لتحسين الخدمة
+            ⚡ يعمل بـ Gemini AI (آمن) &bull; يتم جمع البيانات لتحسين الخدمة
         </div>
     </div>
 
@@ -1066,13 +1066,9 @@
             let isSubmitting = false;
 
             // ============================================================
-            // AI CONFIG - Gemini API
+            // AI CONFIG - يستخدم API آمن في الخادم
             // ============================================================
-            // ⚠️ IMPORTANT: استخدم مفتاح API جديد من Google Cloud Console
-            // ولا تنشره في الكود أبداً!
-            const GEMINI_API_KEY = 'YOUR_API_KEY_HERE'; // استبدل بمفتاحك الجديد
-            const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
-
+            const AI_API_URL = '/api/chat'; // ينادي على الخادم المحلي
             let aiChatHistory = [];
             let isAiProcessing = false;
 
@@ -1092,41 +1088,12 @@
             }
 
             // ============================================================
-            // SYSTEM PROMPT
-            // ============================================================
-            function getSystemPrompt() {
-                return `أنت مساعد ذكي لموقع 9ATHYA.TN، وهو موقع خدمة توصيل منتجات غذائية في تونس.
-
-المنتجات المتوفرة:
-🥬 خضرة: طماطم (2.500 دت/كغ)، فلفل (3.500 دت/كغ)، بصل (1.500 دت/كغ)، بطاطا (2.200 دت/كغ)، جزر (2.200 دت/كغ)، خس (5.200 دت/رأس)، قرع (3.000 دت/كغ)، فقّوس (3.800 دت/كغ)، زبدّة (4.200 دت/كغ)
-🍎 غلة: تفاح (6.250 دت/كغ)، موز (15.000 دت/كغ)، برتقال (2.700 دت/كغ)، ليمون (5.200 دت/كغ)، بطيخ (2.500 دت/كغ)، دلاع (2.900 دت/كغ)، شمام (3.800 دت/كغ)
-🌾 مواد أساسية: زيت زيتون (14.500 دت/لتر)، سكر (2.900 دت/كغ)، سميدة (0.850 دت/كغ)، خبز (0.250 دت/رغيف)، حليب (1.300 دت/لتر)، قهوة (11.500 دت/كغ)، بهارات (7.000 دت/كغ)، رز (4.200 دت/كغ)، ماء (0.850 دت/قارورة)، دقيق (0.900 دت/كغ)
-🫘 بقول: عدس (4.800 دت/كغ)، حمص (5.200 دت/كغ)، لوبيا (8.000 دت/كغ)، جلبانة (5.500 دت/كغ)
-🥩 بروتينات: لحم مفروم (19.000 دت/كغ)، دجاج فيليه (17.500 دت/كغ)، لحم بقري (43.000 دت/كغ)، تونة (8.000 دت/علبة)، دجاج كامل (10.000 دت/كغ)، أسكالوب دجاج (19.500 دت/كغ)، ستيك بقري (39.500 دت/كغ)، سردين (7.000 دت/كغ)، سمك (15.000 دت/كغ)
-🥛 ألبان: بيض (4.750 دت/طبق)، جبن محلي (37.330 دت/كغ)، زبدة (6.000 دت/قطعة)، جبن بكوات (8.000 دت/علبة)، لبن (1.200 دت/لتر)، ياغورت (0.800 دت/حبة)
-🥫 مواد غذائية: طماطم مصبرة (5.000 دت/علبة)، زيت قلي (8.000 دت/لتر)، مايونيز (4.200 دت/علبة)، كاتشب (3.800 دت/علبة)، شوكولاتة (3.200 دت/قطعة)
-
-أسعار التوصيل: 0.500 دت/كم بحد أدنى 1.800 DT، رسوم الشركة 3.000 DT.
-
-أجب باللهجة التونسية العامية، كن مفيداً وودوداً. ساعد الزبون في اختيار المنتجات، قدم نصائح، وأجب عن أسئلته.
-إذا سأل عن السعر أو المنتجات، أعطه تفاصيل دقيقة من القائمة أعلاه.
-إذا سأل عن كيفية الطلب، اشرح له الخطوات (اختيار المنتجات، إضافة الكمية، تحديد الموقع، ملء المعلومات، تأكيد الطلب).
-كن مختصراً ولكن غنياً بالمعلومات.`;
-            }
-
-            // ============================================================
-            // AI FUNCTIONS - Gemini API
+            // AI FUNCTIONS - ينادي على API آمن
             // ============================================================
             async function sendAiMessage(userMessage) {
                 if (isAiProcessing) return;
                 if (!userMessage || userMessage.trim().length < 2) {
                     showToast('الرجاء كتابة سؤال أو طلب', 'warning');
-                    return;
-                }
-
-                // التحقق من وجود مفتاح API
-                if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') {
-                    showToast('⚠️ يرجى إضافة مفتاح Gemini API في الكود', 'error');
                     return;
                 }
 
@@ -1160,29 +1127,15 @@
                 sendBtn.disabled = true;
 
                 try {
-                    // Build conversation context
-                    let context = getSystemPrompt() + '\n\n';
-                    aiChatHistory.forEach(msg => {
-                        if (msg.role === 'user') {
-                            context += `المستخدم: ${msg.content}\n`;
-                        } else {
-                            context += `المساعد: ${msg.content}\n`;
-                        }
-                    });
-                    context += `المستخدم: ${userMessage.trim()}\nالمساعد:`;
-
-                    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    // Call secure API endpoint
+                    const response = await fetch(AI_API_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
                         body: JSON.stringify({
-                            contents: [{
-                                parts: [{ text: context }]
-                            }],
-                            generationConfig: {
-                                temperature: 0.7,
-                                maxOutputTokens: 500,
-                                topP: 0.9
-                            }
+                            message: userMessage.trim(),
+                            history: aiChatHistory
                         })
                     });
 
@@ -1191,13 +1144,20 @@
 
                     if (!response.ok) {
                         const errorData = await response.json().catch(() => ({}));
-                        console.error('Gemini API Error:', errorData);
-                        throw new Error(`API error: ${response.status}`);
+                        console.error('API Error:', errorData);
+                        // Use fallback response
+                        const fallbackReply = getFallbackResponse(userMessage.trim());
+                        const aiMsgDiv = document.createElement('div');
+                        aiMsgDiv.className = 'message assistant';
+                        aiMsgDiv.textContent = fallbackReply;
+                        messagesContainer.appendChild(aiMsgDiv);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        showToast('⚠️ استخدمت الردود المحلية', 'warning');
+                        return;
                     }
 
                     const data = await response.json();
-                    const aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text ||
-                        'عذراً، لم أستطع معالجة طلبك. حاول مرة أخرى.';
+                    const aiReply = data.reply || 'عذراً، لم أستطع معالجة طلبك. حاول مرة أخرى.';
 
                     aiChatHistory.push({ role: 'user', content: userMessage.trim() });
                     aiChatHistory.push({ role: 'assistant', content: aiReply });
@@ -1218,7 +1178,6 @@
                     const typingEl = document.getElementById('typingIndicator');
                     if (typingEl) typingEl.remove();
 
-                    // Fallback to offline responses if API fails
                     const fallbackReply = getFallbackResponse(userMessage.trim());
                     const aiMsgDiv = document.createElement('div');
                     aiMsgDiv.className = 'message assistant';
@@ -1226,7 +1185,7 @@
                     messagesContainer.appendChild(aiMsgDiv);
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                    showToast('⚠️ استخدمت الردود المحلية (مشكلة في الاتصال)', 'warning');
+                    showToast('⚠️ مشكلة في الاتصال، استخدمت الردود المحلية', 'error');
                 } finally {
                     isAiProcessing = false;
                     inputField.disabled = false;
@@ -1242,7 +1201,7 @@
                 const msg = userMessage.toLowerCase();
 
                 if (msg.includes('منتج') || msg.includes('متوف') || msg.includes('شنو')) {
-                    return `📦 المنتجات المتوفرة عندنا:
+                    return `📦 **المنتجات المتوفرة عندنا:**
 
 🥬 **خضرة:** طماطم، فلفل، بصل، بطاطا، جزر، خس، قرع، فقّوس، زبدّة
 🍎 **غلة:** تفاح، موز، برتقال، ليمون، بطيخ، دلاع، شمام
@@ -1633,7 +1592,7 @@
                         const section = document.getElementById(`${cat}-section`);
                         if (section) {
                             section.style.display = (category === 'all' || category === cat) ? 'block' :
-                                'none';
+                            'none';
                         }
                     });
                 });
@@ -1931,13 +1890,7 @@
 
             console.log('✅ 9ATHYA.TN - يعمل 100%');
             console.log('📧 الإرسال عبر AJAX - بدون فتح صفحة');
-            console.log('🤖 AI Assistant يعمل مع Gemini API');
-
-            // Check API key
-            if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') {
-                console.warn('⚠️ يرجى إضافة مفتاح Gemini API في الكود');
-                showToast('⚠️ يرجى إضافة مفتاح Gemini API في الكود', 'warning', 6000);
-            }
+            console.log('🤖 AI Assistant يستخدم API آمن في الخادم');
 
         })();
     </script>
