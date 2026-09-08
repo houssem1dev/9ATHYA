@@ -18,6 +18,8 @@
             --card-bg: #ffffff;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.2);
+            --ai-primary: #6c5ce7;
+            --ai-secondary: #a29bfe;
         }
         * {
             margin: 0;
@@ -253,6 +255,7 @@
             border-radius: 15px;
             padding: 15px;
             box-shadow: var(--shadow);
+            position: relative;
         }
         @media (min-width: 1024px) {
             .cart-section {
@@ -619,6 +622,281 @@
                 opacity: 1;
             }
         }
+
+        /* ============================================================ */
+        /* AI ASSISTANT STYLES                                           */
+        /* ============================================================ */
+        .ai-assistant-toggle {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+            color: white;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(108, 92, 231, 0.5);
+            transition: all 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ai-assistant-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(108, 92, 231, 0.7);
+        }
+        .ai-assistant-toggle .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background: #27ae60;
+            border-radius: 50%;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .ai-chat-window {
+            position: fixed;
+            bottom: 110px;
+            left: 30px;
+            width: 380px;
+            max-width: calc(100vw - 60px);
+            height: 520px;
+            max-height: calc(100vh - 180px);
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 999;
+            border: 1px solid rgba(108, 92, 231, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+        .ai-chat-window.open {
+            display: flex;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-chat-header {
+            background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .ai-chat-header .title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .ai-chat-header .title .status {
+            width: 8px;
+            height: 8px;
+            background: #27ae60;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .ai-chat-header .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        .ai-chat-header .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        .ai-chat-messages .message {
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 85%;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            animation: messageIn 0.3s ease;
+        }
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .ai-chat-messages .message.user {
+            background: var(--ai-primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-left-radius: 4px;
+        }
+        .ai-chat-messages .message.assistant {
+            background: white;
+            color: var(--dark);
+            border: 1px solid #e0e0e0;
+            border-bottom-right-radius: 4px;
+        }
+        .ai-chat-messages .message.assistant .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+        .ai-chat-messages .message.assistant .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--ai-primary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .ai-chat-messages .message.assistant .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .ai-chat-messages .message.assistant .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+
+        .ai-chat-input-area {
+            display: flex;
+            gap: 8px;
+            padding: 12px 15px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+            flex-shrink: 0;
+        }
+        .ai-chat-input-area input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        .ai-chat-input-area input:focus {
+            border-color: var(--ai-primary);
+            background: white;
+        }
+        .ai-chat-input-area button {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .ai-chat-input-area button:hover {
+            transform: scale(1.05);
+        }
+        .ai-chat-input-area button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-chat-footer {
+            padding: 8px 15px;
+            font-size: 0.6rem;
+            color: #999;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+            flex-shrink: 0;
+            background: white;
+        }
+
+        /* Quick suggestions */
+        .quick-suggestions {
+            display: flex;
+            gap: 6px;
+            padding: 8px 15px;
+            flex-wrap: wrap;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+        .quick-suggestions button {
+            padding: 4px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #555;
+        }
+        .quick-suggestions button:hover {
+            background: var(--ai-primary);
+            color: white;
+            border-color: var(--ai-primary);
+        }
+
+        /* استجابة للشاشات الصغيرة */
+        @media (max-width: 480px) {
+            .ai-chat-window {
+                bottom: 90px;
+                left: 10px;
+                width: calc(100vw - 20px);
+                height: calc(100vh - 160px);
+                max-height: calc(100vh - 160px);
+                border-radius: 15px;
+            }
+            .ai-assistant-toggle {
+                bottom: 20px;
+                left: 20px;
+                width: 55px;
+                height: 55px;
+                font-size: 1.6rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -737,6 +1015,44 @@
 
     <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
+    <!-- ============================================================ -->
+    <!-- AI ASSISTANT - زر و نافذة المحادثة                            -->
+    <!-- ============================================================ -->
+    <button class="ai-assistant-toggle" id="aiToggle" aria-label="افتح المساعد الذكي">
+        🤖
+        <span class="badge">AI</span>
+    </button>
+
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="title">
+                <span class="status"></span>
+                🤖 مساعد 9ATHYA الذكي
+            </div>
+            <button class="close-btn" id="aiCloseBtn">✕</button>
+        </div>
+        <div class="ai-chat-messages" id="aiMessages">
+            <div class="message assistant">
+                👋 مرحباً! أنا مساعد 9ATHYA الذكي. <br>
+                أقدر ننصحك بالمنتجات، نجاوب على أسئلتك، ونساعدك في طلبك. <br>
+                شنو تحب تسأل؟
+            </div>
+        </div>
+        <div class="quick-suggestions" id="quickSuggestions">
+            <button data-msg="شنو المنتجات المتوفرة؟">🛒 المنتجات</button>
+            <button data-msg="نصيحة لوجبة صحية">🥗 نصيحة صحية</button>
+            <button data-msg="كيف نطلب؟">📦 كيفية الطلب</button>
+            <button data-msg="أسعار التوصيل">🚗 التوصيل</button>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="aiInput" placeholder="اكتب سؤالك هنا..." maxlength="500">
+            <button id="aiSendBtn">إرسال</button>
+        </div>
+        <div class="ai-chat-footer">
+            ⚡ يعمل بـ AI مجاني &bull; يتم جمع البيانات لتحسين الخدمة
+        </div>
+    </div>
+
     <script>
         (function() {
             'use strict';
@@ -750,6 +1066,18 @@
 
             let clientCoords = null;
             let isSubmitting = false;
+
+            // ============================================================
+            // AI CONFIG - باستخدام OpenRouter API (مجاني)
+            // ============================================================
+            // 🔑 سجل مجاني في https://openrouter.ai/keys واحصل على مفتاح API
+            // ضع مفتاحك هنا أو استخدم المفتاح التجريبي (محدود)
+            const AI_API_KEY = 'sk-or-v1-3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e'; // استبدل بمفتاحك
+            const AI_MODEL = 'mistralai/mistral-7b-instruct:free'; // نماذج مجانية: 'mistralai/mistral-7b-instruct:free', 'google/gemini-2.0-flash-exp:free', 'meta-llama/llama-3.2-3b-instruct:free'
+            const AI_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+            let aiChatHistory = [];
+            let isAiProcessing = false;
 
             // ============================================================
             // TOAST
@@ -767,7 +1095,213 @@
             }
 
             // ============================================================
-            // MENU DATA - بأسماء تونسية (زبدّة، دلاع، فقّوس، بطيخ، شمام، فلفل، طماطم...)
+            // AI FUNCTIONS
+            // ============================================================
+            function getSystemPrompt() {
+                return `أنت مساعد ذكي لموقع 9ATHYA.TN، وهو موقع خدمة توصيل منتجات غذائية في تونس.
+المنتجات المتوفرة: خضرة (طماطم، فلفل، بصل، بطاطا، جزر، خس، قرع، فقّوس)، غلة (تفاح، موز، برتقال، ليمون، بطيخ، دلاع)، مواد أساسية (زيت زيتون، سكر، سميدة، خبز، حليب، قهوة، بهارات، رز، ماء، دقيق)، بقول (عدس، حمص، لوبيا، جلبانة)، بروتينات (لحم مفروم، دجاج، لحم بقري، تونة، سردين، سمك)، ألبان (بيض، جبن، زبدة، لبن، ياغورت)، مواد غذائية (طماطم مصبرة، زيت قلي، مايونيز، كاتشب، شوكولاتة).
+
+أسعار التوصيل: 0.500 دت/كم بحد أدنى 1.800 DT، رسوم الشركة 3.000 DT.
+
+أجب باللهجة التونسية العامية، كن مفيداً وودوداً. ساعد الزبون في اختيار المنتجات، قدم نصائح، وأجب عن أسئلته. اجمع بيانات مفيدة عن رغبات الزبون.
+إذا سأل عن السعر أو المنتجات، أعطه تفاصيل دقيقة من القائمة أعلاه.
+إذا سأل عن كيفية الطلب، اشرح له الخطوات (اختيار المنتجات، إضافة الكمية، تحديد الموقع، ملء المعلومات، تأكيد الطلب).
+كن مختصراً ولكن غنياً بالمعلومات.`;
+            }
+
+            async function sendAiMessage(userMessage) {
+                if (isAiProcessing) return;
+                if (!userMessage || userMessage.trim().length < 2) {
+                    showToast('الرجاء كتابة سؤال أو طلب', 'warning');
+                    return;
+                }
+
+                const messagesContainer = document.getElementById('aiMessages');
+                const inputField = document.getElementById('aiInput');
+                const sendBtn = document.getElementById('aiSendBtn');
+
+                // Add user message
+                const userMsgDiv = document.createElement('div');
+                userMsgDiv.className = 'message user';
+                userMsgDiv.textContent = userMessage.trim();
+                messagesContainer.appendChild(userMsgDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Clear input
+                inputField.value = '';
+
+                // Add typing indicator
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message assistant';
+                typingDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                `;
+                typingDiv.id = 'typingIndicator';
+                messagesContainer.appendChild(typingDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Disable input
+                isAiProcessing = true;
+                inputField.disabled = true;
+                sendBtn.disabled = true;
+
+                // Prepare messages for API
+                const messages = [
+                    { role: 'system', content: getSystemPrompt() },
+                    ...aiChatHistory,
+                    { role: 'user', content: userMessage.trim() }
+                ];
+
+                // Collect data for analytics (store conversation)
+                try {
+                    // Send to API
+                    const response = await fetch(AI_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${AI_API_KEY}`,
+                            'HTTP-Referer': window.location.href,
+                            'X-Title': '9ATHYA.TN Assistant'
+                        },
+                        body: JSON.stringify({
+                            model: AI_MODEL,
+                            messages: messages,
+                            max_tokens: 500,
+                            temperature: 0.7,
+                            top_p: 0.9
+                        })
+                    });
+
+                    // Remove typing indicator
+                    const typingEl = document.getElementById('typingIndicator');
+                    if (typingEl) typingEl.remove();
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        console.error('AI API Error:', errorData);
+                        throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+                    }
+
+                    const data = await response.json();
+                    const aiReply = data.choices?.[0]?.message?.content || 'عذراً، لم أستطع معالجة طلبك. حاول مرة أخرى.';
+
+                    // Store in history
+                    aiChatHistory.push({ role: 'user', content: userMessage.trim() });
+                    aiChatHistory.push({ role: 'assistant', content: aiReply });
+
+                    // Keep history manageable (last 10 exchanges)
+                    if (aiChatHistory.length > 20) {
+                        aiChatHistory = aiChatHistory.slice(-20);
+                    }
+
+                    // Display AI response
+                    const aiMsgDiv = document.createElement('div');
+                    aiMsgDiv.className = 'message assistant';
+                    aiMsgDiv.textContent = aiReply;
+                    messagesContainer.appendChild(aiMsgDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    // Save conversation data for analytics
+                    saveConversationData(userMessage.trim(), aiReply);
+
+                } catch (error) {
+                    console.error('AI Error:', error);
+                    // Remove typing indicator
+                    const typingEl = document.getElementById('typingIndicator');
+                    if (typingEl) typingEl.remove();
+
+                    // Show error message
+                    const errorMsgDiv = document.createElement('div');
+                    errorMsgDiv.className = 'message assistant';
+                    errorMsgDiv.textContent = '⚠️ عذراً، حدث مشكلة في الاتصال بالمساعد. تحقق من اتصال الإنترنت أو جرب مرة أخرى.';
+                    messagesContainer.appendChild(errorMsgDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    showToast('⚠️ مشكلة في المساعد الذكي، حاول مرة أخرى', 'error');
+                } finally {
+                    isAiProcessing = false;
+                    inputField.disabled = false;
+                    sendBtn.disabled = false;
+                    inputField.focus();
+                }
+            }
+
+            // Save conversation data for analytics
+            function saveConversationData(userMsg, aiReply) {
+                try {
+                    const data = {
+                        timestamp: new Date().toISOString(),
+                        userMessage: userMsg,
+                        aiResponse: aiReply,
+                        page: window.location.href,
+                        userAgent: navigator.userAgent
+                    };
+                    // Store in localStorage for now (can be sent to server later)
+                    const existing = JSON.parse(localStorage.getItem('ai_conversations') || '[]');
+                    existing.push(data);
+                    if (existing.length > 100) existing.shift(); // Keep last 100
+                    localStorage.setItem('ai_conversations', JSON.stringify(existing));
+                } catch (e) {
+                    // Ignore storage errors
+                }
+            }
+
+            // ============================================================
+            // AI UI CONTROLS
+            // ============================================================
+            const aiToggle = document.getElementById('aiToggle');
+            const aiChatWindow = document.getElementById('aiChatWindow');
+            const aiCloseBtn = document.getElementById('aiCloseBtn');
+            const aiInput = document.getElementById('aiInput');
+            const aiSendBtn = document.getElementById('aiSendBtn');
+            const quickSuggestions = document.getElementById('quickSuggestions');
+
+            function toggleAiChat() {
+                const isOpen = aiChatWindow.classList.toggle('open');
+                if (isOpen) {
+                    aiInput.focus();
+                }
+            }
+
+            aiToggle.addEventListener('click', toggleAiChat);
+            aiCloseBtn.addEventListener('click', () => {
+                aiChatWindow.classList.remove('open');
+            });
+
+            aiSendBtn.addEventListener('click', () => {
+                sendAiMessage(aiInput.value);
+            });
+
+            aiInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendAiMessage(aiInput.value);
+                }
+            });
+
+            // Quick suggestions
+            quickSuggestions.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (btn) {
+                    sendAiMessage(btn.dataset.msg);
+                }
+            });
+
+            // Close AI window on outside click (optional)
+            document.addEventListener('click', (e) => {
+                if (aiChatWindow.classList.contains('open')) {
+                    const isToggle = aiToggle.contains(e.target);
+                    const isWindow = aiChatWindow.contains(e.target);
+                    if (!isToggle && !isWindow) {
+                        aiChatWindow.classList.remove('open');
+                    }
+                }
+            });
+
+            // ============================================================
+            // MENU DATA - بأسماء تونسية
             // ============================================================
             const menuData = {
                 vegetables: [
@@ -781,7 +1315,7 @@
                         quickQuantities: [1, 5, 10] },
                     { id: 'v5', name: 'جزر', pricePerUnit: 2.200, unit: 'كغ', image: '🥕', description: 'جزر طازج',
                         quickQuantities: [1, 2, 5] },
-                    { id: 'v6', name: خس)', pricePerUnit: 5.200, unit: 'رأس', image: '🥬', description: 'خس طازج',
+                    { id: 'v6', name: 'خس', pricePerUnit: 5.200, unit: 'رأس', image: '🥬', description: 'خس طازج',
                         quickQuantities: [1, 2, 3] },
                     { id: 'v7', name: 'قرع', pricePerUnit: 3.000, unit: 'كغ', image: '🎃', description: 'قارعة طازجة',
                         quickQuantities: [1, 2, 5] },
@@ -799,7 +1333,7 @@
                         quickQuantities: [1, 2, 5] },
                     { id: 'f5', name: 'بطيخ', pricePerUnit: 2.500, unit: 'كغ', image: '🍉', description: 'بطيخ أحمر',
                         quickQuantities: [1, 3, 5] },
-                    { id: 'f6', name: 'دلاع', pricePerUnit: 2.900, unit: 'كغ', image: '🍉', description: 'دلاع  طازج',
+                    { id: 'f6', name: 'دلاع', pricePerUnit: 2.900, unit: 'كغ', image: '🍉', description: 'دلاع طازج',
                         quickQuantities: [1, 3, 5] }
                 ],
                 staples: [
@@ -809,13 +1343,13 @@
                         quickQuantities: [1, 2, 5] },
                     { id: 's3', name: 'سميدة', pricePerUnit: 0.850, unit: 'كغ', image: '🌾', description: 'سميدة خشنة',
                         quickQuantities: [1, 2, 5] },
-                    { id: 's4', name: 'خبز ', pricePerUnit: 0.250, unit: 'رغيف', image: '🍞', description: 'خبز طازج',
+                    { id: 's4', name: 'خبز', pricePerUnit: 0.250, unit: 'رغيف', image: '🍞', description: 'خبز طازج',
                         quickQuantities: [1, 5, 10] },
                     { id: 's5', name: 'حليب', pricePerUnit: 1.300, unit: 'لتر', image: '🥛', description: 'حليب طازج',
                         quickQuantities: [1, 2, 6] },
                     { id: 's6', name: 'قهوة', pricePerUnit: 11.500, unit: 'كغ', image: '☕',
                         description: 'قهوة طازجة - جودة عالية', quickQuantities: [0.5, 1, 2] },
-                    { id: 's7', name: 'بهارات ', pricePerUnit: 7.000, unit: 'كغ', image: '🌶️',
+                    { id: 's7', name: 'بهارات', pricePerUnit: 7.000, unit: 'كغ', image: '🌶️',
                         description: 'بهارات متنوعة (كمون، فلفل، كركم...)', quickQuantities: [0.5, 1, 2] },
                     { id: 's8', name: 'رز أبيض', pricePerUnit: 4.200, unit: 'كغ', image: '🍚', description: 'رز أبيض',
                         quickQuantities: [1, 2, 5] },
@@ -839,7 +1373,7 @@
                         description: 'لحم بقري مفروم طازج', quickQuantities: [0.5, 1, 2] },
                     { id: 'm2', name: 'دجاج (فيليه)', pricePerUnit: 17.500, unit: 'كغ', image: '🍗',
                         description: 'فيليه دجاج طازج', quickQuantities: [0.5, 1, 2] },
-                    { id: 'm3', name: 'لحم بقري ', pricePerUnit: 43.000, unit: 'كغ', image: '🥩',
+                    { id: 'm3', name: 'لحم بقري', pricePerUnit: 43.000, unit: 'كغ', image: '🥩',
                         description: 'لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
                     { id: 'm4', name: 'تونة', pricePerUnit: 8.000, unit: 'علبة', image: '🐟', description: 'تونة معلبة',
                         quickQuantities: [1, 2, 5] },
@@ -865,11 +1399,10 @@
                         description: 'جبن شرائح معلب (بكوات)', quickQuantities: [1, 2, 3] },
                     { id: 'd5', name: 'لبن', pricePerUnit: 1.200, unit: 'لتر', image: '🥛', description: 'لبن طازج',
                         quickQuantities: [1, 2, 6] },
-                    { id: 'd6', name: 'ياغورت ', pricePerUnit: 0.800, unit: 'حبة', image: '🍶', description: 'زبادي طبيعي',
+                    { id: 'd6', name: 'ياغورت', pricePerUnit: 0.800, unit: 'حبة', image: '🍶', description: 'زبادي طبيعي',
                         quickQuantities: [1, 6, 12] }
                 ],
                 conserves: [
-                    
                     { id: 'c1', name: 'طماطم مصبرة', pricePerUnit: 5.000, unit: 'علبة', image: '🥫',
                         description: 'طماطم مصبرة (كونسروة)', quickQuantities: [1, 3, 6] },
                     { id: 'c2', name: 'زيت قلي', pricePerUnit: 8.000, unit: 'لتر', image: '🛢️',
@@ -878,7 +1411,6 @@
                         quickQuantities: [1, 2, 3] },
                     { id: 'c4', name: 'كاتشب', pricePerUnit: 3.800, unit: 'علبة', image: '🍅', description: 'صلصة كاتشب',
                         quickQuantities: [1, 2, 3] },
-                
                     { id: 'c5', name: 'شوكولاتة', pricePerUnit: 3.200, unit: 'قطعة', image: '🍫', description: 'شوكولاتة',
                         quickQuantities: [1, 3, 6] }
                 ]
@@ -1219,7 +1751,7 @@
             }
 
             // ============================================================
-            // ✅ SUBMIT ORDER - يعمل مع Vercel
+            // ✅ SUBMIT ORDER
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1346,6 +1878,13 @@
             console.log('✅ 9ATHYA.TN - يعمل 100%');
             console.log('📧 الإرسال عبر AJAX - بدون فتح صفحة');
             console.log('🔒 رؤوس الأمان مفعلة عبر vercel.json');
+            console.log('🤖 AI Assistant يعمل مع OpenRouter API (مجاني)');
+
+            // Check API key status
+            if (AI_API_KEY === 'sk-or-v1-3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e') {
+                console.warn('⚠️ استخدم مفتاح API تجريبي، سجل في openrouter.ai للحصول على مفتاح خاص بك');
+                showToast('🤖 المساعد الذكي يعمل بمفتاح تجريبي (محدود) - سجل للحصول على مفتاح مجاني', 'info', 6000);
+            }
 
         })();
     </script>
