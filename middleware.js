@@ -1,6 +1,6 @@
 // ============================================================
 // MIDDLEWARE.JS - Complete Security Monitor
-// FIXED: Removed invalid matcher patterns
+// NO CONFIG.MATCHER - Uses vercel.json instead
 // ============================================================
 
 // Simple rate limiter (in-memory)
@@ -53,7 +53,6 @@ function checkRateLimit(ip) {
   const now = Date.now();
   const windowStart = now - 60000;
   
-  // Clean old entries
   for (const [key, timestamps] of rateLimit) {
     const valid = timestamps.filter(t => t > windowStart);
     if (valid.length === 0) {
@@ -174,18 +173,7 @@ export default async function middleware(request) {
 }
 
 // ============================================================
-// ✅ FIXED MIDDLEWARE CONFIG
+// NO CONFIG.MATCHER - Using vercel.json instead
 // ============================================================
-export const config = {
-  // Only use valid patterns that start with "/"
-  matcher: [
-    '/',
-    '/api/:path*',
-    '/chat',
-  ],
-  // Use Node.js runtime
-  runtime: 'nodejs',
-};
-
 console.log('🔐 9ATHYA Security Monitor Active');
-console.log('✅ Middleware ready - Node.js runtime');
+console.log('✅ Using Node.js runtime');
