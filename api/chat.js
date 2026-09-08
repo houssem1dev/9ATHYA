@@ -1,5 +1,5 @@
 // ============================================================
-// SECURITY CHECKS (Integrated into chat.js)
+// SECURITY CHECKS
 // ============================================================
 
 const rateLimit = new Map();
@@ -75,5 +75,36 @@ Time: ${new Date().toLocaleString('ar-TN')}
 }
 
 // ============================================================
-// YOUR ORIGINAL CHAT.JS CODE GOES BELOW THIS LINE
+// MAIN HANDLER
 // ============================================================
+export default async function handler(req, res) {
+  // Security checks
+  const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+  const userAgent = req.headers.get('user-agent') || '';
+  const url = new URL(req.url);
+  const path = url.pathname;
+
+  // 1. Check blocked IPs
+  if (isBlocked(ip)) {
+    return res.status(403).json({ error: 'Access Denied - IP Blocked' });
+  }
+
+  // 2. Check bot
+  if (isBot(userAgent)) {
+    await sendAlert('BOT_DETECTED', ip, path);
+    return res.status(403).json({ error: 'Bot detected - Access Denied' });
+  }
+
+  // 3. Check rate limit
+  if (!checkRateLimit(ip)) {
+    await sendAlert('RATE_LIMIT_ATTACK', ip, path);
+    return res.status(429).json({ error: 'Too many requests - Please try again later' });
+  }
+
+  // ============================================================
+  // YOUR ORIGINAL CHAT.JS LOGIC BELOW
+  // ============================================================
+  // ... (your existing code here)
+  
+  return res.status(200).json({ reply: 'Hello from 9ATHYA!' });
+}
