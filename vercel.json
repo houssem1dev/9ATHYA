@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self' https://formsubmit.co; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org /api/chat; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
+          "value": "default-src 'self' https://formsubmit.co; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org /chat; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
         },
         {
           "key": "X-Frame-Options",
@@ -65,23 +65,23 @@
         }
       ]
     },
-   {
-  "source": "/chat",
-  "headers": [
     {
-      "key": "Access-Control-Allow-Origin",
-      "value": "https://9athya.tn"
-    },
-    {
-      "key": "Access-Control-Allow-Methods",
-      "value": "POST, OPTIONS"
-    },
-    {
-      "key": "Access-Control-Allow-Headers",
-      "value": "Content-Type, Authorization"
+      "source": "/chat",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://www.9aadhiya.tech"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
     }
-  ]
-}
   ],
   "functions": {
     "chat.js": {
