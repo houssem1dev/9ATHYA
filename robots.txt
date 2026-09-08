@@ -1,10 +1,5 @@
 User-agent: *
 Disallow: /api/
-Disallow: /chat
-Disallow: /*.json
-
-# Allow the main page
 Allow: /
 
-# Sitemap (if you have one)
-# Sitemap: https://www.9aadhiya.tech/sitemap.xml
+Sitemap: https://www.9aadhiya.tech/sitemap.xml
