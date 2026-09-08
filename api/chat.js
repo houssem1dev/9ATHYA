@@ -1,5 +1,5 @@
 // ============================================================
-// CHAT.JS - Complete Working Version with Security
+// CHAT.JS - FIXED for Vercel (No req.headers.get)
 // ============================================================
 
 // --- Simple Rate Limiter ---
@@ -65,15 +65,18 @@ function getFallbackReply(message) {
 }
 
 // ============================================================
-// MAIN HANDLER
+// ✅ FIXED: Use req.headers as an object (no .get())
 // ============================================================
 export default async function handler(req, res) {
-  // Get request info
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-             req.headers.get('x-real-ip') || 
+  // Get IP from headers (req.headers is an object)
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = forwarded ? forwarded.split(',')[0].trim() : 
+             req.headers['x-real-ip'] || 
              'unknown';
-  const userAgent = req.headers.get('user-agent') || '';
-  const path = new URL(req.url).pathname;
+  
+  const userAgent = req.headers['user-agent'] || '';
+  const url = new URL(req.url, `https://${req.headers.host}`);
+  const path = url.pathname;
   const method = req.method;
 
   console.log(`🔍 ${method} ${path} from ${ip}`);
