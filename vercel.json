@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self' https://formsubmit.co; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org /api; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
+          "value": "default-src 'self' https://formsubmit.co; script-src 'self' 'unsafe-inline' https://formsubmit.co https://nominatim.openstreetmap.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://nominatim.openstreetmap.org /api/chat; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
         },
         {
           "key": "X-Frame-Options",
@@ -42,8 +42,51 @@
         {
           "key": "Expires",
           "value": "0"
+        },
+        {
+          "key": "RateLimit-Limit",
+          "value": "100"
+        },
+        {
+          "key": "RateLimit-Remaining",
+          "value": "100"
+        },
+        {
+          "key": "RateLimit-Reset",
+          "value": "60"
+        },
+        {
+          "key": "X-RateLimit-Limit",
+          "value": "100"
+        },
+        {
+          "key": "X-RateLimit-Remaining",
+          "value": "100"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://9athya.tn"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "chat.js": {
+      "maxDuration": 10,
+      "memory": 1024
+    }
+  }
 }
