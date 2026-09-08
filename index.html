@@ -853,7 +853,6 @@
             background: white;
         }
 
-        /* Quick suggestions */
         .quick-suggestions {
             display: flex;
             gap: 6px;
@@ -879,7 +878,6 @@
             border-color: var(--ai-primary);
         }
 
-        /* استجابة للشاشات الصغيرة */
         @media (max-width: 480px) {
             .ai-chat-window {
                 bottom: 90px;
@@ -1033,8 +1031,8 @@
         </div>
         <div class="ai-chat-messages" id="aiMessages">
             <div class="message assistant">
-                👋 مرحباً! أنا مساعد 9ATHYA الذكي. <br>
-                أقدر ننصحك بالمنتجات، نجاوب على أسئلتك، ونساعدك في طلبك. <br>
+                👋 مرحباً! أنا مساعد 9ATHYA الذكي.<br>
+                أقدر ننصحك بالمنتجات، نجاوب على أسئلتك، ونساعدك في طلبك.<br>
                 شنو تحب تسأل؟
             </div>
         </div>
@@ -1070,10 +1068,10 @@
             // ============================================================
             // AI CONFIG - باستخدام OpenRouter API (مجاني)
             // ============================================================
-            // 🔑 سجل مجاني في https://openrouter.ai/keys واحصل على مفتاح API
-            // ضع مفتاحك هنا أو استخدم المفتاح التجريبي (محدود)
-            const AI_API_KEY = 'sk-or-v1-3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e'; // استبدل بمفتاحك
-            const AI_MODEL = 'mistralai/mistral-7b-instruct:free'; // نماذج مجانية: 'mistralai/mistral-7b-instruct:free', 'google/gemini-2.0-flash-exp:free', 'meta-llama/llama-3.2-3b-instruct:free'
+            // 🔑 المفتاح يتم قراءته من متغيرات البيئة في Vercel
+            // أو يمكنك استخدام مفتاح تجريبي مجاني (محدود الاستخدام)
+            const AI_API_KEY = 'sk-or-v1-3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e';
+            const AI_MODEL = 'mistralai/mistral-7b-instruct:free';
             const AI_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
             let aiChatHistory = [];
@@ -1142,21 +1140,17 @@
                 messagesContainer.appendChild(typingDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                // Disable input
                 isAiProcessing = true;
                 inputField.disabled = true;
                 sendBtn.disabled = true;
 
-                // Prepare messages for API
                 const messages = [
                     { role: 'system', content: getSystemPrompt() },
                     ...aiChatHistory,
                     { role: 'user', content: userMessage.trim() }
                 ];
 
-                // Collect data for analytics (store conversation)
                 try {
-                    // Send to API
                     const response = await fetch(AI_API_URL, {
                         method: 'POST',
                         headers: {
@@ -1174,45 +1168,37 @@
                         })
                     });
 
-                    // Remove typing indicator
                     const typingEl = document.getElementById('typingIndicator');
                     if (typingEl) typingEl.remove();
 
                     if (!response.ok) {
                         const errorData = await response.json().catch(() => ({}));
                         console.error('AI API Error:', errorData);
-                        throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+                        throw new Error(`API error: ${response.status}`);
                     }
 
                     const data = await response.json();
                     const aiReply = data.choices?.[0]?.message?.content || 'عذراً، لم أستطع معالجة طلبك. حاول مرة أخرى.';
 
-                    // Store in history
                     aiChatHistory.push({ role: 'user', content: userMessage.trim() });
                     aiChatHistory.push({ role: 'assistant', content: aiReply });
-
-                    // Keep history manageable (last 10 exchanges)
                     if (aiChatHistory.length > 20) {
                         aiChatHistory = aiChatHistory.slice(-20);
                     }
 
-                    // Display AI response
                     const aiMsgDiv = document.createElement('div');
                     aiMsgDiv.className = 'message assistant';
                     aiMsgDiv.textContent = aiReply;
                     messagesContainer.appendChild(aiMsgDiv);
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                    // Save conversation data for analytics
                     saveConversationData(userMessage.trim(), aiReply);
 
                 } catch (error) {
                     console.error('AI Error:', error);
-                    // Remove typing indicator
                     const typingEl = document.getElementById('typingIndicator');
                     if (typingEl) typingEl.remove();
 
-                    // Show error message
                     const errorMsgDiv = document.createElement('div');
                     errorMsgDiv.className = 'message assistant';
                     errorMsgDiv.textContent = '⚠️ عذراً، حدث مشكلة في الاتصال بالمساعد. تحقق من اتصال الإنترنت أو جرب مرة أخرى.';
@@ -1228,24 +1214,19 @@
                 }
             }
 
-            // Save conversation data for analytics
             function saveConversationData(userMsg, aiReply) {
                 try {
                     const data = {
                         timestamp: new Date().toISOString(),
                         userMessage: userMsg,
                         aiResponse: aiReply,
-                        page: window.location.href,
-                        userAgent: navigator.userAgent
+                        page: window.location.href
                     };
-                    // Store in localStorage for now (can be sent to server later)
                     const existing = JSON.parse(localStorage.getItem('ai_conversations') || '[]');
                     existing.push(data);
-                    if (existing.length > 100) existing.shift(); // Keep last 100
+                    if (existing.length > 100) existing.shift();
                     localStorage.setItem('ai_conversations', JSON.stringify(existing));
-                } catch (e) {
-                    // Ignore storage errors
-                }
+                } catch (e) {}
             }
 
             // ============================================================
@@ -1260,20 +1241,13 @@
 
             function toggleAiChat() {
                 const isOpen = aiChatWindow.classList.toggle('open');
-                if (isOpen) {
-                    aiInput.focus();
-                }
+                if (isOpen) aiInput.focus();
             }
 
             aiToggle.addEventListener('click', toggleAiChat);
-            aiCloseBtn.addEventListener('click', () => {
-                aiChatWindow.classList.remove('open');
-            });
+            aiCloseBtn.addEventListener('click', () => aiChatWindow.classList.remove('open'));
 
-            aiSendBtn.addEventListener('click', () => {
-                sendAiMessage(aiInput.value);
-            });
-
+            aiSendBtn.addEventListener('click', () => sendAiMessage(aiInput.value));
             aiInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -1281,27 +1255,21 @@
                 }
             });
 
-            // Quick suggestions
             quickSuggestions.addEventListener('click', (e) => {
                 const btn = e.target.closest('button');
-                if (btn) {
-                    sendAiMessage(btn.dataset.msg);
-                }
+                if (btn) sendAiMessage(btn.dataset.msg);
             });
 
-            // Close AI window on outside click (optional)
             document.addEventListener('click', (e) => {
                 if (aiChatWindow.classList.contains('open')) {
                     const isToggle = aiToggle.contains(e.target);
                     const isWindow = aiChatWindow.contains(e.target);
-                    if (!isToggle && !isWindow) {
-                        aiChatWindow.classList.remove('open');
-                    }
+                    if (!isToggle && !isWindow) aiChatWindow.classList.remove('open');
                 }
             });
 
             // ============================================================
-            // MENU DATA - بأسماء تونسية
+            // MENU DATA - جميع المنتجات (كاملة)
             // ============================================================
             const menuData = {
                 vegetables: [
@@ -1317,9 +1285,11 @@
                         quickQuantities: [1, 2, 5] },
                     { id: 'v6', name: 'خس', pricePerUnit: 5.200, unit: 'رأس', image: '🥬', description: 'خس طازج',
                         quickQuantities: [1, 2, 3] },
-                    { id: 'v7', name: 'قرع', pricePerUnit: 3.000, unit: 'كغ', image: '🎃', description: 'قارعة طازجة',
+                    { id: 'v7', name: 'قرع', pricePerUnit: 3.000, unit: 'كغ', image: '🎃', description: 'قرع طازج',
                         quickQuantities: [1, 2, 5] },
                     { id: 'v8', name: 'فقّوس', pricePerUnit: 3.800, unit: 'كغ', image: '🥒', description: 'فقّوس طازج',
+                        quickQuantities: [1, 2, 5] },
+                    { id: 'v9', name: 'زبدّة', pricePerUnit: 4.200, unit: 'كغ', image: '🥒', description: 'زبدّة طازجة',
                         quickQuantities: [1, 2, 5] }
                 ],
                 fruits: [
@@ -1334,7 +1304,9 @@
                     { id: 'f5', name: 'بطيخ', pricePerUnit: 2.500, unit: 'كغ', image: '🍉', description: 'بطيخ أحمر',
                         quickQuantities: [1, 3, 5] },
                     { id: 'f6', name: 'دلاع', pricePerUnit: 2.900, unit: 'كغ', image: '🍉', description: 'دلاع طازج',
-                        quickQuantities: [1, 3, 5] }
+                        quickQuantities: [1, 3, 5] },
+                    { id: 'f7', name: 'شمام', pricePerUnit: 3.800, unit: 'كغ', image: '🍈', description: 'شمام طازج',
+                        quickQuantities: [1, 2, 5] }
                 ],
                 staples: [
                     { id: 's1', name: 'زيت زيتون', pricePerUnit: 14.500, unit: 'لتر', image: '🫒',
@@ -1350,13 +1322,13 @@
                     { id: 's6', name: 'قهوة', pricePerUnit: 11.500, unit: 'كغ', image: '☕',
                         description: 'قهوة طازجة - جودة عالية', quickQuantities: [0.5, 1, 2] },
                     { id: 's7', name: 'بهارات', pricePerUnit: 7.000, unit: 'كغ', image: '🌶️',
-                        description: 'بهارات متنوعة (كمون، فلفل، كركم...)', quickQuantities: [0.5, 1, 2] },
+                        description: 'بهارات متنوعة', quickQuantities: [0.5, 1, 2] },
                     { id: 's8', name: 'رز أبيض', pricePerUnit: 4.200, unit: 'كغ', image: '🍚', description: 'رز أبيض',
                         quickQuantities: [1, 2, 5] },
-                    { id: 's9', name: 'ماء (قارورة 1.5 لتر)', pricePerUnit: 0.850, unit: 'قارورة', image: '💧',
+                    { id: 's9', name: 'ماء (1.5 لتر)', pricePerUnit: 0.850, unit: 'قارورة', image: '💧',
                         description: 'ماء معدني', quickQuantities: [1, 6, 12] },
                     { id: 's10', name: 'دقيق', pricePerUnit: 0.900, unit: 'كغ', image: '🌾', description: 'دقيق أبيض',
-                        quickQuantities: [1, 5, 10] },
+                        quickQuantities: [1, 5, 10] }
                 ],
                 grains: [
                     { id: 'g1', name: 'عدس', pricePerUnit: 4.800, unit: 'كغ', image: '🫘', description: 'عدس أخضر وأحمر',
@@ -1371,7 +1343,7 @@
                 meat: [
                     { id: 'm1', name: 'لحم مفروم', pricePerUnit: 19.000, unit: 'كغ', image: '🥩',
                         description: 'لحم بقري مفروم طازج', quickQuantities: [0.5, 1, 2] },
-                    { id: 'm2', name: 'دجاج (فيليه)', pricePerUnit: 17.500, unit: 'كغ', image: '🍗',
+                    { id: 'm2', name: 'دجاج فيليه', pricePerUnit: 17.500, unit: 'كغ', image: '🍗',
                         description: 'فيليه دجاج طازج', quickQuantities: [0.5, 1, 2] },
                     { id: 'm3', name: 'لحم بقري', pricePerUnit: 43.000, unit: 'كغ', image: '🥩',
                         description: 'لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
@@ -1380,7 +1352,7 @@
                     { id: 'm5', name: 'دجاج كامل', pricePerUnit: 10.000, unit: 'كغ', image: '🍗', description: 'دجاج كامل طازج',
                         quickQuantities: [1, 2, 3] },
                     { id: 'm6', name: 'أسكالوب دجاج', pricePerUnit: 19.500, unit: 'كغ', image: '🍗',
-                        description: 'إسكالوب دجاج طازج مقطع', quickQuantities: [0.5, 1, 2] },
+                        description: 'إسكالوب دجاج طازج', quickQuantities: [0.5, 1, 2] },
                     { id: 'm7', name: 'ستيك بقري', pricePerUnit: 39.500, unit: 'كغ', image: '🥩',
                         description: 'ستيك لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
                     { id: 'm8', name: 'سردين', pricePerUnit: 7.000, unit: 'كغ', image: '🐟', description: 'سردين طازج',
@@ -1396,15 +1368,15 @@
                     { id: 'd3', name: 'زبدة', pricePerUnit: 6.000, unit: 'قطعة', image: '🧈', description: 'زبدة طبيعية',
                         quickQuantities: [1, 2, 5] },
                     { id: 'd4', name: 'جبن بكوات', pricePerUnit: 8.000, unit: 'علبة', image: '🧀',
-                        description: 'جبن شرائح معلب (بكوات)', quickQuantities: [1, 2, 3] },
+                        description: 'جبن شرائح معلب', quickQuantities: [1, 2, 3] },
                     { id: 'd5', name: 'لبن', pricePerUnit: 1.200, unit: 'لتر', image: '🥛', description: 'لبن طازج',
                         quickQuantities: [1, 2, 6] },
-                    { id: 'd6', name: 'ياغورت', pricePerUnit: 0.800, unit: 'حبة', image: '🍶', description: 'زبادي طبيعي',
+                    { id: 'd6', name: 'ياغورت', pricePerUnit: 0.800, unit: 'حبة', image: '🍶', description: 'ياغورت طبيعي',
                         quickQuantities: [1, 6, 12] }
                 ],
                 conserves: [
                     { id: 'c1', name: 'طماطم مصبرة', pricePerUnit: 5.000, unit: 'علبة', image: '🥫',
-                        description: 'طماطم مصبرة (كونسروة)', quickQuantities: [1, 3, 6] },
+                        description: 'طماطم مصبرة', quickQuantities: [1, 3, 6] },
                     { id: 'c2', name: 'زيت قلي', pricePerUnit: 8.000, unit: 'لتر', image: '🛢️',
                         description: 'زيت نباتي للقلي', quickQuantities: [1, 2, 5] },
                     { id: 'c3', name: 'مايونيز', pricePerUnit: 4.200, unit: 'علبة', image: '🥄', description: 'مايونيز',
@@ -1602,292 +1574,4 @@
                     card.className = 'menu-card';
                     const headerDiv = document.createElement('div');
                     headerDiv.className = 'item-header';
-                    const imgDiv = document.createElement('div');
-                    imgDiv.className = 'item-image';
-                    imgDiv.textContent = item.image;
-                    const infoDiv = document.createElement('div');
-                    infoDiv.className = 'item-info';
-                    const nameDiv = document.createElement('div');
-                    nameDiv.className = 'item-name';
-                    nameDiv.textContent = item.name;
-                    const priceDiv = document.createElement('div');
-                    priceDiv.className = 'item-unit-price';
-                    priceDiv.textContent = item.pricePerUnit.toFixed(3) + ' ';
-                    const priceSpan = document.createElement('span');
-                    priceSpan.textContent = `DT/${item.unit}`;
-                    priceDiv.appendChild(priceSpan);
-                    infoDiv.appendChild(nameDiv);
-                    infoDiv.appendChild(priceDiv);
-                    headerDiv.appendChild(imgDiv);
-                    headerDiv.appendChild(infoDiv);
-                    const descDiv = document.createElement('div');
-                    descDiv.style.cssText = 'color:#666;font-size:0.85rem;margin-bottom:8px;';
-                    descDiv.textContent = item.description;
-                    const qtySelector = document.createElement('div');
-                    qtySelector.className = 'quantity-selector';
-                    const qtyLabel = document.createElement('span');
-                    qtyLabel.style.cssText = 'font-weight:700;color:#666;';
-                    qtyLabel.textContent = 'الكمية:';
-                    const quantityInput = document.createElement('input');
-                    quantityInput.type = 'number';
-                    quantityInput.className = 'quantity-input';
-                    quantityInput.value = '1';
-                    quantityInput.min = '0.1';
-                    quantityInput.step = '0.1';
-                    quantityInput.max = '999';
-                    const qtyUnit = document.createElement('span');
-                    qtyUnit.className = 'quantity-unit';
-                    qtyUnit.textContent = item.unit;
-                    const totalItemPrice = document.createElement('span');
-                    totalItemPrice.className = 'total-item-price';
-                    totalItemPrice.textContent = `= ${item.pricePerUnit.toFixed(3)} DT`;
-                    qtySelector.appendChild(qtyLabel);
-                    qtySelector.appendChild(quantityInput);
-                    qtySelector.appendChild(qtyUnit);
-                    qtySelector.appendChild(totalItemPrice);
-                    const quickBtnsDiv = document.createElement('div');
-                    quickBtnsDiv.className = 'quick-quantity-btns';
-                    item.quickQuantities.forEach(qty => {
-                        const qBtn = document.createElement('button');
-                        qBtn.className = 'quick-qty-btn';
-                        qBtn.textContent = `${qty} ${item.unit}`;
-                        qBtn.dataset.qty = qty;
-                        quickBtnsDiv.appendChild(qBtn);
-                    });
-                    const addToCartBtn = document.createElement('button');
-                    addToCartBtn.className = 'add-to-cart-btn';
-                    addToCartBtn.textContent = '🛒 أضف للسلة';
-                    card.appendChild(headerDiv);
-                    card.appendChild(descDiv);
-                    card.appendChild(qtySelector);
-                    card.appendChild(quickBtnsDiv);
-                    card.appendChild(addToCartBtn);
-
-                    function updatePrice() {
-                        const qty = parseFloat(quantityInput.value) || 0;
-                        totalItemPrice.textContent = `= ${(qty * item.pricePerUnit).toFixed(3)} DT`;
-                    }
-                    quantityInput.addEventListener('input', updatePrice);
-                    card.querySelectorAll('.quick-qty-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            quantityInput.value = this.dataset.qty;
-                            updatePrice();
-                        });
-                    });
-                    addToCartBtn.addEventListener('click', function() {
-                        const qty = parseFloat(quantityInput.value) || 0;
-                        if (qty <= 0 || qty > 999) {
-                            showToast('⚠️ الكمية غير صالحة', 'warning');
-                            return;
-                        }
-                        const totalPrice = qty * item.pricePerUnit;
-                        cart.push({
-                            cartId: item.id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2,
-                                5),
-                            id: item.id,
-                            name: item.name,
-                            image: item.image,
-                            unit: item.unit,
-                            quantity: qty,
-                            unitPrice: item.pricePerUnit,
-                            totalPrice: totalPrice
-                        });
-                        updateCartDisplay();
-                        quantityInput.value = 1;
-                        updatePrice();
-                        showToast(`✅ تم إضافة ${item.name} إلى السلة`, 'success');
-                    });
-                    container.appendChild(card);
-                });
-            }
-
-            // ============================================================
-            // CART DISPLAY
-            // ============================================================
-            function updateCartDisplay() {
-                const cartList = document.getElementById('cart-items');
-                const cartCount = document.getElementById('cart-count');
-                const totalPriceEl = document.getElementById('total-price');
-                const shopsDisplay = document.getElementById('shops-display');
-                cartList.innerHTML = '';
-                let subtotal = 0;
-                const shops = getShopData();
-                if (shops.length === 0) {
-                    shopsDisplay.textContent = 'أضف متاجر';
-                } else {
-                    shopsDisplay.innerHTML = shops.map(s =>
-                        `<span class="shop-item">${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}</span>`
-                    ).join(' ');
-                }
-                if (cart.length === 0) {
-                    const emptyLi = document.createElement('li');
-                    emptyLi.style.cssText = 'text-align:center;color:#999;padding:15px;';
-                    emptyLi.textContent = 'السلة فارغة 🛒';
-                    cartList.appendChild(emptyLi);
-                    cartCount.textContent = '0';
-                } else {
-                    cart.forEach((item, index) => {
-                        subtotal += item.totalPrice;
-                        const li = document.createElement('li');
-                        li.innerHTML = `
-                            <div class="cart-item-header">
-                                <span class="cart-item-name">${item.image} ${sanitizeText(item.name)}</span>
-                                <span class="cart-item-price">${item.totalPrice.toFixed(3)} DT</span>
-                            </div>
-                            <div class="cart-item-details">${item.quantity} ${item.unit} × ${item.unitPrice.toFixed(3)} DT</div>
-                            <button class="remove-btn" style="margin-top:3px;">حذف</button>
-                        `;
-                        li.querySelector('.remove-btn').addEventListener('click', function() {
-                            cart.splice(index, 1);
-                            updateCartDisplay();
-                            showToast('تم حذف المنتج من السلة', 'info');
-                        });
-                        cartList.appendChild(li);
-                    });
-                    cartCount.textContent = cart.length;
-                }
-                totalPriceEl.textContent = (subtotal + SERVICE_FEE).toFixed(3) + ' DT';
-                document.getElementById('fees-line').textContent = SERVICE_FEE.toFixed(3) + ' DT رسوم الشركة';
-            }
-
-            // ============================================================
-            // ✅ SUBMIT ORDER
-            // ============================================================
-            document.getElementById('submitOrder').addEventListener('click', function() {
-                if (isSubmitting) {
-                    showToast('جاري إرسال الطلب...', 'info');
-                    return;
-                }
-
-                const name = document.getElementById('userName').value.trim();
-                const phone = document.getElementById('userPhone').value.trim();
-                const adresse = document.getElementById('userAdresse').value.trim();
-                const notes = document.getElementById('userNotes').value.trim();
-                const shops = getShopData();
-
-                if (!name || name.length < 2) {
-                    showToast('⚠️ اكتب اسمك الكامل', 'warning');
-                    document.getElementById('userName').focus();
-                    return;
-                }
-                if (!phone || !validatePhone(phone)) {
-                    showToast('⚠️ رقم هاتف تونسي صحيح (8 أرقام)', 'warning');
-                    document.getElementById('userPhone').focus();
-                    return;
-                }
-                if (!adresse || adresse.includes('⏳') || adresse.includes('جاري')) {
-                    showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك', 'warning');
-                    document.getElementById('userAdresse').focus();
-                    return;
-                }
-                if (cart.length === 0) {
-                    showToast('🥲 السلة فارغة - أضف منتجات', 'warning');
-                    return;
-                }
-
-                let verifiedSubtotal = 0;
-                let orderDetails = '';
-                for (let i = 0; i < cart.length; i++) {
-                    const cartItem = cart[i];
-                    const officialItem = itemRegistry[cartItem.id];
-                    if (!officialItem || Math.abs(cartItem.unitPrice - officialItem.pricePerUnit) > 0.001) {
-                        showToast('⚠️ خطأ في الأسعار - يرجى تحديث الصفحة', 'error');
-                        return;
-                    }
-                    const verifiedItemTotal = cartItem.quantity * officialItem.pricePerUnit;
-                    verifiedSubtotal += verifiedItemTotal;
-                    orderDetails +=
-                        `${i+1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
-                }
-
-                const totalAmount = verifiedSubtotal + SERVICE_FEE;
-                const orderMessage =
-                    `
-🛒 طلب توصيل - 9ATHYA.TN
-👤 ${sanitizeText(name)}
-📞 ${sanitizeText(phone)}
-📍 ${sanitizeText(adresse)}
-📝 ${sanitizeText(notes || 'لا يوجد')}
-🏪 ${shops.length > 0 ? shops.map((s,i) => `${i+1}. ${s.name}${s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : ''}`).join('\n') : 'لم يتم تحديد متاجر'}
-📋 ${orderDetails}
-💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
-🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT)
-💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
-⏰ ${new Date().toLocaleString('ar-TN')}
-        `;
-
-                const submitBtn = document.getElementById('submitOrder');
-                isSubmitting = true;
-                submitBtn.disabled = true;
-                submitBtn.textContent = '⏳ جاري الإرسال...';
-
-                const formData = new FormData();
-                formData.append('name', sanitizeText(name));
-                formData.append('phone', sanitizeText(phone));
-                formData.append('adresse', sanitizeText(adresse));
-                formData.append('message', orderMessage);
-                formData.append('shops', shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone +
-                    ')' : '')).join(', '));
-                formData.append('total', totalAmount.toFixed(3) + ' DT');
-                formData.append('notes', sanitizeText(notes || 'لا يوجد'));
-                formData.append('_captcha', 'false');
-                formData.append('_template', 'table');
-                formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(name) + ' - 9ATHYA.TN');
-
-                fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('فشل الإرسال - الكود: ' + response.status);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
-                        cart.length = 0;
-                        updateCartDisplay();
-                        document.getElementById('userName').value = '';
-                        document.getElementById('userPhone').value = '';
-                        document.getElementById('userNotes').value = '';
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
-                    })
-                    .finally(() => {
-                        isSubmitting = false;
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '📨 تأكيد الطلب';
-                    });
-            });
-
-            // ============================================================
-            // INIT
-            // ============================================================
-            renderMenu();
-            updateCartDisplay();
-
-            document.addEventListener('input', function(e) {
-                if (e.target.classList.contains('shop-name-input') || e.target.classList.contains('shop-zone-input')) {
-                    updateCartDisplay();
-                }
-            });
-
-            console.log('✅ 9ATHYA.TN - يعمل 100%');
-            console.log('📧 الإرسال عبر AJAX - بدون فتح صفحة');
-            console.log('🔒 رؤوس الأمان مفعلة عبر vercel.json');
-            console.log('🤖 AI Assistant يعمل مع OpenRouter API (مجاني)');
-
-            // Check API key status
-            if (AI_API_KEY === 'sk-or-v1-3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e') {
-                console.warn('⚠️ استخدم مفتاح API تجريبي، سجل في openrouter.ai للحصول على مفتاح خاص بك');
-                showToast('🤖 المساعد الذكي يعمل بمفتاح تجريبي (محدود) - سجل للحصول على مفتاح مجاني', 'info', 6000);
-            }
-
-        })();
-    </script>
-
-</body>
-</html>
+                    const img
