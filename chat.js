@@ -1,22 +1,151 @@
+// ============================================================
+// CHAT.JS - Serverless Function with DDoS Protection
+// Reads GEMINI_API_KEY from Vercel Environment Variables
+// ============================================================
+
+// Simple in-memory rate limiter (per IP)
+const rateLimit = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 10; // 10 requests per minute
+
+function getClientIP(req) {
+  return req.headers.get('x-forwarded-for') || 
+         req.headers.get('x-real-ip') || 
+         req.headers.get('x-vercel-ip-country') ||
+         'unknown';
+}
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT_WINDOW;
+  
+  // Clean old entries
+  for (const [key, timestamps] of rateLimit) {
+    const validTimestamps = timestamps.filter(t => t > windowStart);
+    if (validTimestamps.length === 0) {
+      rateLimit.delete(key);
+    } else {
+      rateLimit.set(key, validTimestamps);
+    }
+  }
+  
+  const requests = rateLimit.get(ip) || [];
+  const validRequests = requests.filter(t => t > windowStart);
+  
+  if (validRequests.length >= MAX_REQUESTS_PER_WINDOW) {
+    return false;
+  }
+  
+  validRequests.push(now);
+  rateLimit.set(ip, validRequests);
+  return true;
+}
+
+// Blocklist for known bad IPs
+const blocklist = new Set([
+  // Add known malicious IPs here if needed
+]);
+
+function isBlocked(ip) {
+  return blocklist.has(ip);
+}
+
+function logSecurityEvent(eventType, ip, details, req) {
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    eventType,
+    ip,
+    details,
+    userAgent: req.headers.get('user-agent') || 'unknown',
+    referer: req.headers.get('referer') || 'unknown'
+  }));
+}
+
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      error: 'Method not allowed',
+      allowedMethods: ['POST']
+    });
   }
 
-  const { message, history } = req.body;
+  const ip = getClientIP(req);
 
+  // Check blocklist
+  if (isBlocked(ip)) {
+    logSecurityEvent('BLOCKLIST_HIT', ip, { reason: 'IP is blocklisted' }, req);
+    return res.status(403).json({ 
+      error: 'Access denied',
+      message: 'Your IP has been blocked'
+    });
+  }
+
+  // Rate limiting
+  if (!checkRateLimit(ip)) {
+    logSecurityEvent('RATE_LIMIT_EXCEEDED', ip, { 
+      limit: MAX_REQUESTS_PER_WINDOW,
+      window: RATE_LIMIT_WINDOW / 1000 + ' seconds'
+    }, req);
+    return res.status(429).json({ 
+      error: 'Too many requests',
+      message: 'Please wait a moment and try again.',
+      retryAfter: 60,
+      limit: MAX_REQUESTS_PER_WINDOW
+    });
+  }
+
+  // Get request body
+  let body;
+  try {
+    body = await req.json();
+  } catch (e) {
+    return res.status(400).json({ error: 'Invalid JSON payload' });
+  }
+
+  const { message, history } = body;
+
+  // Validate message
   if (!message || message.trim().length < 2) {
-    return res.status(400).json({ error: 'Message is too short' });
+    return res.status(400).json({ 
+      error: 'Message is too short',
+      minLength: 2
+    });
   }
 
-  // Get API key from environment variables (SECURE!)
+  // Prevent large payload attacks
+  if (message.length > 2000) {
+    logSecurityEvent('PAYLOAD_TOO_LARGE', ip, { 
+      length: message.length,
+      maxAllowed: 2000
+    }, req);
+    return res.status(413).json({ 
+      error: 'Message too long',
+      maxLength: 2000,
+      received: message.length
+    });
+  }
+
+  // Validate history
+  if (history && !Array.isArray(history)) {
+    return res.status(400).json({ error: 'History must be an array' });
+  }
+
+  // ============================================================
+  // 🔑 GET API KEY FROM VERCEL ENVIRONMENT VARIABLES
+  // ============================================================
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    console.error('GEMINI_API_KEY not set in environment variables');
-    return res.status(500).json({ error: 'AI service not configured' });
+    console.error('❌ GEMINI_API_KEY not set in Vercel environment variables');
+    logSecurityEvent('MISSING_API_KEY', ip, { error: 'API key not configured' }, req);
+    return res.status(500).json({ 
+      error: 'AI service not configured',
+      message: 'Please contact support'
+    });
   }
+
+  console.log(`✅ Request from IP: ${ip} | Message: ${message.substring(0, 50)}...`);
 
   try {
     // Build the conversation context
@@ -38,68 +167,89 @@ export default async function handler(req, res) {
 إذا سأل عن كيفية الطلب، اشرح له الخطوات (اختيار المنتجات، إضافة الكمية، تحديد الموقع، ملء المعلومات، تأكيد الطلب).
 كن مختصراً ولكن غنياً بالمعلومات.\n\n`;
 
-    // Add conversation history
+    // Add conversation history (limit to prevent memory issues)
     if (history && Array.isArray(history)) {
-      history.forEach(msg => {
+      const limitedHistory = history.slice(-10);
+      for (const msg of limitedHistory) {
         if (msg.role === 'user') {
-          context += `المستخدم: ${msg.content}\n`;
+          context += `المستخدم: ${msg.content.substring(0, 500)}\n`;
         } else if (msg.role === 'assistant') {
-          context += `المساعد: ${msg.content}\n`;
+          context += `المساعد: ${msg.content.substring(0, 500)}\n`;
         }
-      });
+      }
     }
 
     context += `المستخدم: ${message.trim()}\nالمساعد:`;
 
-    // Call Gemini API
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: context }]
+    // Call Gemini API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: context }]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 500,
+              topP: 0.9,
+              topK: 40
             }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 500,
-            topP: 0.9,
-            topK: 40
-          }
-        })
+          }),
+          signal: controller.signal
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Gemini API Error:', errorData);
+        return res.status(response.status).json({
+          error: 'AI service error',
+          details: errorData
+        });
       }
-    );
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Gemini API Error:', errorData);
-      return res.status(response.status).json({
-        error: 'AI service error',
-        details: errorData
+      const data = await response.json();
+      const aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أستطع معالجة طلبك. حاول مرة أخرى.';
+
+      return res.status(200).json({
+        reply: aiReply,
+        timestamp: new Date().toISOString()
       });
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        logSecurityEvent('REQUEST_TIMEOUT', ip, { timeout: '15 seconds' }, req);
+        return res.status(504).json({ 
+          error: 'Request timeout',
+          message: 'The AI service took too long to respond. Please try again.'
+        });
+      }
+      throw fetchError;
     }
-
-    const data = await response.json();
-    const aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أستطع معالجة طلبك. حاول مرة أخرى.';
-
-    // Save conversation for analytics (optional)
-    // You can store this in a database or file
-
-    return res.status(200).json({
-      reply: aiReply,
-      timestamp: new Date().toISOString()
-    });
 
   } catch (error) {
     console.error('Server Error:', error);
+    logSecurityEvent('SERVER_ERROR', ip, { 
+      error: error.message,
+      stack: error.stack
+    }, req);
     return res.status(500).json({
       error: 'Internal server error',
-      message: error.message
+      message: 'Something went wrong. Please try again later.'
     });
   }
 }
