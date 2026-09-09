@@ -1598,10 +1598,16 @@
             // RENDER MENU
             // ============================================================
             function renderMenu() {
+                console.log('🔄 Rendering menu...');
                 Object.keys(menuData).forEach(category => {
                     const container = document.getElementById(`${category}-menu`);
-                    if (container) renderCategory(container, menuData[category]);
+                    if (container) {
+                        renderCategory(container, menuData[category]);
+                    } else {
+                        console.warn(`⚠️ Container not found: ${category}-menu`);
+                    }
                 });
+                console.log('✅ Menu rendered successfully!');
             }
 
             function renderCategory(container, items) {
@@ -1873,10 +1879,22 @@
             });
 
             // ============================================================
-            // INIT
+            // INIT - Start the app
             // ============================================================
-            renderMenu();
-            updateCartDisplay();
+            console.log('🚀 Starting 9ATHYA.TN...');
+            
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    renderMenu();
+                    updateCartDisplay();
+                    console.log('✅ 9ATHYA.TN is ready!');
+                });
+            } else {
+                renderMenu();
+                updateCartDisplay();
+                console.log('✅ 9ATHYA.TN is ready!');
+            }
 
             document.addEventListener('input', function(e) {
                 if (e.target.classList.contains('shop-name-input') || e.target.classList.contains('shop-zone-input')) {
