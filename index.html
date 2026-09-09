@@ -3,46 +3,167 @@
 <head>
     <meta name="google-site-verification" content="V5LLdebyhqCA_4S5c4uCnhruAYzKGMaPH15uWKT6NPQ" />
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>9ATHYA.TN | خدمة توصيل</title>
+    
+    <!-- ===== CSS EXTERNAL ===== -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
-        <!-- HEADER -->
+    <div class="main-container">
         <div class="header">
             <h1>🔥 9ATHYA.TN</h1>
-            <p>خدمة توصيل المنتجات</p>
+            <p>خدمة توصيل - طلب المنتجات</p>
         </div>
 
-        <!-- TABS -->
-        <div class="tabs" id="tabsContainer">
-            <button class="tab-btn active" data-cat="all">📋 الكل</button>
-            <button class="tab-btn" data-cat="vegetables">🥬 خضرة</button>
-            <button class="tab-btn" data-cat="fruits">🍎 غلة</button>
-            <button class="tab-btn" data-cat="staples">🌾 أساسيات</button>
-            <button class="tab-btn" data-cat="meat">🥩 بروتينات</button>
-            <button class="tab-btn" data-cat="dairy">🥛 ألبان</button>
-            <button class="tab-btn" data-cat="grains">🫘 بقول</button>
-            <button class="tab-btn" data-cat="conserves">🥫 معلبات</button>
+        <div class="category-nav">
+            <button class="category-nav-btn active" data-category="all">📋 الكل</button>
+            <button class="category-nav-btn" data-category="vegetables">🥬 خضرة</button>
+            <button class="category-nav-btn" data-category="fruits">🍎 غلة</button>
+            <button class="category-nav-btn" data-category="staples">🌾 مواد أساسية</button>
+            <button class="category-nav-btn" data-category="grains">🫘 بقول وحبوب</button>
+            <button class="category-nav-btn" data-category="meat">🥩 بروتينات</button>
+            <button class="category-nav-btn" data-category="dairy">🥛 ألبان</button>
+            <button class="category-nav-btn" data-category="conserves">🥫 مواد غذائية</button>
         </div>
 
-        <!-- PRODUCTS -->
-        <div id="productsContainer"></div>
+        <div class="content-wrapper">
+            <div class="menu-section">
+                <div class="category-section" id="vegetables-section">
+                    <div class="category-title">🥬 خضرة طازجة</div>
+                    <div class="menu-grid" id="vegetables-menu"></div>
+                </div>
+                <div class="category-section" id="fruits-section">
+                    <div class="category-title">🍎 غلة وفواكه</div>
+                    <div class="menu-grid" id="fruits-menu"></div>
+                </div>
+                <div class="category-section" id="staples-section">
+                    <div class="category-title">🌾 مواد أساسية</div>
+                    <div class="menu-grid" id="staples-menu"></div>
+                </div>
+                <div class="category-section" id="grains-section">
+                    <div class="category-title">🫘 بقول وحبوب</div>
+                    <div class="menu-grid" id="grains-menu"></div>
+                </div>
+                <div class="category-section" id="meat-section">
+                    <div class="category-title">🥩 بروتينات ولحوم</div>
+                    <div class="menu-grid" id="meat-menu"></div>
+                </div>
+                <div class="category-section" id="dairy-section">
+                    <div class="category-title">🥛 ألبان وبيض</div>
+                    <div class="menu-grid" id="dairy-menu"></div>
+                </div>
+                <div class="category-section" id="conserves-section">
+                    <div class="category-title">🥫 مواد غذائية</div>
+                    <div class="menu-grid" id="conserves-menu"></div>
+                </div>
+            </div>
 
-        <!-- CART -->
-        <div class="cart">
-            <h2>🛒 السلة <span id="cartCount">0</span></h2>
-            <ul class="cart-items" id="cartList">
-                <li style="text-align:center;color:#999;padding:15px;">السلة فارغة</li>
-            </ul>
-            <div class="total">المجموع: <span id="totalPrice">0.000</span> DT</div>
-            <button id="orderBtn">📨 تأكيد الطلب</button>
+            <div class="cart-section">
+                <div class="cart-header">
+                    <div class="cart-title">🛒 سلة الطلبات</div>
+                    <div class="cart-count" id="cart-count">0</div>
+                </div>
+                <ul id="cart-items"></ul>
+
+                <div class="shop-list" id="shop-list">
+                    <span style="font-weight:700;">🏪 المتاجر:</span>
+                    <span id="shops-display">لا يوجد</span>
+                </div>
+
+                <div class="shops-input-area">
+                    <label class="shops-label">📝 المتاجر المطلوبة <small>(اسم المحل + المنطقة)</small></label>
+                    <div id="shops-container">
+                        <div class="shop-entry">
+                            <span class="shop-number">1</span>
+                            <input type="text" class="shop-name-input" placeholder="اسم المحل (اختياري)">
+                            <input type="text" class="shop-zone-input" placeholder="المنطقة">
+                            <button class="remove-shop" style="visibility:hidden;">×</button>
+                        </div>
+                    </div>
+                    <button class="add-shop-btn" id="addShopBtn">+ إضافة محل آخر</button>
+                </div>
+
+                <div style="margin:10px 0;padding:12px;background:#f9f9f9;border-radius:8px;border:2px solid #e0e0e0;">
+                    <label style="font-weight:700;color:#555;font-size:0.85rem;display:block;margin-bottom:6px;">📍 موقع التوصيل</label>
+                    <button class="location-btn" id="getLocationBtn">📍 تحديد موقعي (Autoriser)</button>
+                    <div class="location-status" id="locationStatus"><span class="icon">📍</span> اضغط على الزر لتحديد موقعك</div>
+                    <div style="margin-top:6px;"><input type="text" id="userAdresse" class="form-input" placeholder="العنوان سيظهر هنا تلقائياً" value="" disabled></div>
+                </div>
+
+                <div class="total-section">
+                    <div style="font-size:0.85rem;font-weight:700;color:#555;">💰 المجموع الكلي</div>
+                    <div class="total-price" id="total-price">0.000 DT</div>
+                    <div class="delivery-fee" id="fees-line">3.000 DT رسوم الشركة</div>
+                    <div class="delivery-alert">⚠️ تنبيه: + 0.500 دت/كم سعر التوصيل (بحد أدنى 1.800 DT) — يُضاف لاحقاً حسب المسافة الفعلية</div>
+                </div>
+
+                <div class="user-form">
+                    <div class="form-group">
+                        <label>👤 الاسم الكامل *</label>
+                        <input type="text" id="userName" class="form-input" placeholder="أدخل اسمك" maxlength="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📞 رقم الهاتف *</label>
+                        <input type="tel" id="userPhone" class="form-input" placeholder="8 أرقام" maxlength="15" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📝 ملاحظات</label>
+                        <textarea id="userNotes" class="form-input" rows="2" placeholder="أي ملاحظات" maxlength="300"></textarea>
+                    </div>
+                </div>
+
+                <button id="submitOrder" class="submit-order-btn">📨 تأكيد الطلب</button>
+
+                <div class="fees-info">
+                    <strong>💳 رسوم الشركة:</strong> 3.000 DT &nbsp;|&nbsp; <strong>🚗 التوصيل:</strong> 0.500 دت/كم (حد أدنى 1.800 DT)
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- ====== JAVASCRIPT ====== -->
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
+
+    <!-- ============================================================ -->
+    <!-- AI ASSISTANT                                                   -->
+    <!-- ============================================================ -->
+    <button class="ai-assistant-toggle" id="aiToggle" aria-label="افتح المساعد الذكي">
+        🤖
+        <span class="badge">AI</span>
+    </button>
+
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="title">
+                <span class="status"></span>
+                🤖 مساعد 9ATHYA الذكي
+            </div>
+            <button class="close-btn" id="aiCloseBtn">✕</button>
+        </div>
+        <div class="ai-chat-messages" id="aiMessages">
+            <div class="message assistant">
+                👋 مرحباً! أنا مساعد 9ATHYA الذكي.<br>
+                أقدر ننصحك بالمنتجات، نجاوب على أسئلتك، ونساعدك في طلبك.<br>
+                شنو تحب تسأل؟
+            </div>
+        </div>
+        <div class="quick-suggestions" id="quickSuggestions">
+            <button data-msg="شنو المنتجات المتوفرة؟">🛒 المنتجات</button>
+            <button data-msg="نصيحة لوجبة صحية">🥗 نصيحة صحية</button>
+            <button data-msg="كيف نطلب؟">📦 كيفية الطلب</button>
+            <button data-msg="أسعار التوصيل">🚗 التوصيل</button>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="aiInput" placeholder="اكتب سؤالك هنا..." maxlength="500">
+            <button id="aiSendBtn">إرسال</button>
+        </div>
+        <div class="ai-chat-footer">
+            ⚡ يعمل بـ Gemini AI &bull; يتم جمع البيانات لتحسين الخدمة
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT EXTERNAL ===== -->
     <script src="script.js"></script>
 
 </body>
