@@ -1,0 +1,232 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f0f2f5;
+    padding: 15px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== HEADER ===== */
+.header {
+    background: linear-gradient(135deg, #e74c3c, #f39c12);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* ===== TABS ===== */
+.tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    background: #f5f5f5;
+}
+
+.tab-btn.active {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+/* ===== PRODUCTS ===== */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.product-card {
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.product-card:hover {
+    border-color: #e74c3c;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.product-image {
+    font-size: 3rem;
+}
+
+.product-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 5px 0;
+}
+
+.product-price {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.product-unit {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.qty-input {
+    width: 70px;
+    padding: 6px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin: 8px 0;
+    font-size: 1rem;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #e74c3c, #f39c12);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    transition: all 0.3s;
+}
+
+.add-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+}
+
+/* ===== CART ===== */
+.cart {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.cart h2 {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 12px;
+    margin-bottom: 10px;
+}
+
+.cart-items {
+    list-style: none;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.cart-items li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-items li .remove-item {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.cart-items li .remove-item:hover {
+    transform: scale(1.1);
+}
+
+.total {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e74c3c;
+    text-align: center;
+    padding: 15px 0;
+    border-top: 2px solid #ddd;
+    margin-top: 10px;
+}
+
+#orderBtn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#orderBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(39, 174, 96, 0.4);
+}
+
+.empty-cart {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    .tab-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
