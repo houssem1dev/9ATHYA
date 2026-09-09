@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>9ATHYA.TN | خدمة توصيل</title>
     <style>
-        /* ============================================================ */
-        /* CSS - جميع الأنماط                                           */
-        /* ============================================================ */
         :root {
             --primary: #e74c3c;
             --primary-dark: #c0392b;
@@ -16,7 +13,6 @@
             --success: #27ae60;
             --dark: #2c3e50;
             --light: #ecf0f1;
-            --card-bg: #ffffff;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.2);
             --ai-primary: #6c5ce7;
@@ -114,7 +110,7 @@
         }
         .category-section {
             margin-bottom: 25px;
-            display: block; /* جميع الأقسام ظاهرة بشكل افتراضي */
+            display: block;
         }
         .category-section.hidden {
             display: none !important;
@@ -628,10 +624,6 @@
                 opacity: 1;
             }
         }
-
-        /* ============================================================ */
-        /* AI ASSISTANT STYLES                                           */
-        /* ============================================================ */
         .ai-assistant-toggle {
             position: fixed;
             bottom: 30px;
@@ -669,7 +661,6 @@
             justify-content: center;
             border: 2px solid white;
         }
-
         .ai-chat-window {
             position: fixed;
             bottom: 110px;
@@ -701,7 +692,6 @@
                 transform: translateY(0);
             }
         }
-
         .ai-chat-header {
             background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
             color: white;
@@ -744,7 +734,6 @@
         .ai-chat-header .close-btn:hover {
             background: rgba(255,255,255,0.3);
         }
-
         .ai-chat-messages {
             flex: 1;
             padding: 15px;
@@ -805,7 +794,6 @@
             0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
             30% { transform: translateY(-8px); opacity: 1; }
         }
-
         .ai-chat-input-area {
             display: flex;
             gap: 8px;
@@ -848,7 +836,6 @@
             cursor: not-allowed;
             transform: none;
         }
-
         .ai-chat-footer {
             padding: 8px 15px;
             font-size: 0.6rem;
@@ -858,7 +845,6 @@
             flex-shrink: 0;
             background: white;
         }
-
         .quick-suggestions {
             display: flex;
             gap: 6px;
@@ -883,7 +869,6 @@
             color: white;
             border-color: var(--ai-primary);
         }
-
         @media (max-width: 480px) {
             .ai-chat-window {
                 bottom: 90px;
@@ -923,35 +908,8 @@
         </div>
 
         <div class="content-wrapper">
-            <div class="menu-section">
-                <div class="category-section" id="vegetables-section">
-                    <div class="category-title">🥬 خضرة طازجة</div>
-                    <div class="menu-grid" id="vegetables-menu"></div>
-                </div>
-                <div class="category-section" id="fruits-section">
-                    <div class="category-title">🍎 غلة وفواكه</div>
-                    <div class="menu-grid" id="fruits-menu"></div>
-                </div>
-                <div class="category-section" id="staples-section">
-                    <div class="category-title">🌾 مواد أساسية</div>
-                    <div class="menu-grid" id="staples-menu"></div>
-                </div>
-                <div class="category-section" id="grains-section">
-                    <div class="category-title">🫘 بقول وحبوب</div>
-                    <div class="menu-grid" id="grains-menu"></div>
-                </div>
-                <div class="category-section" id="meat-section">
-                    <div class="category-title">🥩 بروتينات ولحوم</div>
-                    <div class="menu-grid" id="meat-menu"></div>
-                </div>
-                <div class="category-section" id="dairy-section">
-                    <div class="category-title">🥛 ألبان وبيض</div>
-                    <div class="menu-grid" id="dairy-menu"></div>
-                </div>
-                <div class="category-section" id="conserves-section">
-                    <div class="category-title">🥫 مواد غذائية</div>
-                    <div class="menu-grid" id="conserves-menu"></div>
-                </div>
+            <div class="menu-section" id="menuSection">
+                <!-- الأقسام -->
             </div>
 
             <div class="cart-section">
@@ -1019,9 +977,6 @@
 
     <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
-    <!-- ============================================================ -->
-    <!-- AI ASSISTANT                                                   -->
-    <!-- ============================================================ -->
     <button class="ai-assistant-toggle" id="aiToggle" aria-label="افتح المساعد الذكي">
         🤖
         <span class="badge">AI</span>
@@ -1072,7 +1027,7 @@
             let isSubmitting = false;
 
             // ============================================================
-            // AI CONFIG - Calls /api/chat
+            // AI CONFIG
             // ============================================================
             const AI_API_URL = '/api/chat';
             let aiChatHistory = [];
@@ -1083,6 +1038,7 @@
             // ============================================================
             function showToast(message, type = 'info', duration = 5000) {
                 const container = document.getElementById('toastContainer');
+                if (!container) return;
                 const toast = document.createElement('div');
                 const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
                 toast.className = `toast toast-${type}`;
@@ -1098,7 +1054,6 @@
             // ============================================================
             function getFallbackResponse(userMessage) {
                 const msg = userMessage.toLowerCase();
-
                 if (msg.includes('منتج') || msg.includes('متوف') || msg.includes('شنو')) {
                     return `📦 **المنتجات المتوفرة عندنا:**
 
@@ -1112,14 +1067,12 @@
 
 شنو تحب تطلب؟ 😊`;
                 }
-
                 if (msg.includes('توصيل') || msg.includes('سعر') || msg.includes('كم')) {
                     return `🚗 **أسعار التوصيل:**
 - 0.500 دت/كم (الحد الأدنى 1.800 DT)
 - رسوم الشركة: 3.000 DT
 - يُحسب السعر حسب المسافة الفعلية`;
                 }
-
                 if (msg.includes('كيف') || msg.includes('طلب') || msg.includes('طريقة')) {
                     return `📝 **كيف تطلب من 9ATHYA.TN؟**
 
@@ -1131,7 +1084,6 @@
 6️⃣ املأ اسمك ورقم هاتفك
 7️⃣ اضغط "تأكيد الطلب"`;
                 }
-
                 if (msg.includes('صحي') || msg.includes('نصيحة') || msg.includes('وجبة')) {
                     return `🥗 **نصيحة غذائية:**
 
@@ -1141,7 +1093,6 @@
 - سمك مشوي مع سلطة
 - فواكه موسمية للتحلية`;
                 }
-
                 return `🤔 شكراً على سؤالك!
 
 أنا مساعد 9ATHYA الذكي. أقدر نجاوب على أسئلة عن:
@@ -1164,7 +1115,6 @@
                 const inputField = document.getElementById('aiInput');
                 const sendBtn = document.getElementById('aiSendBtn');
 
-                // Add user message
                 const userMsgDiv = document.createElement('div');
                 userMsgDiv.className = 'message user';
                 userMsgDiv.textContent = userMessage.trim();
@@ -1173,14 +1123,10 @@
 
                 inputField.value = '';
 
-                // Add typing indicator
                 const typingDiv = document.createElement('div');
                 typingDiv.className = 'message assistant';
-                typingDiv.innerHTML = `
-                    <div class="typing-indicator">
-                        <span></span><span></span><span></span>
-                    </div>
-                `;
+                typingDiv.innerHTML =
+                    `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
                 typingDiv.id = 'typingIndicator';
                 messagesContainer.appendChild(typingDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -1192,9 +1138,7 @@
                 try {
                     const response = await fetch(AI_API_URL, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             message: userMessage.trim(),
                             history: aiChatHistory
@@ -1205,8 +1149,6 @@
                     if (typingEl) typingEl.remove();
 
                     if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        console.error('API Error:', errorData);
                         const fallbackReply = getFallbackResponse(userMessage.trim());
                         const aiMsgDiv = document.createElement('div');
                         aiMsgDiv.className = 'message assistant';
@@ -1222,9 +1164,7 @@
 
                     aiChatHistory.push({ role: 'user', content: userMessage.trim() });
                     aiChatHistory.push({ role: 'assistant', content: aiReply });
-                    if (aiChatHistory.length > 20) {
-                        aiChatHistory = aiChatHistory.slice(-20);
-                    }
+                    if (aiChatHistory.length > 20) aiChatHistory = aiChatHistory.slice(-20);
 
                     const aiMsgDiv = document.createElement('div');
                     aiMsgDiv.className = 'message assistant';
@@ -1232,20 +1172,16 @@
                     messagesContainer.appendChild(aiMsgDiv);
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                    saveConversationData(userMessage.trim(), aiReply);
-
                 } catch (error) {
                     console.error('AI Error:', error);
                     const typingEl = document.getElementById('typingIndicator');
                     if (typingEl) typingEl.remove();
-
                     const fallbackReply = getFallbackResponse(userMessage.trim());
                     const aiMsgDiv = document.createElement('div');
                     aiMsgDiv.className = 'message assistant';
                     aiMsgDiv.textContent = fallbackReply;
                     messagesContainer.appendChild(aiMsgDiv);
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
                     showToast('⚠️ مشكلة في الاتصال، استخدمت الردود المحلية', 'error');
                 } finally {
                     isAiProcessing = false;
@@ -1253,22 +1189,6 @@
                     sendBtn.disabled = false;
                     inputField.focus();
                 }
-            }
-
-            function saveConversationData(userMsg, aiReply) {
-                try {
-                    const data = {
-                        timestamp: new Date().toISOString(),
-                        userMessage: userMsg,
-                        aiResponse: aiReply,
-                        page: window.location.href
-                    };
-                    const existing = JSON.parse(localStorage.getItem('ai_conversations') || '[]');
-                    existing.push(data);
-                    if (existing.length > 100) existing.shift();
-                    localStorage.setItem('ai_conversations', JSON.stringify(existing));
-                    console.log('📊 تم حفظ المحادثة');
-                } catch (e) {}
             }
 
             // ============================================================
@@ -1281,28 +1201,23 @@
             const aiSendBtn = document.getElementById('aiSendBtn');
             const quickSuggestions = document.getElementById('quickSuggestions');
 
-            function toggleAiChat() {
-                const isOpen = aiChatWindow.classList.toggle('open');
-                if (isOpen) aiInput.focus();
-            }
-
-            aiToggle.addEventListener('click', toggleAiChat);
-            aiCloseBtn.addEventListener('click', () => aiChatWindow.classList.remove('open'));
-
-            aiSendBtn.addEventListener('click', () => sendAiMessage(aiInput.value));
-            aiInput.addEventListener('keydown', (e) => {
+            aiToggle.addEventListener('click', function() {
+                aiChatWindow.classList.toggle('open');
+                if (aiChatWindow.classList.contains('open')) aiInput.focus();
+            });
+            aiCloseBtn.addEventListener('click', function() { aiChatWindow.classList.remove('open'); });
+            aiSendBtn.addEventListener('click', function() { sendAiMessage(aiInput.value); });
+            aiInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendAiMessage(aiInput.value);
                 }
             });
-
-            quickSuggestions.addEventListener('click', (e) => {
+            quickSuggestions.addEventListener('click', function(e) {
                 const btn = e.target.closest('button');
                 if (btn) sendAiMessage(btn.dataset.msg);
             });
-
-            document.addEventListener('click', (e) => {
+            document.addEventListener('click', function(e) {
                 if (aiChatWindow.classList.contains('open')) {
                     const isToggle = aiToggle.contains(e.target);
                     const isWindow = aiChatWindow.contains(e.target);
@@ -1311,7 +1226,7 @@
             });
 
             // ============================================================
-            // MENU DATA - جميع المنتجات (كاملة)
+            // MENU DATA
             // ============================================================
             const menuData = {
                 vegetables: [
@@ -1582,25 +1497,18 @@
             });
 
             // ============================================================
-            // CATEGORY - الإصلاح هنا
+            // CATEGORY FILTER
             // ============================================================
-            // عند تحميل الصفحة: كل الأقسام ظاهرة
-            // عند الضغط على زر: نخفي كل الأقسام ثم نظهر القسم المطلوب
-
             function filterCategory(category) {
                 const sections = document.querySelectorAll('.category-section');
-
                 if (category === 'all') {
-                    // إظهار كل الأقسام
                     sections.forEach(section => {
                         section.classList.remove('hidden');
                     });
                 } else {
-                    // إخفاء كل الأقسام
                     sections.forEach(section => {
                         section.classList.add('hidden');
                     });
-                    // إظهار القسم المطابق
                     const targetSection = document.getElementById(`${category}-section`);
                     if (targetSection) {
                         targetSection.classList.remove('hidden');
@@ -1608,15 +1516,11 @@
                 }
             }
 
-            // أزرار التصنيف
             document.querySelectorAll('.category-nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    // تفعيل الزر
                     document.querySelectorAll('.category-nav-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-
-                    const category = this.dataset.category;
-                    filterCategory(category);
+                    filterCategory(this.dataset.category);
                 });
             });
 
@@ -1624,45 +1528,90 @@
             // RENDER MENU
             // ============================================================
             function renderMenu() {
-                Object.keys(menuData).forEach(category => {
-                    const container = document.getElementById(`${category}-menu`);
-                    if (container) renderCategory(container, menuData[category]);
+                const menuSection = document.getElementById('menuSection');
+                menuSection.innerHTML = '';
+
+                // Create sections dynamically
+                const categories = {
+                    vegetables: '🥬 خضرة طازجة',
+                    fruits: '🍎 غلة وفواكه',
+                    staples: '🌾 مواد أساسية',
+                    grains: '🫘 بقول وحبوب',
+                    meat: '🥩 بروتينات ولحوم',
+                    dairy: '🥛 ألبان وبيض',
+                    conserves: '🥫 مواد غذائية'
+                };
+
+                Object.keys(categories).forEach(catKey => {
+                    const section = document.createElement('div');
+                    section.className = 'category-section';
+                    section.id = `${catKey}-section`;
+
+                    const title = document.createElement('div');
+                    title.className = 'category-title';
+                    title.textContent = categories[catKey];
+
+                    const grid = document.createElement('div');
+                    grid.className = 'menu-grid';
+                    grid.id = `${catKey}-menu`;
+
+                    section.appendChild(title);
+                    section.appendChild(grid);
+                    menuSection.appendChild(section);
+
+                    // Render items into this grid
+                    const items = menuData[catKey] || [];
+                    renderCategory(grid, items);
                 });
+
+                // After rendering, show all categories
+                filterCategory('all');
             }
 
             function renderCategory(container, items) {
+                if (!container) return;
                 container.innerHTML = '';
                 items.forEach(item => {
                     const card = document.createElement('div');
                     card.className = 'menu-card';
+
                     const headerDiv = document.createElement('div');
                     headerDiv.className = 'item-header';
+
                     const imgDiv = document.createElement('div');
                     imgDiv.className = 'item-image';
                     imgDiv.textContent = item.image;
+
                     const infoDiv = document.createElement('div');
                     infoDiv.className = 'item-info';
+
                     const nameDiv = document.createElement('div');
                     nameDiv.className = 'item-name';
                     nameDiv.textContent = item.name;
+
                     const priceDiv = document.createElement('div');
                     priceDiv.className = 'item-unit-price';
                     priceDiv.textContent = item.pricePerUnit.toFixed(3) + ' ';
                     const priceSpan = document.createElement('span');
                     priceSpan.textContent = `DT/${item.unit}`;
                     priceDiv.appendChild(priceSpan);
+
                     infoDiv.appendChild(nameDiv);
                     infoDiv.appendChild(priceDiv);
                     headerDiv.appendChild(imgDiv);
                     headerDiv.appendChild(infoDiv);
+
                     const descDiv = document.createElement('div');
                     descDiv.style.cssText = 'color:#666;font-size:0.85rem;margin-bottom:8px;';
                     descDiv.textContent = item.description;
+
                     const qtySelector = document.createElement('div');
                     qtySelector.className = 'quantity-selector';
+
                     const qtyLabel = document.createElement('span');
                     qtyLabel.style.cssText = 'font-weight:700;color:#666;';
                     qtyLabel.textContent = 'الكمية:';
+
                     const quantityInput = document.createElement('input');
                     quantityInput.type = 'number';
                     quantityInput.className = 'quantity-input';
@@ -1670,16 +1619,20 @@
                     quantityInput.min = '0.1';
                     quantityInput.step = '0.1';
                     quantityInput.max = '999';
+
                     const qtyUnit = document.createElement('span');
                     qtyUnit.className = 'quantity-unit';
                     qtyUnit.textContent = item.unit;
+
                     const totalItemPrice = document.createElement('span');
                     totalItemPrice.className = 'total-item-price';
                     totalItemPrice.textContent = `= ${item.pricePerUnit.toFixed(3)} DT`;
+
                     qtySelector.appendChild(qtyLabel);
                     qtySelector.appendChild(quantityInput);
                     qtySelector.appendChild(qtyUnit);
                     qtySelector.appendChild(totalItemPrice);
+
                     const quickBtnsDiv = document.createElement('div');
                     quickBtnsDiv.className = 'quick-quantity-btns';
                     item.quickQuantities.forEach(qty => {
@@ -1689,9 +1642,11 @@
                         qBtn.dataset.qty = qty;
                         quickBtnsDiv.appendChild(qBtn);
                     });
+
                     const addToCartBtn = document.createElement('button');
                     addToCartBtn.className = 'add-to-cart-btn';
                     addToCartBtn.textContent = '🛒 أضف للسلة';
+
                     card.appendChild(headerDiv);
                     card.appendChild(descDiv);
                     card.appendChild(qtySelector);
@@ -1703,12 +1658,14 @@
                         totalItemPrice.textContent = `= ${(qty * item.pricePerUnit).toFixed(3)} DT`;
                     }
                     quantityInput.addEventListener('input', updatePrice);
+
                     card.querySelectorAll('.quick-qty-btn').forEach(btn => {
                         btn.addEventListener('click', function() {
                             quantityInput.value = this.dataset.qty;
                             updatePrice();
                         });
                     });
+
                     addToCartBtn.addEventListener('click', function() {
                         const qty = parseFloat(quantityInput.value) || 0;
                         if (qty <= 0 || qty > 999) {
@@ -1732,6 +1689,7 @@
                         updatePrice();
                         showToast(`✅ تم إضافة ${item.name} إلى السلة`, 'success');
                     });
+
                     container.appendChild(card);
                 });
             }
@@ -1786,7 +1744,7 @@
             }
 
             // ============================================================
-            // ✅ SUBMIT ORDER
+            // SUBMIT ORDER
             // ============================================================
             document.getElementById('submitOrder').addEventListener('click', function() {
                 if (isSubmitting) {
@@ -1899,13 +1857,10 @@
             });
 
             // ============================================================
-            // INIT
+            // INIT - يتم تنفيذ كل شيء عند تحميل الصفحة
             // ============================================================
             renderMenu();
             updateCartDisplay();
-
-            // التأكد من أن كل الأقسام ظاهرة عند تحميل الصفحة
-            filterCategory('all');
 
             document.addEventListener('input', function(e) {
                 if (e.target.classList.contains('shop-name-input') || e.target.classList.contains('shop-zone-input')) {
