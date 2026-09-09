@@ -1908,6 +1908,280 @@
 
         })();
     </script>
+<script>
+// ============================================================
+// عرض المنتجات - طريقة مبسطة
+// ============================================================
 
+// بيانات المنتجات
+const products = {
+    vegetables: [
+        { id: 1, name: 'طماطم', price: 2.500, unit: 'كغ', emoji: '🍅' },
+        { id: 2, name: 'فلفل', price: 3.500, unit: 'كغ', emoji: '🌶️' },
+        { id: 3, name: 'بصل', price: 1.500, unit: 'كغ', emoji: '🧅' },
+        { id: 4, name: 'بطاطا', price: 2.200, unit: 'كغ', emoji: '🥔' },
+        { id: 5, name: 'جزر', price: 2.200, unit: 'كغ', emoji: '🥕' },
+        { id: 6, name: 'خس', price: 5.200, unit: 'رأس', emoji: '🥬' },
+        { id: 7, name: 'قرع', price: 3.000, unit: 'كغ', emoji: '🎃' },
+        { id: 8, name: 'فقّوس', price: 3.800, unit: 'كغ', emoji: '🥒' },
+        { id: 9, name: 'زبدّة', price: 4.200, unit: 'كغ', emoji: '🥒' }
+    ],
+    fruits: [
+        { id: 10, name: 'تفاح', price: 6.250, unit: 'كغ', emoji: '🍎' },
+        { id: 11, name: 'موز', price: 15.000, unit: 'كغ', emoji: '🍌' },
+        { id: 12, name: 'برتقال', price: 2.700, unit: 'كغ', emoji: '🍊' },
+        { id: 13, name: 'ليمون', price: 5.200, unit: 'كغ', emoji: '🍋' },
+        { id: 14, name: 'بطيخ', price: 2.500, unit: 'كغ', emoji: '🍉' },
+        { id: 15, name: 'دلاع', price: 2.900, unit: 'كغ', emoji: '🍉' },
+        { id: 16, name: 'شمام', price: 3.800, unit: 'كغ', emoji: '🍈' }
+    ],
+    staples: [
+        { id: 17, name: 'زيت زيتون', price: 14.500, unit: 'لتر', emoji: '🫒' },
+        { id: 18, name: 'سكر', price: 2.900, unit: 'كغ', emoji: '🧂' },
+        { id: 19, name: 'سميدة', price: 0.850, unit: 'كغ', emoji: '🌾' },
+        { id: 20, name: 'خبز', price: 0.250, unit: 'رغيف', emoji: '🍞' },
+        { id: 21, name: 'حليب', price: 1.300, unit: 'لتر', emoji: '🥛' },
+        { id: 22, name: 'قهوة', price: 11.500, unit: 'كغ', emoji: '☕' },
+        { id: 23, name: 'بهارات', price: 7.000, unit: 'كغ', emoji: '🌶️' },
+        { id: 24, name: 'رز', price: 4.200, unit: 'كغ', emoji: '🍚' },
+        { id: 25, name: 'ماء', price: 0.850, unit: 'قارورة', emoji: '💧' },
+        { id: 26, name: 'دقيق', price: 0.900, unit: 'كغ', emoji: '🌾' }
+    ],
+    grains: [
+        { id: 27, name: 'عدس', price: 4.800, unit: 'كغ', emoji: '🫘' },
+        { id: 28, name: 'حمص', price: 5.200, unit: 'كغ', emoji: '🫛' },
+        { id: 29, name: 'لوبيا', price: 8.000, unit: 'كغ', emoji: '🫘' },
+        { id: 30, name: 'جلبانة', price: 5.500, unit: 'كغ', emoji: '🫛' }
+    ],
+    meat: [
+        { id: 31, name: 'لحم مفروم', price: 19.000, unit: 'كغ', emoji: '🥩' },
+        { id: 32, name: 'دجاج فيليه', price: 17.500, unit: 'كغ', emoji: '🍗' },
+        { id: 33, name: 'لحم بقري', price: 43.000, unit: 'كغ', emoji: '🥩' },
+        { id: 34, name: 'تونة', price: 8.000, unit: 'علبة', emoji: '🐟' },
+        { id: 35, name: 'دجاج كامل', price: 10.000, unit: 'كغ', emoji: '🍗' },
+        { id: 36, name: 'أسكالوب', price: 19.500, unit: 'كغ', emoji: '🍗' },
+        { id: 37, name: 'ستيك بقري', price: 39.500, unit: 'كغ', emoji: '🥩' },
+        { id: 38, name: 'سردين', price: 7.000, unit: 'كغ', emoji: '🐟' },
+        { id: 39, name: 'سمك', price: 15.000, unit: 'كغ', emoji: '🐟' }
+    ],
+    dairy: [
+        { id: 40, name: 'بيض', price: 4.750, unit: 'طبق', emoji: '🥚' },
+        { id: 41, name: 'جبن محلي', price: 37.330, unit: 'كغ', emoji: '🧀' },
+        { id: 42, name: 'زبدة', price: 6.000, unit: 'قطعة', emoji: '🧈' },
+        { id: 43, name: 'جبن بكوات', price: 8.000, unit: 'علبة', emoji: '🧀' },
+        { id: 44, name: 'لبن', price: 1.200, unit: 'لتر', emoji: '🥛' },
+        { id: 45, name: 'ياغورت', price: 0.800, unit: 'حبة', emoji: '🍶' }
+    ],
+    conserves: [
+        { id: 46, name: 'طماطم مصبرة', price: 5.000, unit: 'علبة', emoji: '🥫' },
+        { id: 47, name: 'زيت قلي', price: 8.000, unit: 'لتر', emoji: '🛢️' },
+        { id: 48, name: 'مايونيز', price: 4.200, unit: 'علبة', emoji: '🥄' },
+        { id: 49, name: 'كاتشب', price: 3.800, unit: 'علبة', emoji: '🍅' },
+        { id: 50, name: 'شوكولاتة', price: 3.200, unit: 'قطعة', emoji: '🍫' }
+    ]
+};
+
+// ============================================================
+// عرض المنتجات
+// ============================================================
+function displayProducts() {
+    // الفئات ومعرفات الحاويات
+    const categories = {
+        vegetables: 'vegetables-menu',
+        fruits: 'fruits-menu',
+        staples: 'staples-menu',
+        grains: 'grains-menu',
+        meat: 'meat-menu',
+        dairy: 'dairy-menu',
+        conserves: 'conserves-menu'
+    };
+
+    Object.keys(categories).forEach(category => {
+        const containerId = categories[category];
+        const container = document.getElementById(containerId);
+        
+        if (!container) {
+            console.log('⚠️ Container not found:', containerId);
+            return;
+        }
+
+        const items = products[category] || [];
+        
+        if (items.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#999;">لا توجد منتجات</p>';
+            return;
+        }
+
+        // بناء HTML للمنتجات
+        let html = '';
+        items.forEach(item => {
+            html += `
+                <div class="menu-card">
+                    <div class="item-header">
+                        <div class="item-image">${item.emoji}</div>
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-unit-price">${item.price.toFixed(3)} <span>DT/${item.unit}</span></div>
+                        </div>
+                    </div>
+                    <div style="color:#666;font-size:0.85rem;margin-bottom:8px;">
+                        ${item.name} طازج
+                    </div>
+                    <div class="quantity-selector">
+                        <span style="font-weight:700;color:#666;">الكمية:</span>
+                        <input type="number" class="quantity-input" value="1" min="0.1" step="0.1" max="999" data-id="${item.id}">
+                        <span class="quantity-unit">${item.unit}</span>
+                        <span class="total-item-price">= ${item.price.toFixed(3)} DT</span>
+                    </div>
+                    <div class="quick-quantity-btns">
+                        <button class="quick-qty-btn" data-id="${item.id}" data-qty="1">1 ${item.unit}</button>
+                        <button class="quick-qty-btn" data-id="${item.id}" data-qty="2">2 ${item.unit}</button>
+                        <button class="quick-qty-btn" data-id="${item.id}" data-qty="5">5 ${item.unit}</button>
+                    </div>
+                    <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-unit="${item.unit}" data-emoji="${item.emoji}">
+                        🛒 أضف للسلة
+                    </button>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        console.log(`✅ ${category}: ${items.length} منتج`);
+
+        // إضافة الأحداث (Event Listeners)
+        container.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const name = this.dataset.name;
+                const price = parseFloat(this.dataset.price);
+                const unit = this.dataset.unit;
+                const emoji = this.dataset.emoji;
+                
+                // الحصول على الكمية
+                const card = this.closest('.menu-card');
+                const qtyInput = card.querySelector('.quantity-input');
+                const qty = parseFloat(qtyInput.value) || 1;
+                
+                if (qty <= 0) {
+                    showToast('⚠️ الكمية غير صالحة', 'warning');
+                    return;
+                }
+                
+                const totalPrice = qty * price;
+                
+                // إضافة إلى السلة
+                cart.push({
+                    id: id,
+                    name: name,
+                    image: emoji,
+                    unit: unit,
+                    quantity: qty,
+                    unitPrice: price,
+                    totalPrice: totalPrice
+                });
+                
+                updateCartDisplay();
+                showToast(`✅ تم إضافة ${name} إلى السلة`, 'success');
+            });
+        });
+
+        // أزرار الكميات السريعة
+        container.querySelectorAll('.quick-qty-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const card = this.closest('.menu-card');
+                const qtyInput = card.querySelector('.quantity-input');
+                qtyInput.value = this.dataset.qty;
+                // تحديث السعر
+                const price = parseFloat(this.closest('.menu-card').querySelector('.add-to-cart-btn').dataset.price);
+                const totalEl = card.querySelector('.total-item-price');
+                totalEl.textContent = `= ${(parseFloat(this.dataset.qty) * price).toFixed(3)} DT`;
+            });
+        });
+
+        // تحديث السعر عند تغيير الكمية
+        container.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('input', function() {
+                const card = this.closest('.menu-card');
+                const price = parseFloat(card.querySelector('.add-to-cart-btn').dataset.price);
+                const qty = parseFloat(this.value) || 0;
+                const totalEl = card.querySelector('.total-item-price');
+                totalEl.textContent = `= ${(qty * price).toFixed(3)} DT`;
+            });
+        });
+    });
+}
+
+// ============================================================
+// Toast (إشعارات)
+// ============================================================
+function showToast(message, type = 'info', duration = 3000) {
+    const container = document.getElementById('toastContainer');
+    if (!container) {
+        console.log('Toast:', message);
+        return;
+    }
+    const toast = document.createElement('div');
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span style="flex:1;">${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, duration);
+}
+
+// ============================================================
+// سلة الطلبات
+// ============================================================
+let cart = [];
+
+function updateCartDisplay() {
+    const cartList = document.getElementById('cart-items');
+    const cartCount = document.getElementById('cart-count');
+    const totalPriceEl = document.getElementById('total-price');
+    
+    if (!cartList) return;
+    
+    cartList.innerHTML = '';
+    let subtotal = 0;
+    
+    if (cart.length === 0) {
+        cartList.innerHTML = '<li style="text-align:center;color:#999;padding:15px;">السلة فارغة 🛒</li>';
+        cartCount.textContent = '0';
+    } else {
+        cart.forEach((item, index) => {
+            subtotal += item.totalPrice;
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="cart-item-header">
+                    <span class="cart-item-name">${item.image} ${item.name}</span>
+                    <span class="cart-item-price">${item.totalPrice.toFixed(3)} DT</span>
+                </div>
+                <div class="cart-item-details">${item.quantity} ${item.unit} × ${item.unitPrice.toFixed(3)} DT</div>
+                <button class="remove-btn" data-index="${index}">حذف</button>
+            `;
+            li.querySelector('.remove-btn').addEventListener('click', function() {
+                cart.splice(parseInt(this.dataset.index), 1);
+                updateCartDisplay();
+                showToast('تم حذف المنتج من السلة', 'info');
+            });
+            cartList.appendChild(li);
+        });
+        cartCount.textContent = cart.length;
+    }
+    
+    const total = subtotal + 3.000; // رسوم الشركة
+    totalPriceEl.textContent = total.toFixed(3) + ' DT';
+    document.getElementById('fees-line').textContent = '3.000 DT رسوم الشركة';
+}
+
+// ============================================================
+// تشغيل عند تحميل الصفحة
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Loading products...');
+    displayProducts();
+    updateCartDisplay();
+    console.log('✅ Products loaded successfully!');
+});
+</script>
 </body>
 </html>
