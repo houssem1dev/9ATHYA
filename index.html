@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar-TN" dir="rtl">
 <head>
-      <meta name="google-site-verification" content="V5LLdebyhqCA_4S5c4uCnhruAYzKGMaPH15uWKT6NPQ" />
+    <meta name="google-site-verification" content="V5LLdebyhqCA_4S5c4uCnhruAYzKGMaPH15uWKT6NPQ" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>9ATHYA.TN | خدمة توصيل</title>
@@ -83,6 +83,7 @@
             transition: all 0.3s;
             white-space: nowrap;
             color: #333;
+            flex-shrink: 0;
         }
         .category-nav-btn:hover {
             background: #e0e0e0;
@@ -113,6 +114,10 @@
         }
         .category-section {
             margin-bottom: 25px;
+            display: block; /* جميع الأقسام ظاهرة بشكل افتراضي */
+        }
+        .category-section.hidden {
+            display: none !important;
         }
         .category-title {
             font-size: clamp(1.2rem, 3vw, 1.8rem);
@@ -1577,20 +1582,41 @@
             });
 
             // ============================================================
-            // CATEGORY
+            // CATEGORY - الإصلاح هنا
             // ============================================================
+            // عند تحميل الصفحة: كل الأقسام ظاهرة
+            // عند الضغط على زر: نخفي كل الأقسام ثم نظهر القسم المطلوب
+
+            function filterCategory(category) {
+                const sections = document.querySelectorAll('.category-section');
+
+                if (category === 'all') {
+                    // إظهار كل الأقسام
+                    sections.forEach(section => {
+                        section.classList.remove('hidden');
+                    });
+                } else {
+                    // إخفاء كل الأقسام
+                    sections.forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    // إظهار القسم المطابق
+                    const targetSection = document.getElementById(`${category}-section`);
+                    if (targetSection) {
+                        targetSection.classList.remove('hidden');
+                    }
+                }
+            }
+
+            // أزرار التصنيف
             document.querySelectorAll('.category-nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
+                    // تفعيل الزر
                     document.querySelectorAll('.category-nav-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
+
                     const category = this.dataset.category;
-                    Object.keys(menuData).forEach(cat => {
-                        const section = document.getElementById(`${cat}-section`);
-                        if (section) {
-                            section.style.display = (category === 'all' || category === cat) ? 'block' :
-                            'none';
-                        }
-                    });
+                    filterCategory(category);
                 });
             });
 
@@ -1877,6 +1903,9 @@
             // ============================================================
             renderMenu();
             updateCartDisplay();
+
+            // التأكد من أن كل الأقسام ظاهرة عند تحميل الصفحة
+            filterCategory('all');
 
             document.addEventListener('input', function(e) {
                 if (e.target.classList.contains('shop-name-input') || e.target.classList.contains('shop-zone-input')) {
