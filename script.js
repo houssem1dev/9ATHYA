@@ -12,7 +12,7 @@
     let isSubmitting = false;
 
     // ============================================================
-    // AI CONFIG - Calls /api/chat
+    // AI CONFIG
     // ============================================================
     const AI_API_URL = '/api/chat';
     let aiChatHistory = [];
@@ -23,6 +23,7 @@
     // ============================================================
     function showToast(message, type = 'info', duration = 5000) {
         const container = document.getElementById('toastContainer');
+        if (!container) return;
         const toast = document.createElement('div');
         const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
         toast.className = `toast toast-${type}`;
@@ -104,7 +105,6 @@
         const inputField = document.getElementById('aiInput');
         const sendBtn = document.getElementById('aiSendBtn');
 
-        // Add user message
         const userMsgDiv = document.createElement('div');
         userMsgDiv.className = 'message user';
         userMsgDiv.textContent = userMessage.trim();
@@ -113,14 +113,10 @@
 
         inputField.value = '';
 
-        // Add typing indicator
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message assistant';
-        typingDiv.innerHTML = `
-            <div class="typing-indicator">
-                <span></span><span></span><span></span>
-            </div>
-        `;
+        typingDiv.innerHTML =
+            `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
         typingDiv.id = 'typingIndicator';
         messagesContainer.appendChild(typingDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -132,9 +128,7 @@
         try {
             const response = await fetch(AI_API_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userMessage.trim(),
                     history: aiChatHistory
@@ -145,8 +139,6 @@
             if (typingEl) typingEl.remove();
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('API Error:', errorData);
                 const fallbackReply = getFallbackResponse(userMessage.trim());
                 const aiMsgDiv = document.createElement('div');
                 aiMsgDiv.className = 'message assistant';
@@ -162,9 +154,7 @@
 
             aiChatHistory.push({ role: 'user', content: userMessage.trim() });
             aiChatHistory.push({ role: 'assistant', content: aiReply });
-            if (aiChatHistory.length > 20) {
-                aiChatHistory = aiChatHistory.slice(-20);
-            }
+            if (aiChatHistory.length > 20) aiChatHistory = aiChatHistory.slice(-20);
 
             const aiMsgDiv = document.createElement('div');
             aiMsgDiv.className = 'message assistant';
@@ -172,20 +162,16 @@
             messagesContainer.appendChild(aiMsgDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-            saveConversationData(userMessage.trim(), aiReply);
-
         } catch (error) {
             console.error('AI Error:', error);
             const typingEl = document.getElementById('typingIndicator');
             if (typingEl) typingEl.remove();
-
             const fallbackReply = getFallbackResponse(userMessage.trim());
             const aiMsgDiv = document.createElement('div');
             aiMsgDiv.className = 'message assistant';
             aiMsgDiv.textContent = fallbackReply;
             messagesContainer.appendChild(aiMsgDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
             showToast('⚠️ مشكلة في الاتصال، استخدمت الردود المحلية', 'error');
         } finally {
             isAiProcessing = false;
@@ -193,22 +179,6 @@
             sendBtn.disabled = false;
             inputField.focus();
         }
-    }
-
-    function saveConversationData(userMsg, aiReply) {
-        try {
-            const data = {
-                timestamp: new Date().toISOString(),
-                userMessage: userMsg,
-                aiResponse: aiReply,
-                page: window.location.href
-            };
-            const existing = JSON.parse(localStorage.getItem('ai_conversations') || '[]');
-            existing.push(data);
-            if (existing.length > 100) existing.shift();
-            localStorage.setItem('ai_conversations', JSON.stringify(existing));
-            console.log('📊 تم حفظ المحادثة');
-        } catch (e) {}
     }
 
     // ============================================================
@@ -221,30 +191,40 @@
     const aiSendBtn = document.getElementById('aiSendBtn');
     const quickSuggestions = document.getElementById('quickSuggestions');
 
-    function toggleAiChat() {
-        const isOpen = aiChatWindow.classList.toggle('open');
-        if (isOpen) aiInput.focus();
+    if (aiToggle) {
+        aiToggle.addEventListener('click', function() {
+            aiChatWindow.classList.toggle('open');
+            if (aiChatWindow.classList.contains('open')) aiInput.focus();
+        });
     }
 
-    aiToggle.addEventListener('click', toggleAiChat);
-    aiCloseBtn.addEventListener('click', () => aiChatWindow.classList.remove('open'));
+    if (aiCloseBtn) {
+        aiCloseBtn.addEventListener('click', function() { aiChatWindow.classList.remove('open'); });
+    }
 
-    aiSendBtn.addEventListener('click', () => sendAiMessage(aiInput.value));
-    aiInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendAiMessage(aiInput.value);
-        }
-    });
+    if (aiSendBtn) {
+        aiSendBtn.addEventListener('click', function() { sendAiMessage(aiInput.value); });
+    }
 
-    quickSuggestions.addEventListener('click', (e) => {
-        const btn = e.target.closest('button');
-        if (btn) sendAiMessage(btn.dataset.msg);
-    });
+    if (aiInput) {
+        aiInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendAiMessage(aiInput.value);
+            }
+        });
+    }
 
-    document.addEventListener('click', (e) => {
-        if (aiChatWindow.classList.contains('open')) {
-            const isToggle = aiToggle.contains(e.target);
+    if (quickSuggestions) {
+        quickSuggestions.addEventListener('click', function(e) {
+            const btn = e.target.closest('button');
+            if (btn) sendAiMessage(btn.dataset.msg);
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (aiChatWindow && aiChatWindow.classList.contains('open')) {
+            const isToggle = aiToggle ? aiToggle.contains(e.target) : false;
             const isWindow = aiChatWindow.contains(e.target);
             if (!isToggle && !isWindow) aiChatWindow.classList.remove('open');
         }
@@ -412,19 +392,25 @@
         const statusEl = document.getElementById('locationStatus');
         const btn = document.getElementById('getLocationBtn');
         if (!navigator.geolocation) {
-            addressInput.value = '';
-            addressInput.placeholder = 'اكتب عنوانك يدوياً';
-            addressInput.disabled = false;
-            statusEl.innerHTML = '⚠️ متصفحك لا يدعم تحديد الموقع';
+            if (addressInput) {
+                addressInput.value = '';
+                addressInput.placeholder = 'اكتب عنوانك يدوياً';
+                addressInput.disabled = false;
+            }
+            if (statusEl) statusEl.innerHTML = '⚠️ متصفحك لا يدعم تحديد الموقع';
             showToast('متصفحك لا يدعم تحديد الموقع', 'warning');
             return;
         }
-        statusEl.innerHTML = '⏳ جاري تحديد موقعك...';
-        addressInput.className = 'form-input loading';
-        addressInput.value = '⏳ جاري التحديد...';
-        addressInput.disabled = true;
-        btn.disabled = true;
-        btn.textContent = '⏳ جاري...';
+        if (statusEl) statusEl.innerHTML = '⏳ جاري تحديد موقعك...';
+        if (addressInput) {
+            addressInput.className = 'form-input loading';
+            addressInput.value = '⏳ جاري التحديد...';
+            addressInput.disabled = true;
+        }
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ جاري...';
+        }
         navigator.geolocation.getCurrentPosition(
             function(position) {
                 const lat = position.coords.latitude;
@@ -435,91 +421,111 @@
                         )
                     .then(response => response.json())
                     .then(data => {
-                        if (data && data.display_name) {
-                            let address = data.display_name;
-                            if (address.length > 80) address = address.substring(0, 80) + '...';
-                            addressInput.value = address;
-                            addressInput.className = 'form-input success';
-                            addressInput.disabled = false;
-                            statusEl.innerHTML = `✅ ${address}`;
-                            showToast('تم تحديد موقعك بنجاح', 'success');
-                        } else {
+                        if (addressInput) {
+                            if (data && data.display_name) {
+                                let address = data.display_name;
+                                if (address.length > 80) address = address.substring(0, 80) + '...';
+                                addressInput.value = address;
+                                addressInput.className = 'form-input success';
+                                addressInput.disabled = false;
+                                if (statusEl) statusEl.innerHTML = `✅ ${address}`;
+                                showToast('تم تحديد موقعك بنجاح', 'success');
+                            } else {
+                                addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                                addressInput.className = 'form-input success';
+                                addressInput.disabled = false;
+                                if (statusEl) statusEl.innerHTML =
+                                    `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                            }
+                        }
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.textContent = '📍 تحديد موقعي';
+                        }
+                    })
+                    .catch(() => {
+                        if (addressInput) {
                             addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
                             addressInput.className = 'form-input success';
                             addressInput.disabled = false;
-                            statusEl.innerHTML =
-                            `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                            if (statusEl) statusEl.innerHTML =
+                                `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
                         }
-                        btn.disabled = false;
-                        btn.textContent = '📍 تحديد موقعي';
-                    })
-                    .catch(() => {
-                        addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                        addressInput.className = 'form-input success';
-                        addressInput.disabled = false;
-                        statusEl.innerHTML =
-                            `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
-                        btn.disabled = false;
-                        btn.textContent = '📍 تحديد موقعي';
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.textContent = '📍 تحديد موقعي';
+                        }
                     });
             },
             function(error) {
-                addressInput.value = '';
-                addressInput.placeholder = 'اكتب عنوانك يدوياً';
-                addressInput.className = 'form-input error';
-                addressInput.disabled = false;
-                btn.disabled = false;
-                btn.textContent = '📍 تحديد موقعي';
-                statusEl.innerHTML = `❌ ${error.message}`;
+                if (addressInput) {
+                    addressInput.value = '';
+                    addressInput.placeholder = 'اكتب عنوانك يدوياً';
+                    addressInput.className = 'form-input error';
+                    addressInput.disabled = false;
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = '📍 تحديد موقعي';
+                }
+                if (statusEl) statusEl.innerHTML = `❌ ${error.message}`;
                 showToast(`فشل تحديد الموقع: ${error.message}`, 'error');
             }, { enableHighAccuracy: true, timeout: 15000 }
         );
     }
 
-    document.getElementById('getLocationBtn').addEventListener('click', getClientLocation);
+    const locationBtn = document.getElementById('getLocationBtn');
+    if (locationBtn) {
+        locationBtn.addEventListener('click', getClientLocation);
+    }
 
     // ============================================================
     // SHOPS
     // ============================================================
-    document.getElementById('addShopBtn').addEventListener('click', function() {
-        const container = document.getElementById('shops-container');
-        const entry = document.createElement('div');
-        entry.className = 'shop-entry';
-        const count = container.children.length + 1;
-        const numberSpan = document.createElement('span');
-        numberSpan.className = 'shop-number';
-        numberSpan.textContent = count;
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.className = 'shop-name-input';
-        nameInput.placeholder = 'اسم المحل (اختياري)';
-        const zoneInput = document.createElement('input');
-        zoneInput.type = 'text';
-        zoneInput.className = 'shop-zone-input';
-        zoneInput.placeholder = 'المنطقة';
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-shop';
-        removeBtn.textContent = '×';
-        removeBtn.addEventListener('click', function() {
-            if (container.children.length > 1) {
-                entry.remove();
-                container.querySelectorAll('.shop-entry').forEach((el, i) => {
-                    el.querySelector('.shop-number').textContent = i + 1;
-                });
-                updateCartDisplay();
-                showToast('تم حذف المحل', 'info');
-            } else {
-                showToast('⚠️ لازم يكون على الأقل محل واحد', 'warning');
-            }
+    const addShopBtn = document.getElementById('addShopBtn');
+    if (addShopBtn) {
+        addShopBtn.addEventListener('click', function() {
+            const container = document.getElementById('shops-container');
+            if (!container) return;
+            const entry = document.createElement('div');
+            entry.className = 'shop-entry';
+            const count = container.children.length + 1;
+            const numberSpan = document.createElement('span');
+            numberSpan.className = 'shop-number';
+            numberSpan.textContent = count;
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'shop-name-input';
+            nameInput.placeholder = 'اسم المحل (اختياري)';
+            const zoneInput = document.createElement('input');
+            zoneInput.type = 'text';
+            zoneInput.className = 'shop-zone-input';
+            zoneInput.placeholder = 'المنطقة';
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-shop';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', function() {
+                if (container.children.length > 1) {
+                    entry.remove();
+                    container.querySelectorAll('.shop-entry').forEach((el, i) => {
+                        const numSpan = el.querySelector('.shop-number');
+                        if (numSpan) numSpan.textContent = i + 1;
+                    });
+                    updateCartDisplay();
+                    showToast('تم حذف المحل', 'info');
+                } else {
+                    showToast('⚠️ لازم يكون على الأقل محل واحد', 'warning');
+                }
+            });
+            entry.appendChild(numberSpan);
+            entry.appendChild(nameInput);
+            entry.appendChild(zoneInput);
+            entry.appendChild(removeBtn);
+            container.appendChild(entry);
+            updateCartDisplay();
+            showToast('تم إضافة محل جديد', 'success');
         });
-        entry.appendChild(numberSpan);
-        entry.appendChild(nameInput);
-        entry.appendChild(zoneInput);
-        entry.appendChild(removeBtn);
-        container.appendChild(entry);
-        updateCartDisplay();
-        showToast('تم إضافة محل جديد', 'success');
-    });
+    }
 
     // ============================================================
     // CATEGORY - الإصلاح النهائي ✅
@@ -565,6 +571,7 @@
     }
 
     function renderCategory(container, items) {
+        if (!container) return;
         container.innerHTML = '';
         items.forEach(item => {
             const card = document.createElement('div');
@@ -678,105 +685,123 @@
         const cartCount = document.getElementById('cart-count');
         const totalPriceEl = document.getElementById('total-price');
         const shopsDisplay = document.getElementById('shops-display');
-        cartList.innerHTML = '';
+        if (cartList) cartList.innerHTML = '';
         let subtotal = 0;
         const shops = getShopData();
-        if (shops.length === 0) {
-            shopsDisplay.textContent = 'أضف متاجر';
-        } else {
-            shopsDisplay.innerHTML = shops.map(s =>
-                `<span class="shop-item">${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}</span>`
-            ).join(' ');
+        if (shopsDisplay) {
+            if (shops.length === 0) {
+                shopsDisplay.textContent = 'أضف متاجر';
+            } else {
+                shopsDisplay.innerHTML = shops.map(s =>
+                    `<span class="shop-item">${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}</span>`
+                ).join(' ');
+            }
         }
         if (cart.length === 0) {
-            const emptyLi = document.createElement('li');
-            emptyLi.style.cssText = 'text-align:center;color:#999;padding:15px;';
-            emptyLi.textContent = 'السلة فارغة 🛒';
-            cartList.appendChild(emptyLi);
-            cartCount.textContent = '0';
+            if (cartList) {
+                const emptyLi = document.createElement('li');
+                emptyLi.style.cssText = 'text-align:center;color:#999;padding:15px;';
+                emptyLi.textContent = 'السلة فارغة 🛒';
+                cartList.appendChild(emptyLi);
+            }
+            if (cartCount) cartCount.textContent = '0';
         } else {
             cart.forEach((item, index) => {
                 subtotal += item.totalPrice;
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div class="cart-item-header">
-                        <span class="cart-item-name">${item.image} ${sanitizeText(item.name)}</span>
-                        <span class="cart-item-price">${item.totalPrice.toFixed(3)} DT</span>
-                    </div>
-                    <div class="cart-item-details">${item.quantity} ${item.unit} × ${item.unitPrice.toFixed(3)} DT</div>
-                    <button class="remove-btn" style="margin-top:3px;">حذف</button>
-                `;
-                li.querySelector('.remove-btn').addEventListener('click', function() {
-                    cart.splice(index, 1);
-                    updateCartDisplay();
-                    showToast('تم حذف المنتج من السلة', 'info');
-                });
-                cartList.appendChild(li);
+                if (cartList) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="cart-item-header">
+                            <span class="cart-item-name">${item.image} ${sanitizeText(item.name)}</span>
+                            <span class="cart-item-price">${item.totalPrice.toFixed(3)} DT</span>
+                        </div>
+                        <div class="cart-item-details">${item.quantity} ${item.unit} × ${item.unitPrice.toFixed(3)} DT</div>
+                        <button class="remove-btn" style="margin-top:3px;">حذف</button>
+                    `;
+                    li.querySelector('.remove-btn').addEventListener('click', function() {
+                        cart.splice(index, 1);
+                        updateCartDisplay();
+                        showToast('تم حذف المنتج من السلة', 'info');
+                    });
+                    cartList.appendChild(li);
+                }
             });
-            cartCount.textContent = cart.length;
+            if (cartCount) cartCount.textContent = cart.length;
         }
-        totalPriceEl.textContent = (subtotal + SERVICE_FEE).toFixed(3) + ' DT';
-        document.getElementById('fees-line').textContent = SERVICE_FEE.toFixed(3) + ' DT رسوم الشركة';
+        if (totalPriceEl) {
+            totalPriceEl.textContent = (subtotal + SERVICE_FEE).toFixed(3) + ' DT';
+        }
+        const feesLine = document.getElementById('fees-line');
+        if (feesLine) {
+            feesLine.textContent = SERVICE_FEE.toFixed(3) + ' DT رسوم الشركة';
+        }
     }
 
     // ============================================================
     // ✅ SUBMIT ORDER
     // ============================================================
-    document.getElementById('submitOrder').addEventListener('click', function() {
-        if (isSubmitting) {
-            showToast('جاري إرسال الطلب...', 'info');
-            return;
-        }
-
-        const name = document.getElementById('userName').value.trim();
-        const phone = document.getElementById('userPhone').value.trim();
-        const adresse = document.getElementById('userAdresse').value.trim();
-        const notes = document.getElementById('userNotes').value.trim();
-        const shops = getShopData();
-
-        if (!name || name.length < 2) {
-            showToast('⚠️ اكتب اسمك الكامل', 'warning');
-            document.getElementById('userName').focus();
-            return;
-        }
-        if (!phone || !validatePhone(phone)) {
-            showToast('⚠️ رقم هاتف تونسي صحيح (8 أرقام)', 'warning');
-            document.getElementById('userPhone').focus();
-            return;
-        }
-        if (!adresse || adresse.includes('⏳') || adresse.includes('جاري')) {
-            showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك', 'warning');
-            document.getElementById('userAdresse').focus();
-            return;
-        }
-        if (cart.length === 0) {
-            showToast('🥲 السلة فارغة - أضف منتجات', 'warning');
-            return;
-        }
-
-        let verifiedSubtotal = 0;
-        let orderDetails = '';
-        for (let i = 0; i < cart.length; i++) {
-            const cartItem = cart[i];
-            const officialItem = itemRegistry[cartItem.id];
-            if (!officialItem || Math.abs(cartItem.unitPrice - officialItem.pricePerUnit) > 0.001) {
-                showToast('⚠️ خطأ في الأسعار - يرجى تحديث الصفحة', 'error');
+    const submitBtn = document.getElementById('submitOrder');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+            if (isSubmitting) {
+                showToast('جاري إرسال الطلب...', 'info');
                 return;
             }
-            const verifiedItemTotal = cartItem.quantity * officialItem.pricePerUnit;
-            verifiedSubtotal += verifiedItemTotal;
-            orderDetails +=
-                `${i+1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
-        }
 
-        const totalAmount = verifiedSubtotal + SERVICE_FEE;
-        const orderMessage =
-            `
+            const name = document.getElementById('userName');
+            const phone = document.getElementById('userPhone');
+            const adresse = document.getElementById('userAdresse');
+            const notes = document.getElementById('userNotes');
+            const shops = getShopData();
+
+            const nameVal = name ? name.value.trim() : '';
+            const phoneVal = phone ? phone.value.trim() : '';
+            const adresseVal = adresse ? adresse.value.trim() : '';
+            const notesVal = notes ? notes.value.trim() : '';
+
+            if (!nameVal || nameVal.length < 2) {
+                showToast('⚠️ اكتب اسمك الكامل', 'warning');
+                if (name) name.focus();
+                return;
+            }
+            if (!phoneVal || !validatePhone(phoneVal)) {
+                showToast('⚠️ رقم هاتف تونسي صحيح (8 أرقام)', 'warning');
+                if (phone) phone.focus();
+                return;
+            }
+            if (!adresseVal || adresseVal.includes('⏳') || adresseVal.includes('جاري')) {
+                showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك', 'warning');
+                if (adresse) adresse.focus();
+                return;
+            }
+            if (cart.length === 0) {
+                showToast('🥲 السلة فارغة - أضف منتجات', 'warning');
+                return;
+            }
+
+            let verifiedSubtotal = 0;
+            let orderDetails = '';
+            for (let i = 0; i < cart.length; i++) {
+                const cartItem = cart[i];
+                const officialItem = itemRegistry[cartItem.id];
+                if (!officialItem || Math.abs(cartItem.unitPrice - officialItem.pricePerUnit) > 0.001) {
+                    showToast('⚠️ خطأ في الأسعار - يرجى تحديث الصفحة', 'error');
+                    return;
+                }
+                const verifiedItemTotal = cartItem.quantity * officialItem.pricePerUnit;
+                verifiedSubtotal += verifiedItemTotal;
+                orderDetails +=
+                    `${i+1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
+            }
+
+            const totalAmount = verifiedSubtotal + SERVICE_FEE;
+            const orderMessage =
+                `
 🛒 طلب توصيل - 9ATHYA.TN
-👤 ${sanitizeText(name)}
-📞 ${sanitizeText(phone)}
-📍 ${sanitizeText(adresse)}
-📝 ${sanitizeText(notes || 'لا يوجد')}
+👤 ${sanitizeText(nameVal)}
+📞 ${sanitizeText(phoneVal)}
+📍 ${sanitizeText(adresseVal)}
+📝 ${sanitizeText(notesVal || 'لا يوجد')}
 🏪 ${shops.length > 0 ? shops.map((s,i) => `${i+1}. ${s.name}${s.zone && s.zone !== 'غير محدد' ? ' ('+s.zone+')' : ''}`).join('\n') : 'لم يتم تحديد متاجر'}
 📋 ${orderDetails}
 💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
@@ -785,52 +810,57 @@
 ⏰ ${new Date().toLocaleString('ar-TN')}
         `;
 
-        const submitBtn = document.getElementById('submitOrder');
-        isSubmitting = true;
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ جاري الإرسال...';
+            const submitBtnEl = document.getElementById('submitOrder');
+            isSubmitting = true;
+            if (submitBtnEl) {
+                submitBtnEl.disabled = true;
+                submitBtnEl.textContent = '⏳ جاري الإرسال...';
+            }
 
-        const formData = new FormData();
-        formData.append('name', sanitizeText(name));
-        formData.append('phone', sanitizeText(phone));
-        formData.append('adresse', sanitizeText(adresse));
-        formData.append('message', orderMessage);
-        formData.append('shops', shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone +
-            ')' : '')).join(', '));
-        formData.append('total', totalAmount.toFixed(3) + ' DT');
-        formData.append('notes', sanitizeText(notes || 'لا يوجد'));
-        formData.append('_captcha', 'false');
-        formData.append('_template', 'table');
-        formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(name) + ' - 9ATHYA.TN');
+            const formData = new FormData();
+            formData.append('name', sanitizeText(nameVal));
+            formData.append('phone', sanitizeText(phoneVal));
+            formData.append('adresse', sanitizeText(adresseVal));
+            formData.append('message', orderMessage);
+            formData.append('shops', shops.map(s => s.name + (s.zone && s.zone !== 'غير محدد' ? ' (' + s.zone +
+                ')' : '')).join(', '));
+            formData.append('total', totalAmount.toFixed(3) + ' DT');
+            formData.append('notes', sanitizeText(notesVal || 'لا يوجد'));
+            formData.append('_captcha', 'false');
+            formData.append('_template', 'table');
+            formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(nameVal) + ' - 9ATHYA.TN');
 
-        fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('فشل الإرسال - الكود: ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
-                cart.length = 0;
-                updateCartDisplay();
-                document.getElementById('userName').value = '';
-                document.getElementById('userPhone').value = '';
-                document.getElementById('userNotes').value = '';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
-            })
-            .finally(() => {
-                isSubmitting = false;
-                submitBtn.disabled = false;
-                submitBtn.textContent = '📨 تأكيد الطلب';
-            });
-    });
+            fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('فشل الإرسال - الكود: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
+                    cart.length = 0;
+                    updateCartDisplay();
+                    if (name) name.value = '';
+                    if (phone) phone.value = '';
+                    if (notes) notes.value = '';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
+                })
+                .finally(() => {
+                    isSubmitting = false;
+                    if (submitBtnEl) {
+                        submitBtnEl.disabled = false;
+                        submitBtnEl.textContent = '📨 تأكيد الطلب';
+                    }
+                });
+        });
+    }
 
     // ============================================================
     // INIT
