@@ -1,6 +1,4 @@
-// ============================================================
-// CHAT.JS - Vercel Serverless Function (Secure Version)
-// ============================================================
+
 
 // --- Config ---
 const RATE_LIMIT_WINDOW_MS = 60000;      // 60 ثانية
@@ -9,7 +7,7 @@ const MAX_MESSAGE_LENGTH = 500;
 const MAX_BODY_SIZE = 2000;               // 2KB
 const MAX_HISTORY_LENGTH = 6;
 
-// --- In-Memory Storage (يُفقد عند Cold Start، لكنه أفضل من لا شيء) ---
+
 const rateLimitMap = new Map();
 const suspiciousIPs = new Map();
 
