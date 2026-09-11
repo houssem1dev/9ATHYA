@@ -1,6 +1,5 @@
 User-agent: *
 Disallow: /api/
 Allow: /
-User-agent: *
-Allow: /
+
 Sitemap: https://www.9aadhiya.tech/sitemap.xml
