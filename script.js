@@ -705,4 +705,397 @@
             nameDiv.textContent = item.name;
 
             const priceDiv = document.createElement('div');
-            priceDiv.className = 'item
+            priceDiv.className = 'item-unit-price';
+            priceDiv.textContent = item.pricePerUnit.toFixed(3) + ' ';
+
+            const priceSpan = document.createElement('span');
+            priceSpan.textContent = `DT/${item.unit}`;
+            priceDiv.appendChild(priceSpan);
+
+            infoDiv.appendChild(nameDiv);
+            infoDiv.appendChild(priceDiv);
+            headerDiv.appendChild(imgDiv);
+            headerDiv.appendChild(infoDiv);
+
+            // Description
+            const descDiv = document.createElement('div');
+            descDiv.style.cssText = 'color:#666;font-size:0.85rem;margin-bottom:8px;';
+            descDiv.textContent = item.description;
+
+            // Quantity Selector
+            const qtySelector = document.createElement('div');
+            qtySelector.className = 'quantity-selector';
+
+            const qtyLabel = document.createElement('span');
+            qtyLabel.style.cssText = 'font-weight:700;color:#666;';
+            qtyLabel.textContent = 'الكمية:';
+
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.className = 'quantity-input';
+            quantityInput.value = '1';
+            quantityInput.min = '0.1';
+            quantityInput.step = '0.1';
+            quantityInput.max = String(MAX_CART_QUANTITY);
+
+            const qtyUnit = document.createElement('span');
+            qtyUnit.className = 'quantity-unit';
+            qtyUnit.textContent = item.unit;
+
+            const totalItemPrice = document.createElement('span');
+            totalItemPrice.className = 'total-item-price';
+            totalItemPrice.textContent = `= ${item.pricePerUnit.toFixed(3)} DT`;
+
+            qtySelector.appendChild(qtyLabel);
+            qtySelector.appendChild(quantityInput);
+            qtySelector.appendChild(qtyUnit);
+            qtySelector.appendChild(totalItemPrice);
+
+            // Quick Quantities
+            const quickBtnsDiv = document.createElement('div');
+            quickBtnsDiv.className = 'quick-quantity-btns';
+            item.quickQuantities.forEach(qty => {
+                const qBtn = document.createElement('button');
+                qBtn.className = 'quick-qty-btn';
+                qBtn.textContent = `${qty} ${item.unit}`;
+                qBtn.dataset.qty = qty;
+                quickBtnsDiv.appendChild(qBtn);
+            });
+
+            // Add to Cart Button
+            const addToCartBtn = document.createElement('button');
+            addToCartBtn.className = 'add-to-cart-btn';
+            addToCartBtn.textContent = '🛒 أضف للسلة';
+
+            card.appendChild(headerDiv);
+            card.appendChild(descDiv);
+            card.appendChild(qtySelector);
+            card.appendChild(quickBtnsDiv);
+            card.appendChild(addToCartBtn);
+
+            // ✅ Update Price
+            function updatePrice() {
+                const qty = parseFloat(quantityInput.value) || 0;
+                totalItemPrice.textContent = `= ${(qty * item.pricePerUnit).toFixed(3)} DT`;
+            }
+
+            quantityInput.addEventListener('input', updatePrice);
+
+            card.querySelectorAll('.quick-qty-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    quantityInput.value = this.dataset.qty;
+                    updatePrice();
+                });
+            });
+
+            addToCartBtn.addEventListener('click', function() {
+                // ✅ التحقق من الحد الأقصى للسلة
+                if (cart.length >= MAX_CART_ITEMS) {
+                    showToast(`⚠️ السلة ممتلئة (${MAX_CART_ITEMS} منتج كحد أقصى)`, 'warning');
+                    return;
+                }
+
+                const qty = parseFloat(quantityInput.value) || 0;
+                if (qty <= 0 || qty > MAX_CART_QUANTITY) {
+                    showToast('⚠️ الكمية غير صالحة', 'warning');
+                    return;
+                }
+
+                const totalPrice = qty * item.pricePerUnit;
+
+                cart.push({
+                    cartId: item.id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+                    id: item.id,
+                    name: item.name,
+                    image: item.image,
+                    unit: item.unit,
+                    quantity: qty,
+                    unitPrice: item.pricePerUnit,
+                    totalPrice: totalPrice
+                });
+
+                updateCartDisplay();
+                quantityInput.value = 1;
+                updatePrice();
+                showToast(`✅ تم إضافة ${item.name} إلى السلة`, 'success');
+            });
+
+            container.appendChild(card);
+        });
+    }
+
+    // ============================================================
+    // CART DISPLAY
+    // ============================================================
+    function updateCartDisplay() {
+        const cartList = document.getElementById('cart-items');
+        const cartCount = document.getElementById('cart-count');
+        const totalPriceEl = document.getElementById('total-price');
+        const shopsDisplay = document.getElementById('shops-display');
+
+        if (cartList) cartList.innerHTML = '';
+
+        let subtotal = 0;
+        const shops = getShopData();
+
+        // Shops Display
+        if (shopsDisplay) {
+            if (shops.length === 0) {
+                shopsDisplay.textContent = 'أضف متاجر';
+            } else {
+                shopsDisplay.innerHTML = shops.map(s =>
+                    `<span class="shop-item">${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}</span>`
+                ).join(' ');
+            }
+        }
+
+        // Cart Items
+        if (cart.length === 0) {
+            if (cartList) {
+                const emptyLi = document.createElement('li');
+                emptyLi.style.cssText = 'text-align:center;color:#999;padding:15px;';
+                emptyLi.textContent = 'السلة فارغة 🛒';
+                cartList.appendChild(emptyLi);
+            }
+            if (cartCount) cartCount.textContent = '0';
+        } else {
+            cart.forEach((item, index) => {
+                subtotal += item.totalPrice;
+                if (cartList) {
+                    const li = document.createElement('li');
+                    
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'cart-item-header';
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'cart-item-name';
+                    nameSpan.textContent = `${item.image} ${item.name}`;
+
+                    const priceSpan = document.createElement('span');
+                    priceSpan.className = 'cart-item-price';
+                    priceSpan.textContent = `${item.totalPrice.toFixed(3)} DT`;
+
+                    headerDiv.appendChild(nameSpan);
+                    headerDiv.appendChild(priceSpan);
+
+                    const detailsDiv = document.createElement('div');
+                    detailsDiv.className = 'cart-item-details';
+                    detailsDiv.textContent = `${item.quantity} ${item.unit} × ${item.unitPrice.toFixed(3)} DT`;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-btn';
+                    removeBtn.style.marginTop = '3px';
+                    removeBtn.textContent = 'حذف';
+                    removeBtn.addEventListener('click', function() {
+                        cart.splice(index, 1);
+                        updateCartDisplay();
+                        showToast('تم حذف المنتج من السلة', 'info');
+                    });
+
+                    li.appendChild(headerDiv);
+                    li.appendChild(detailsDiv);
+                    li.appendChild(removeBtn);
+                    cartList.appendChild(li);
+                }
+            });
+            if (cartCount) cartCount.textContent = cart.length;
+        }
+
+        // Total
+        if (totalPriceEl) {
+            totalPriceEl.textContent = (subtotal + SERVICE_FEE).toFixed(3) + ' DT';
+        }
+
+        const feesLine = document.getElementById('fees-line');
+        if (feesLine) {
+            feesLine.textContent = SERVICE_FEE.toFixed(3) + ' DT رسوم الشركة';
+        }
+    }
+
+    // ============================================================
+    // ✅ SUBMIT ORDER
+    // ============================================================
+    const submitBtn = document.getElementById('submitOrder');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+            // ✅ التحقق من Rate Limit للإرسال
+            const now = Date.now();
+            if (now - lastSubmitTime < SUBMIT_MIN_INTERVAL_MS) {
+                const remaining = Math.ceil((SUBMIT_MIN_INTERVAL_MS - (now - lastSubmitTime)) / 1000);
+                showToast(`⏳ الرجاء الانتظار ${remaining} ثانية قبل إرسال طلب آخر`, 'warning');
+                return;
+            }
+
+            if (isSubmitting) {
+                showToast('جاري إرسال الطلب...', 'info');
+                return;
+            }
+
+            const name = document.getElementById('userName');
+            const phone = document.getElementById('userPhone');
+            const adresse = document.getElementById('userAdresse');
+            const notes = document.getElementById('userNotes');
+            const shops = getShopData();
+
+            const nameVal = name ? cleanInput(name.value) : '';
+            const phoneVal = phone ? cleanInput(phone.value) : '';
+            const adresseVal = adresse ? cleanInput(adresse.value) : '';
+            const notesVal = notes ? cleanInput(notes.value) : '';
+
+            // ✅ التحقق من المدخلات
+            if (!nameVal || nameVal.length < 2) {
+                showToast('⚠️ اكتب اسمك الكامل', 'warning');
+                if (name) name.focus();
+                return;
+            }
+            if (nameVal.length > 50) {
+                showToast('⚠️ الاسم طويل جداً (50 حرف كحد أقصى)', 'warning');
+                return;
+            }
+            if (!phoneVal || !validatePhone(phoneVal)) {
+                showToast('⚠️ رقم هاتف تونسي صحيح (8 أرقام)', 'warning');
+                if (phone) phone.focus();
+                return;
+            }
+            if (!adresseVal || adresseVal.includes('⏳') || adresseVal.includes('جاري')) {
+                showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك', 'warning');
+                if (adresse) adresse.focus();
+                return;
+            }
+            if (adresseVal.length > 200) {
+                showToast('⚠️ العنوان طويل جداً', 'warning');
+                return;
+            }
+            if (notesVal.length > 200) {
+                showToast('⚠️ الملاحظات طويلة جداً (200 حرف كحد أقصى)', 'warning');
+                return;
+            }
+            if (cart.length === 0) {
+                showToast('🥲 السلة فارغة - أضف منتجات', 'warning');
+                return;
+            }
+            if (shops.length === 0) {
+                showToast('⚠️ أضف محل واحد على الأقل', 'warning');
+                return;
+            }
+
+            // ✅ التحقق من الأسعار (منع التلاعب)
+            let verifiedSubtotal = 0;
+            let orderDetails = '';
+            for (let i = 0; i < cart.length; i++) {
+                const cartItem = cart[i];
+                const officialItem = itemRegistry[cartItem.id];
+                
+                if (!officialItem) {
+                    showToast('⚠️ منتج غير معروف - يرجى تحديث الصفحة', 'error');
+                    return;
+                }
+                
+                if (Math.abs(cartItem.unitPrice - officialItem.pricePerUnit) > 0.001) {
+                    showToast('⚠️ خطأ في الأسعار - يرجى تحديث الصفحة', 'error');
+                    return;
+                }
+                
+                if (cartItem.quantity <= 0 || cartItem.quantity > MAX_CART_QUANTITY) {
+                    showToast('⚠️ كمية غير صالحة', 'error');
+                    return;
+                }
+
+                const verifiedItemTotal = cartItem.quantity * officialItem.pricePerUnit;
+                verifiedSubtotal += verifiedItemTotal;
+                orderDetails +=
+                    `${i+1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
+            }
+
+            const totalAmount = verifiedSubtotal + SERVICE_FEE;
+
+            const orderMessage = `
+🛒 طلب توصيل - 9ATHYA.TN
+👤 ${sanitizeText(nameVal)}
+📞 ${sanitizeText(phoneVal)}
+📍 ${sanitizeText(adresseVal)}
+📝 ${sanitizeText(notesVal || 'لا يوجد')}
+🏪 ${shops.map((s, i) => `${i+1}. ${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}`).join('\n')}
+📋 ${orderDetails}
+💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
+🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT)
+💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
+⏰ ${new Date().toLocaleString('ar-TN')}
+        `;
+
+            // ✅ تحديث وقت آخر إرسال
+            lastSubmitTime = now;
+
+            const submitBtnEl = document.getElementById('submitOrder');
+            isSubmitting = true;
+            if (submitBtnEl) {
+                submitBtnEl.disabled = true;
+                submitBtnEl.textContent = '⏳ جاري الإرسال...';
+            }
+
+            const formData = new FormData();
+            formData.append('name', sanitizeText(nameVal));
+            formData.append('phone', sanitizeText(phoneVal));
+            formData.append('adresse', sanitizeText(adresseVal));
+            formData.append('message', orderMessage);
+            formData.append('shops', shops.map(s => 
+                sanitizeText(s.name) + (s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : '')
+            ).join(', '));
+            formData.append('total', totalAmount.toFixed(3) + ' DT');
+            formData.append('notes', sanitizeText(notesVal || 'لا يوجد'));
+            formData.append('_captcha', 'false');
+            formData.append('_template', 'table');
+            formData.append('_subject', '🛒 طلب جديد من ' + sanitizeText(nameVal) + ' - 9ATHYA.TN');
+
+            fetch('https://formsubmit.co/ajax/houssemkessentini77@gmail.com', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('فشل الإرسال - الكود: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
+                cart.length = 0;
+                updateCartDisplay();
+                if (name) name.value = '';
+                if (phone) phone.value = '';
+                if (notes) notes.value = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
+            })
+            .finally(() => {
+                isSubmitting = false;
+                if (submitBtnEl) {
+                    submitBtnEl.disabled = false;
+                    submitBtnEl.textContent = '📨 تأكيد الطلب';
+                }
+            });
+        });
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    renderMenu();
+    updateCartDisplay();
+
+    // ✅ مراقبة تغييرات المتاجر
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('shop-name-input') || 
+            e.target.classList.contains('shop-zone-input')) {
+            updateCartDisplay();
+        }
+    });
+
+    console.log('✅ 9ATHYA.TN - يعمل 100%');
+    console.log('📧 الإرسال عبر AJAX - بدون فتح صفحة');
+    console.log('🤖 AI Assistant يستخدم API آمن في الخادم');
+    console.log('🛡️ الحماية: Rate Limit + Input Validation + XSS Protection');
+
+})();
