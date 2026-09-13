@@ -9,13 +9,20 @@
     const SERVICE_FEE = 3.000;
 
     // ✅ حدود الحماية
-    const AI_MIN_INTERVAL_MS = 1500;        // 1.5 ثانية بين كل رسالة AI
+    const AI_MIN_INTERVAL_MS = 2500;        // 2.5 ثانية بين كل رسالة AI
     const SUBMIT_MIN_INTERVAL_MS = 30000;   // 30 ثانية بين كل طلب
     const AI_MAX_MESSAGE_LENGTH = 500;      // 500 حرف كحد أقصى
     const AI_MIN_MESSAGE_LENGTH = 2;        // 2 حرف كحد أدنى
     const MAX_CART_ITEMS = 50;              // 50 منتج كحد أقصى في السلة
     const MAX_CART_QUANTITY = 999;          // 999 وحدة كحد أقصى
     const MAX_SHOPS = 10;                   // 10 متاجر كحد أقصى
+    const MAX_NAME_LENGTH = 50;
+    const MAX_PHONE_LENGTH = 20;
+    const MAX_ADDRESS_LENGTH = 200;
+    const MAX_NOTES_LENGTH = 200;
+    const MAX_ORDER_MESSAGE_LENGTH = 8000;  // حماية ضد FormSubmit payload limit
+    const AI_HISTORY_MAX_ITEMS = 20;        // عدد الرسائل في السجل
+    const AI_HISTORY_MAX_CHARS = 8000;      // حد أقصى لحجم السجل
 
     let clientCoords = null;
     let isSubmitting = false;
@@ -23,6 +30,9 @@
     // ✅ تتبع آخر الطلبات
     let lastAiCallTime = 0;
     let lastSubmitTime = 0;
+
+    // ✅ Debounce timer
+    let shopUpdateTimer = null;
 
     // ============================================================
     // AI CONFIG
@@ -40,30 +50,29 @@
         const toast = document.createElement('div');
         const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
         toast.className = `toast toast-${type}`;
-        
-        // ✅ استخدام textContent بدلاً من innerHTML لمنع XSS
+
         const iconSpan = document.createElement('span');
         iconSpan.textContent = icons[type] || 'ℹ️';
-        
+
         const msgSpan = document.createElement('span');
         msgSpan.style.flex = '1';
         msgSpan.textContent = message;
-        
+
         const closeBtn = document.createElement('button');
         closeBtn.className = 'toast-close';
         closeBtn.textContent = '×';
         closeBtn.addEventListener('click', function() { toast.remove(); });
-        
+
         toast.appendChild(iconSpan);
         toast.appendChild(msgSpan);
         toast.appendChild(closeBtn);
-        
+
         container.appendChild(toast);
         setTimeout(() => { if (toast.parentNode) toast.remove(); }, duration);
     }
 
     // ============================================================
-    // ✅ Helper: Sanitize Text
+    // ✅ Helper: Sanitize Text (for HTML contexts like emails)
     // ============================================================
     function sanitizeText(str) {
         if (!str) return '';
@@ -77,19 +86,54 @@
     }
 
     // ============================================================
-    // ✅ Helper: Validate Phone
+    // ✅ Helper: Validate Phone (Tunisian)
     // ============================================================
     function validatePhone(phone) {
         if (!phone) return false;
-        return /^(?:\+216)?[234579]\d{7}$/.test(phone.replace(/\s+/g, ''));
+        const cleaned = phone.replace(/\s+/g, '').replace(/-/g, '');
+        return /^(?:\+216|00216)?[234579]\d{7}$/.test(cleaned);
     }
 
     // ============================================================
-    // ✅ Helper: Escape for textContent
+    // ✅ Helper: Clean Input (strip < > for textContent safety)
     // ============================================================
     function cleanInput(str) {
         if (!str) return '';
         return String(str).replace(/[<>]/g, '').trim();
+    }
+
+    // ============================================================
+    // ✅ Helper: Safe Number Parse
+    // ============================================================
+    function parsePositiveNumber(value, max) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return NaN;
+        if (num <= 0) return NaN;
+        if (max !== undefined && num > max) return NaN;
+        return num;
+    }
+
+    // ============================================================
+    // ✅ Helper: Truncate
+    // ============================================================
+    function truncate(str, max) {
+        if (!str) return '';
+        const s = String(str);
+        return s.length > max ? s.slice(0, max) : s;
+    }
+
+    // ============================================================
+    // ✅ Helper: Trim AI History by chars + items
+    // ============================================================
+    function trimAiHistory() {
+        if (aiChatHistory.length > AI_HISTORY_MAX_ITEMS) {
+            aiChatHistory = aiChatHistory.slice(-AI_HISTORY_MAX_ITEMS);
+        }
+        let totalChars = aiChatHistory.reduce((sum, m) => sum + (m.content ? m.content.length : 0), 0);
+        while (totalChars > AI_HISTORY_MAX_CHARS && aiChatHistory.length > 2) {
+            const removed = aiChatHistory.shift();
+            totalChars -= (removed.content ? removed.content.length : 0);
+        }
     }
 
     // ============================================================
@@ -156,7 +200,8 @@
         // ✅ 1. تحقق من Rate Limit محلي
         const now = Date.now();
         if (now - lastAiCallTime < AI_MIN_INTERVAL_MS) {
-            showToast('⏳ الرجاء الانتظار قليلاً قبل إرسال رسالة أخرى', 'warning');
+            const remaining = Math.ceil((AI_MIN_INTERVAL_MS - (now - lastAiCallTime)) / 1000);
+            showToast(`⏳ الرجاء الانتظار ${remaining} ثانية`, 'warning');
             return;
         }
 
@@ -181,7 +226,7 @@
 
         if (!messagesContainer || !inputField || !sendBtn) return;
 
-        // ✅ إضافة رسالة المستخدم باستخدام textContent
+        // ✅ إضافة رسالة المستخدم
         const userMsgDiv = document.createElement('div');
         userMsgDiv.className = 'message user';
         userMsgDiv.textContent = trimmed;
@@ -227,17 +272,17 @@
                 showToast('⚠️ استخدمت الردود المحلية', 'warning');
             } else {
                 const data = await response.json();
-                aiReply = data.reply || getFallbackResponse(trimmed);
+                aiReply = (data && typeof data.reply === 'string' && data.reply.length > 0)
+                    ? data.reply
+                    : getFallbackResponse(trimmed);
             }
 
-            // ✅ تحديث السجل
+            // ✅ تحديث السجل + تقليم
             aiChatHistory.push({ role: 'user', content: trimmed });
             aiChatHistory.push({ role: 'assistant', content: aiReply });
-            if (aiChatHistory.length > 20) {
-                aiChatHistory = aiChatHistory.slice(-20);
-            }
+            trimAiHistory();
 
-            // ✅ عرض الرد باستخدام textContent
+            // ✅ عرض الرد
             const aiMsgDiv = document.createElement('div');
             aiMsgDiv.className = 'message assistant';
             aiMsgDiv.textContent = aiReply;
@@ -248,7 +293,7 @@
             console.error('AI Error:', error);
             const typingEl = document.getElementById('typingIndicator');
             if (typingEl) typingEl.remove();
-            
+
             const fallbackReply = getFallbackResponse(trimmed);
             const aiMsgDiv = document.createElement('div');
             aiMsgDiv.className = 'message assistant';
@@ -275,7 +320,8 @@
     const quickSuggestions = document.getElementById('quickSuggestions');
 
     if (aiToggle && aiChatWindow) {
-        aiToggle.addEventListener('click', function() {
+        aiToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
             aiChatWindow.classList.toggle('open');
             if (aiChatWindow.classList.contains('open') && aiInput) {
                 aiInput.focus();
@@ -284,14 +330,16 @@
     }
 
     if (aiCloseBtn && aiChatWindow) {
-        aiCloseBtn.addEventListener('click', function() { 
-            aiChatWindow.classList.remove('open'); 
+        aiCloseBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            aiChatWindow.classList.remove('open');
         });
     }
 
     if (aiSendBtn) {
-        aiSendBtn.addEventListener('click', function() { 
-            if (aiInput) sendAiMessage(aiInput.value); 
+        aiSendBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (aiInput) sendAiMessage(aiInput.value);
         });
     }
 
@@ -306,6 +354,7 @@
 
     if (quickSuggestions) {
         quickSuggestions.addEventListener('click', function(e) {
+            e.stopPropagation();
             const btn = e.target.closest('button');
             if (btn && btn.dataset.msg) {
                 sendAiMessage(btn.dataset.msg);
@@ -313,167 +362,114 @@
         });
     }
 
+    // ✅ إغلاق النافذة عند النقر خارجها
     document.addEventListener('click', function(e) {
-        if (aiChatWindow && aiChatWindow.classList.contains('open')) {
-            const isToggle = aiToggle ? aiToggle.contains(e.target) : false;
-            const isWindow = aiChatWindow.contains(e.target);
-            if (!isToggle && !isWindow) {
-                aiChatWindow.classList.remove('open');
-            }
-        }
+        if (!aiChatWindow || !aiChatWindow.classList.contains('open')) return;
+        if (aiToggle && aiToggle.contains(e.target)) return;
+        if (aiChatWindow.contains(e.target)) return;
+        aiChatWindow.classList.remove('open');
     });
 
     // ============================================================
-    // MENU DATA - جميع المنتجات (كاملة)
+    // MENU DATA
     // ============================================================
     const menuData = {
         vegetables: [
-            { id: 'v1', name: 'طماطم', pricePerUnit: 2.500, unit: 'كغ', image: '🍅', description: 'طماطم طازجة',
-                quickQuantities: [1, 2, 5] },
-            { id: 'v2', name: 'فلفل', pricePerUnit: 3.500, unit: 'كغ', image: '🌶️',
-                description: 'فلفل أخضر وحار', quickQuantities: [1, 2, 5] },
-            { id: 'v3', name: 'بصل', pricePerUnit: 1.500, unit: 'كغ', image: '🧅', description: 'بصل أحمر وأبيض',
-                quickQuantities: [1, 2, 5] },
-            { id: 'v4', name: 'بطاطا', pricePerUnit: 2.200, unit: 'كغ', image: '🥔', description: 'بطاطا محلية',
-                quickQuantities: [1, 5, 10] },
-            { id: 'v5', name: 'جزر', pricePerUnit: 2.200, unit: 'كغ', image: '🥕', description: 'جزر طازج',
-                quickQuantities: [1, 2, 5] },
-            { id: 'v6', name: 'خس', pricePerUnit: 5.200, unit: 'رأس', image: '🥬', description: 'خس طازج',
-                quickQuantities: [1, 2, 3] },
-            { id: 'v7', name: 'قرع', pricePerUnit: 3.000, unit: 'كغ', image: '🎃', description: 'قرع طازج',
-                quickQuantities: [1, 2, 5] },
-            { id: 'v8', name: 'فقّوس', pricePerUnit: 3.800, unit: 'كغ', image: '🥒', description: 'فقّوس طازج',
-                quickQuantities: [1, 2, 5] },
-            { id: 'v9', name: 'زبدّة', pricePerUnit: 4.200, unit: 'كغ', image: '🥒', description: 'زبدّة طازجة',
-                quickQuantities: [1, 2, 5] }
+            { id: 'v1', name: 'طماطم', pricePerUnit: 2.500, unit: 'كغ', image: '🍅', description: 'طماطم طازجة', quickQuantities: [1, 2, 5] },
+            { id: 'v2', name: 'فلفل', pricePerUnit: 3.500, unit: 'كغ', image: '🌶️', description: 'فلفل أخضر وحار', quickQuantities: [1, 2, 5] },
+            { id: 'v3', name: 'بصل', pricePerUnit: 1.500, unit: 'كغ', image: '🧅', description: 'بصل أحمر وأبيض', quickQuantities: [1, 2, 5] },
+            { id: 'v4', name: 'بطاطا', pricePerUnit: 2.200, unit: 'كغ', image: '🥔', description: 'بطاطا محلية', quickQuantities: [1, 5, 10] },
+            { id: 'v5', name: 'جزر', pricePerUnit: 2.200, unit: 'كغ', image: '🥕', description: 'جزر طازج', quickQuantities: [1, 2, 5] },
+            { id: 'v6', name: 'خس', pricePerUnit: 5.200, unit: 'رأس', image: '🥬', description: 'خس طازج', quickQuantities: [1, 2, 3] },
+            { id: 'v7', name: 'قرع', pricePerUnit: 3.000, unit: 'كغ', image: '🎃', description: 'قرع طازج', quickQuantities: [1, 2, 5] },
+            { id: 'v8', name: 'فقّوس', pricePerUnit: 3.800, unit: 'كغ', image: '🥒', description: 'فقّوس طازج', quickQuantities: [1, 2, 5] },
+            { id: 'v9', name: 'زبدّة', pricePerUnit: 4.200, unit: 'كغ', image: '🥗', description: 'زبدّة طازجة', quickQuantities: [1, 2, 5] }
         ],
         fruits: [
-            { id: 'f1', name: 'تفاح', pricePerUnit: 6.250, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر',
-                quickQuantities: [1, 2, 5] },
-            { id: 'f2', name: 'موز', pricePerUnit: 15.000, unit: 'كغ', image: '🍌', description: 'موز طازج',
-                quickQuantities: [1, 2, 5] },
-            { id: 'f3', name: 'برتقال', pricePerUnit: 2.700, unit: 'كغ', image: '🍊', description: 'برتقال محلي',
-                quickQuantities: [1, 3, 5] },
-            { id: 'f4', name: 'ليمون', pricePerUnit: 5.200, unit: 'كغ', image: '🍋', description: 'ليمون طازج',
-                quickQuantities: [1, 2, 5] },
-            { id: 'f5', name: 'بطيخ', pricePerUnit: 2.500, unit: 'كغ', image: '🍉', description: 'بطيخ أحمر',
-                quickQuantities: [1, 3, 5] },
-            { id: 'f6', name: 'دلاع', pricePerUnit: 2.900, unit: 'كغ', image: '🍉', description: 'دلاع طازج',
-                quickQuantities: [1, 3, 5] },
-            { id: 'f7', name: 'شمام', pricePerUnit: 3.800, unit: 'كغ', image: '🍈', description: 'شمام طازج',
-                quickQuantities: [1, 2, 5] }
+            { id: 'f1', name: 'تفاح', pricePerUnit: 6.250, unit: 'كغ', image: '🍎', description: 'تفاح أحمر وأخضر', quickQuantities: [1, 2, 5] },
+            { id: 'f2', name: 'موز', pricePerUnit: 15.000, unit: 'كغ', image: '🍌', description: 'موز طازج', quickQuantities: [1, 2, 5] },
+            { id: 'f3', name: 'برتقال', pricePerUnit: 2.700, unit: 'كغ', image: '🍊', description: 'برتقال محلي', quickQuantities: [1, 3, 5] },
+            { id: 'f4', name: 'ليمون', pricePerUnit: 5.200, unit: 'كغ', image: '🍋', description: 'ليمون طازج', quickQuantities: [1, 2, 5] },
+            { id: 'f5', name: 'بطيخ', pricePerUnit: 2.500, unit: 'كغ', image: '🍉', description: 'بطيخ أحمر', quickQuantities: [1, 3, 5] },
+            { id: 'f6', name: 'دلاع', pricePerUnit: 2.900, unit: 'كغ', image: '🍈', description: 'دلاع طازج', quickQuantities: [1, 3, 5] },
+            { id: 'f7', name: 'شمام', pricePerUnit: 3.800, unit: 'كغ', image: '🍈', description: 'شمام طازج', quickQuantities: [1, 2, 5] }
         ],
         staples: [
-            { id: 's1', name: 'زيت زيتون', pricePerUnit: 14.500, unit: 'لتر', image: '🫒',
-                description: 'زيت زيتون بكر', quickQuantities: [1, 5, 10] },
-            { id: 's2', name: 'سكر', pricePerUnit: 2.900, unit: 'كغ', image: '🧂', description: 'سكر أبيض',
-                quickQuantities: [1, 2, 5] },
-            { id: 's3', name: 'سميدة', pricePerUnit: 0.850, unit: 'كغ', image: '🌾', description: 'سميدة خشنة',
-                quickQuantities: [1, 2, 5] },
-            { id: 's4', name: 'خبز', pricePerUnit: 0.250, unit: 'رغيف', image: '🍞', description: 'خبز طازج',
-                quickQuantities: [1, 5, 10] },
-            { id: 's5', name: 'حليب', pricePerUnit: 1.300, unit: 'لتر', image: '🥛', description: 'حليب طازج',
-                quickQuantities: [1, 2, 6] },
-            { id: 's6', name: 'قهوة', pricePerUnit: 11.500, unit: 'كغ', image: '☕',
-                description: 'قهوة طازجة - جودة عالية', quickQuantities: [0.5, 1, 2] },
-            { id: 's7', name: 'بهارات', pricePerUnit: 7.000, unit: 'كغ', image: '🌶️',
-                description: 'بهارات متنوعة', quickQuantities: [0.5, 1, 2] },
-            { id: 's8', name: 'رز أبيض', pricePerUnit: 4.200, unit: 'كغ', image: '🍚', description: 'رز أبيض',
-                quickQuantities: [1, 2, 5] },
-            { id: 's9', name: 'ماء (1.5 لتر)', pricePerUnit: 0.850, unit: 'قارورة', image: '💧',
-                description: 'ماء معدني', quickQuantities: [1, 6, 12] },
-            { id: 's10', name: 'دقيق', pricePerUnit: 0.900, unit: 'كغ', image: '🌾', description: 'دقيق أبيض',
-                quickQuantities: [1, 5, 10] }
+            { id: 's1', name: 'زيت زيتون', pricePerUnit: 14.500, unit: 'لتر', image: '🫒', description: 'زيت زيتون بكر', quickQuantities: [1, 5, 10] },
+            { id: 's2', name: 'سكر', pricePerUnit: 2.900, unit: 'كغ', image: '🧂', description: 'سكر أبيض', quickQuantities: [1, 2, 5] },
+            { id: 's3', name: 'سميدة', pricePerUnit: 0.850, unit: 'كغ', image: '🌾', description: 'سميدة خشنة', quickQuantities: [1, 2, 5] },
+            { id: 's4', name: 'خبز', pricePerUnit: 0.250, unit: 'رغيف', image: '🍞', description: 'خبز طازج', quickQuantities: [1, 5, 10] },
+            { id: 's5', name: 'حليب', pricePerUnit: 1.300, unit: 'لتر', image: '🥛', description: 'حليب طازج', quickQuantities: [1, 2, 6] },
+            { id: 's6', name: 'قهوة', pricePerUnit: 11.500, unit: 'كغ', image: '☕', description: 'قهوة طازجة - جودة عالية', quickQuantities: [0.5, 1, 2] },
+            { id: 's7', name: 'بهارات', pricePerUnit: 7.000, unit: 'كغ', image: '🌶️', description: 'بهارات متنوعة', quickQuantities: [0.5, 1, 2] },
+            { id: 's8', name: 'رز أبيض', pricePerUnit: 4.200, unit: 'كغ', image: '🍚', description: 'رز أبيض', quickQuantities: [1, 2, 5] },
+            { id: 's9', name: 'ماء (1.5 لتر)', pricePerUnit: 0.850, unit: 'قارورة', image: '💧', description: 'ماء معدني', quickQuantities: [1, 6, 12] },
+            { id: 's10', name: 'دقيق', pricePerUnit: 0.900, unit: 'كغ', image: '🌾', description: 'دقيق أبيض', quickQuantities: [1, 5, 10] }
         ],
         grains: [
-            { id: 'g1', name: 'عدس', pricePerUnit: 4.800, unit: 'كغ', image: '🫘', description: 'عدس أخضر وأحمر',
-                quickQuantities: [1, 2, 5] },
-            { id: 'g2', name: 'حمص', pricePerUnit: 5.200, unit: 'كغ', image: '🫛', description: 'حمص جاف',
-                quickQuantities: [1, 2, 5] },
-            { id: 'g3', name: 'لوبيا', pricePerUnit: 8.000, unit: 'كغ', image: '🫘', description: 'لوبيا بيضاء وحمراء',
-                quickQuantities: [1, 2, 5] },
-            { id: 'g4', name: 'جلبانة', pricePerUnit: 5.500, unit: 'كغ', image: '🫛', description: 'جلبانة جافة',
-                quickQuantities: [1, 2, 5] }
+            { id: 'g1', name: 'عدس', pricePerUnit: 4.800, unit: 'كغ', image: '🫘', description: 'عدس أخضر وأحمر', quickQuantities: [1, 2, 5] },
+            { id: 'g2', name: 'حمص', pricePerUnit: 5.200, unit: 'كغ', image: '🫛', description: 'حمص جاف', quickQuantities: [1, 2, 5] },
+            { id: 'g3', name: 'لوبيا', pricePerUnit: 8.000, unit: 'كغ', image: '🫘', description: 'لوبيا بيضاء وحمراء', quickQuantities: [1, 2, 5] },
+            { id: 'g4', name: 'جلبانة', pricePerUnit: 5.500, unit: 'كغ', image: '🫛', description: 'جلبانة جافة', quickQuantities: [1, 2, 5] }
         ],
         meat: [
-            { id: 'm1', name: 'لحم مفروم', pricePerUnit: 19.000, unit: 'كغ', image: '🥩',
-                description: 'لحم بقري مفروم طازج', quickQuantities: [0.5, 1, 2] },
-            { id: 'm2', name: 'دجاج فيليه', pricePerUnit: 17.500, unit: 'كغ', image: '🍗',
-                description: 'فيليه دجاج طازج', quickQuantities: [0.5, 1, 2] },
-            { id: 'm3', name: 'لحم بقري', pricePerUnit: 43.000, unit: 'كغ', image: '🥩',
-                description: 'لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
-            { id: 'm4', name: 'تونة', pricePerUnit: 8.000, unit: 'علبة', image: '🐟', description: 'تونة معلبة',
-                quickQuantities: [1, 2, 5] },
-            { id: 'm5', name: 'دجاج كامل', pricePerUnit: 10.000, unit: 'كغ', image: '🍗', description: 'دجاج كامل طازج',
-                quickQuantities: [1, 2, 3] },
-            { id: 'm6', name: 'أسكالوب دجاج', pricePerUnit: 19.500, unit: 'كغ', image: '🍗',
-                description: 'إسكالوب دجاج طازج', quickQuantities: [0.5, 1, 2] },
-            { id: 'm7', name: 'ستيك بقري', pricePerUnit: 39.500, unit: 'كغ', image: '🥩',
-                description: 'ستيك لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
-            { id: 'm8', name: 'سردين', pricePerUnit: 7.000, unit: 'كغ', image: '🐟', description: 'سردين طازج',
-                quickQuantities: [1, 2, 5] },
-            { id: 'm9', name: 'سمك', pricePerUnit: 15.000, unit: 'كغ', image: '🐟', description: 'سمك طازج متنوع',
-                quickQuantities: [1, 2, 5] }
+            { id: 'm1', name: 'لحم مفروم', pricePerUnit: 19.000, unit: 'كغ', image: '🥩', description: 'لحم بقري مفروم طازج', quickQuantities: [0.5, 1, 2] },
+            { id: 'm2', name: 'دجاج فيليه', pricePerUnit: 17.500, unit: 'كغ', image: '🍗', description: 'فيليه دجاج طازج', quickQuantities: [0.5, 1, 2] },
+            { id: 'm3', name: 'لحم بقري', pricePerUnit: 43.000, unit: 'كغ', image: '🥩', description: 'لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
+            { id: 'm4', name: 'تونة', pricePerUnit: 8.000, unit: 'علبة', image: '🐟', description: 'تونة معلبة', quickQuantities: [1, 2, 5] },
+            { id: 'm5', name: 'دجاج كامل', pricePerUnit: 10.000, unit: 'كغ', image: '🍗', description: 'دجاج كامل طازج', quickQuantities: [1, 2, 3] },
+            { id: 'm6', name: 'أسكالوب دجاج', pricePerUnit: 19.500, unit: 'كغ', image: '🍗', description: 'إسكالوب دجاج طازج', quickQuantities: [0.5, 1, 2] },
+            { id: 'm7', name: 'ستيك بقري', pricePerUnit: 39.500, unit: 'كغ', image: '🥩', description: 'ستيك لحم بقري طازج', quickQuantities: [0.5, 1, 2] },
+            { id: 'm8', name: 'سردين', pricePerUnit: 7.000, unit: 'كغ', image: '🐟', description: 'سردين طازج', quickQuantities: [1, 2, 5] },
+            { id: 'm9', name: 'سمك', pricePerUnit: 15.000, unit: 'كغ', image: '🐟', description: 'سمك طازج متنوع', quickQuantities: [1, 2, 5] }
         ],
         dairy: [
-            { id: 'd1', name: 'بيض (12 حبة)', pricePerUnit: 4.750, unit: 'طبق', image: '🥚', description: 'بيض طازج',
-                quickQuantities: [1, 2, 3] },
-            { id: 'd2', name: 'جبن محلي', pricePerUnit: 37.330, unit: 'كغ', image: '🧀', description: 'جبن أبيض وصفراء',
-                quickQuantities: [0.25, 0.5, 1] },
-            { id: 'd3', name: 'زبدة', pricePerUnit: 6.000, unit: 'قطعة', image: '🧈', description: 'زبدة طبيعية',
-                quickQuantities: [1, 2, 5] },
-            { id: 'd4', name: 'جبن بكوات', pricePerUnit: 8.000, unit: 'علبة', image: '🧀',
-                description: 'جبن شرائح معلب', quickQuantities: [1, 2, 3] },
-            { id: 'd5', name: 'لبن', pricePerUnit: 1.200, unit: 'لتر', image: '🥛', description: 'لبن طازج',
-                quickQuantities: [1, 2, 6] },
-            { id: 'd6', name: 'ياغورت', pricePerUnit: 0.800, unit: 'حبة', image: '🍶', description: 'ياغورت طبيعي',
-                quickQuantities: [1, 6, 12] }
+            { id: 'd1', name: 'بيض (12 حبة)', pricePerUnit: 4.750, unit: 'طبق', image: '🥚', description: 'بيض طازج', quickQuantities: [1, 2, 3] },
+            { id: 'd2', name: 'جبن محلي', pricePerUnit: 37.330, unit: 'كغ', image: '🧀', description: 'جبن أبيض وصفراء', quickQuantities: [0.25, 0.5, 1] },
+            { id: 'd3', name: 'زبدة', pricePerUnit: 6.000, unit: 'قطعة', image: '🧈', description: 'زبدة طبيعية', quickQuantities: [1, 2, 5] },
+            { id: 'd4', name: 'جبن بكوات', pricePerUnit: 8.000, unit: 'علبة', image: '🧀', description: 'جبن شرائح معلب', quickQuantities: [1, 2, 3] },
+            { id: 'd5', name: 'لبن', pricePerUnit: 1.200, unit: 'لتر', image: '🥛', description: 'لبن طازج', quickQuantities: [1, 2, 6] },
+            { id: 'd6', name: 'ياغورت', pricePerUnit: 0.800, unit: 'حبة', image: '🍶', description: 'ياغورت طبيعي', quickQuantities: [1, 6, 12] }
         ],
         conserves: [
-            { id: 'c1', name: 'طماطم مصبرة', pricePerUnit: 5.000, unit: 'علبة', image: '🥫',
-                description: 'طماطم مصبرة', quickQuantities: [1, 3, 6] },
-            { id: 'c2', name: 'زيت قلي', pricePerUnit: 8.000, unit: 'لتر', image: '🛢️',
-                description: 'زيت نباتي للقلي', quickQuantities: [1, 2, 5] },
-            { id: 'c3', name: 'مايونيز', pricePerUnit: 4.200, unit: 'علبة', image: '🥄', description: 'مايونيز',
-                quickQuantities: [1, 2, 3] },
-            { id: 'c4', name: 'كاتشب', pricePerUnit: 3.800, unit: 'علبة', image: '🍅', description: 'صلصة كاتشب',
-                quickQuantities: [1, 2, 3] },
-            { id: 'c5', name: 'شوكولاتة', pricePerUnit: 3.200, unit: 'قطعة', image: '🍫', description: 'شوكولاتة',
-                quickQuantities: [1, 3, 6] }
+            { id: 'c1', name: 'طماطم مصبرة', pricePerUnit: 5.000, unit: 'علبة', image: '🥫', description: 'طماطم مصبرة', quickQuantities: [1, 3, 6] },
+            { id: 'c2', name: 'زيت قلي', pricePerUnit: 8.000, unit: 'لتر', image: '🛢️', description: 'زيت نباتي للقلي', quickQuantities: [1, 2, 5] },
+            { id: 'c3', name: 'مايونيز', pricePerUnit: 4.200, unit: 'علبة', image: '🥄', description: 'مايونيز', quickQuantities: [1, 2, 3] },
+            { id: 'c4', name: 'كاتشب', pricePerUnit: 3.800, unit: 'علبة', image: '🍅', description: 'صلصة كاتشب', quickQuantities: [1, 2, 3] },
+            { id: 'c5', name: 'شوكولاتة', pricePerUnit: 3.200, unit: 'قطعة', image: '🍫', description: 'شوكولاتة', quickQuantities: [1, 3, 6] }
         ]
     };
 
     // ✅ Registry للمنتجات
     const itemRegistry = {};
     Object.values(menuData).forEach(catArray => {
-        catArray.forEach(item => { 
-            itemRegistry[item.id] = item; 
-        });
+        catArray.forEach(item => { itemRegistry[item.id] = item; });
     });
 
     // ✅ السلة
     const cart = [];
 
     // ============================================================
-    // ✅ Helper: Get Shop Data
+    // ✅ Helper: Get Shop Data (with hard cap + length limit)
     // ============================================================
     function getShopData() {
         const entries = document.querySelectorAll('.shop-entry');
         const shops = [];
-        entries.forEach(entry => {
+        for (const entry of entries) {
+            if (shops.length >= MAX_SHOPS) break;
             const nameInput = entry.querySelector('.shop-name-input');
             const zoneInput = entry.querySelector('.shop-zone-input');
             if (nameInput && zoneInput) {
-                const name = cleanInput(nameInput.value);
-                const zone = cleanInput(zoneInput.value);
+                const name = truncate(cleanInput(nameInput.value), MAX_NAME_LENGTH);
+                const zone = truncate(cleanInput(zoneInput.value), MAX_NAME_LENGTH);
                 if (name.length > 0 || zone.length > 0) {
-                    shops.push({ 
-                        name: name || 'غير محدد', 
-                        zone: zone || 'غير محدد' 
+                    shops.push({
+                        name: name || 'غير محدد',
+                        zone: zone || 'غير محدد'
                     });
                 }
             }
-        });
+        }
         return shops;
     }
 
@@ -518,8 +514,8 @@
                     .then(data => {
                         if (addressInput) {
                             if (data && data.display_name) {
-                                let address = data.display_name;
-                                if (address.length > 80) address = address.substring(0, 80) + '...';
+                                let address = truncate(data.display_name, 80);
+                                if (data.display_name.length > 80) address += '...';
                                 addressInput.value = address;
                                 addressInput.className = 'form-input success';
                                 addressInput.disabled = false;
@@ -586,7 +582,6 @@
             const container = document.getElementById('shops-container');
             if (!container) return;
 
-            // ✅ حد أقصى للمتاجر
             if (container.children.length >= MAX_SHOPS) {
                 showToast(`⚠️ لا يمكن إضافة أكثر من ${MAX_SHOPS} متاجر`, 'warning');
                 return;
@@ -604,13 +599,13 @@
             nameInput.type = 'text';
             nameInput.className = 'shop-name-input';
             nameInput.placeholder = 'اسم المحل (اختياري)';
-            nameInput.maxLength = 50;
+            nameInput.maxLength = MAX_NAME_LENGTH;
 
             const zoneInput = document.createElement('input');
             zoneInput.type = 'text';
             zoneInput.className = 'shop-zone-input';
             zoneInput.placeholder = 'المنطقة';
-            zoneInput.maxLength = 50;
+            zoneInput.maxLength = MAX_NAME_LENGTH;
 
             const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-shop';
@@ -684,7 +679,7 @@
     function renderCategory(container, items) {
         if (!container) return;
         container.innerHTML = '';
-        
+
         items.forEach(item => {
             const card = document.createElement('div');
             card.className = 'menu-card';
@@ -789,14 +784,13 @@
             });
 
             addToCartBtn.addEventListener('click', function() {
-                // ✅ التحقق من الحد الأقصى للسلة
                 if (cart.length >= MAX_CART_ITEMS) {
                     showToast(`⚠️ السلة ممتلئة (${MAX_CART_ITEMS} منتج كحد أقصى)`, 'warning');
                     return;
                 }
 
-                const qty = parseFloat(quantityInput.value) || 0;
-                if (qty <= 0 || qty > MAX_CART_QUANTITY) {
+                const qty = parsePositiveNumber(quantityInput.value, MAX_CART_QUANTITY);
+                if (!Number.isFinite(qty)) {
                     showToast('⚠️ الكمية غير صالحة', 'warning');
                     return;
                 }
@@ -804,7 +798,7 @@
                 const totalPrice = qty * item.pricePerUnit;
 
                 cart.push({
-                    cartId: item.id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+                    cartId: item.id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8),
                     id: item.id,
                     name: item.name,
                     image: item.image,
@@ -838,14 +832,23 @@
         let subtotal = 0;
         const shops = getShopData();
 
-        // Shops Display
+        // Shops Display (uses textContent to be extra safe)
         if (shopsDisplay) {
+            shopsDisplay.innerHTML = '';
             if (shops.length === 0) {
                 shopsDisplay.textContent = 'أضف متاجر';
             } else {
-                shopsDisplay.innerHTML = shops.map(s =>
-                    `<span class="shop-item">${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}</span>`
-                ).join(' ');
+                shops.forEach(s => {
+                    const span = document.createElement('span');
+                    span.className = 'shop-item';
+                    let label = s.name;
+                    if (s.zone && s.zone !== 'غير محدد') {
+                        label += ' (' + s.zone + ')';
+                    }
+                    span.textContent = label;
+                    shopsDisplay.appendChild(span);
+                    shopsDisplay.appendChild(document.createTextNode(' '));
+                });
             }
         }
 
@@ -859,11 +862,11 @@
             }
             if (cartCount) cartCount.textContent = '0';
         } else {
-            cart.forEach((item, index) => {
+            cart.forEach((item) => {
                 subtotal += item.totalPrice;
                 if (cartList) {
                     const li = document.createElement('li');
-                    
+
                     const headerDiv = document.createElement('div');
                     headerDiv.className = 'cart-item-header';
 
@@ -886,10 +889,15 @@
                     removeBtn.className = 'remove-btn';
                     removeBtn.style.marginTop = '3px';
                     removeBtn.textContent = 'حذف';
+                    removeBtn.dataset.cartId = item.cartId;
                     removeBtn.addEventListener('click', function() {
-                        cart.splice(index, 1);
-                        updateCartDisplay();
-                        showToast('تم حذف المنتج من السلة', 'info');
+                        const id = this.dataset.cartId;
+                        const idx = cart.findIndex(c => c.cartId === id);
+                        if (idx !== -1) {
+                            cart.splice(idx, 1);
+                            updateCartDisplay();
+                            showToast('تم حذف المنتج من السلة', 'info');
+                        }
                     });
 
                     li.appendChild(headerDiv);
@@ -918,7 +926,7 @@
     const submitBtn = document.getElementById('submitOrder');
     if (submitBtn) {
         submitBtn.addEventListener('click', function() {
-            // ✅ التحقق من Rate Limit للإرسال
+            // ✅ Rate limit
             const now = Date.now();
             if (now - lastSubmitTime < SUBMIT_MIN_INTERVAL_MS) {
                 const remaining = Math.ceil((SUBMIT_MIN_INTERVAL_MS - (now - lastSubmitTime)) / 1000);
@@ -937,19 +945,15 @@
             const notes = document.getElementById('userNotes');
             const shops = getShopData();
 
-            const nameVal = name ? cleanInput(name.value) : '';
-            const phoneVal = phone ? cleanInput(phone.value) : '';
-            const adresseVal = adresse ? cleanInput(adresse.value) : '';
-            const notesVal = notes ? cleanInput(notes.value) : '';
+            const nameVal = truncate(cleanInput(name ? name.value : ''), MAX_NAME_LENGTH);
+            const phoneVal = truncate(cleanInput(phone ? phone.value : ''), MAX_PHONE_LENGTH);
+            const adresseVal = truncate(cleanInput(adresse ? adresse.value : ''), MAX_ADDRESS_LENGTH);
+            const notesVal = truncate(cleanInput(notes ? notes.value : ''), MAX_NOTES_LENGTH);
 
-            // ✅ التحقق من المدخلات
+            // ✅ Validation
             if (!nameVal || nameVal.length < 2) {
                 showToast('⚠️ اكتب اسمك الكامل', 'warning');
                 if (name) name.focus();
-                return;
-            }
-            if (nameVal.length > 50) {
-                showToast('⚠️ الاسم طويل جداً (50 حرف كحد أقصى)', 'warning');
                 return;
             }
             if (!phoneVal || !validatePhone(phoneVal)) {
@@ -962,14 +966,6 @@
                 if (adresse) adresse.focus();
                 return;
             }
-            if (adresseVal.length > 200) {
-                showToast('⚠️ العنوان طويل جداً', 'warning');
-                return;
-            }
-            if (notesVal.length > 200) {
-                showToast('⚠️ الملاحظات طويلة جداً (200 حرف كحد أقصى)', 'warning');
-                return;
-            }
             if (cart.length === 0) {
                 showToast('🥲 السلة فارغة - أضف منتجات', 'warning');
                 return;
@@ -979,23 +975,21 @@
                 return;
             }
 
-            // ✅ التحقق من الأسعار (منع التلاعب)
+            // ✅ Price verification
             let verifiedSubtotal = 0;
             let orderDetails = '';
             for (let i = 0; i < cart.length; i++) {
                 const cartItem = cart[i];
                 const officialItem = itemRegistry[cartItem.id];
-                
+
                 if (!officialItem) {
                     showToast('⚠️ منتج غير معروف - يرجى تحديث الصفحة', 'error');
                     return;
                 }
-                
                 if (Math.abs(cartItem.unitPrice - officialItem.pricePerUnit) > 0.001) {
                     showToast('⚠️ خطأ في الأسعار - يرجى تحديث الصفحة', 'error');
                     return;
                 }
-                
                 if (cartItem.quantity <= 0 || cartItem.quantity > MAX_CART_QUANTITY) {
                     showToast('⚠️ كمية غير صالحة', 'error');
                     return;
@@ -1004,27 +998,29 @@
                 const verifiedItemTotal = cartItem.quantity * officialItem.pricePerUnit;
                 verifiedSubtotal += verifiedItemTotal;
                 orderDetails +=
-                    `${i+1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
+                    `${i + 1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
             }
 
             const totalAmount = verifiedSubtotal + SERVICE_FEE;
 
-            const orderMessage = `
+            let orderMessage = `
 🛒 طلب توصيل - 9ATHYA.TN
 👤 ${sanitizeText(nameVal)}
 📞 ${sanitizeText(phoneVal)}
 📍 ${sanitizeText(adresseVal)}
 📝 ${sanitizeText(notesVal || 'لا يوجد')}
-🏪 ${shops.map((s, i) => `${i+1}. ${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}`).join('\n')}
+🏪 ${shops.map((s, i) => `${i + 1}. ${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}`).join('\n')}
 📋 ${orderDetails}
 💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
 🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT)
 💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
 ⏰ ${new Date().toLocaleString('ar-TN')}
-        `;
+            `.trim();
 
-            // ✅ تحديث وقت آخر إرسال
-            lastSubmitTime = now;
+            // ✅ حماية ضد payload كبير
+            if (orderMessage.length > MAX_ORDER_MESSAGE_LENGTH) {
+                orderMessage = orderMessage.slice(0, MAX_ORDER_MESSAGE_LENGTH) + '\n... (تم اقتصاص الرسالة)';
+            }
 
             const submitBtnEl = document.getElementById('submitOrder');
             isSubmitting = true;
@@ -1038,7 +1034,7 @@
             formData.append('phone', sanitizeText(phoneVal));
             formData.append('adresse', sanitizeText(adresseVal));
             formData.append('message', orderMessage);
-            formData.append('shops', shops.map(s => 
+            formData.append('shops', shops.map(s =>
                 sanitizeText(s.name) + (s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : '')
             ).join(', '));
             formData.append('total', totalAmount.toFixed(3) + ' DT');
@@ -1058,6 +1054,8 @@
                 return response.json();
             })
             .then(data => {
+                // ✅ فقط بعد نجاح حقيقي
+                lastSubmitTime = Date.now();
                 showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
                 cart.length = 0;
                 updateCartDisplay();
@@ -1085,11 +1083,12 @@
     renderMenu();
     updateCartDisplay();
 
-    // ✅ مراقبة تغييرات المتاجر
+    // ✅ Debounced shop input listener
     document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('shop-name-input') || 
+        if (e.target.classList.contains('shop-name-input') ||
             e.target.classList.contains('shop-zone-input')) {
-            updateCartDisplay();
+            if (shopUpdateTimer) clearTimeout(shopUpdateTimer);
+            shopUpdateTimer = setTimeout(updateCartDisplay, 200);
         }
     });
 
