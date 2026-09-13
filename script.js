@@ -1,14 +1,10 @@
 (function() {
     'use strict';
 
-    // ============================================================
-    // CONFIG
-    // ============================================================
     const DELIVERY_PRICE_PER_KM = 0.500;
     const MIN_DELIVERY_PRICE = 1.800;
     const SERVICE_FEE = 3.000;
 
-    // ✅ حدود الحماية
     const AI_MIN_INTERVAL_MS = 2500;
     const SUBMIT_MIN_INTERVAL_MS = 30000;
     const AI_MAX_MESSAGE_LENGTH = 500;
@@ -30,22 +26,16 @@
     let lastSubmitTime = 0;
     let shopUpdateTimer = null;
 
-    // ============================================================
-    // AI CONFIG
-    // ============================================================
     const AI_API_URL = '/api/chat';
     let aiChatHistory = [];
     let isAiProcessing = false;
 
-    // ============================================================
-    // TOAST
-    // ============================================================
     function showToast(message, type = 'info', duration = 5000) {
         const container = document.getElementById('toastContainer');
         if (!container) return;
         const toast = document.createElement('div');
         const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-        toast.className = `toast toast-${type}`;
+        toast.className = 'toast toast-' + type;
 
         const iconSpan = document.createElement('span');
         iconSpan.textContent = icons[type] || 'ℹ️';
@@ -64,12 +54,9 @@
         toast.appendChild(closeBtn);
 
         container.appendChild(toast);
-        setTimeout(() => { if (toast.parentNode) toast.remove(); }, duration);
+        setTimeout(function() { if (toast.parentNode) toast.remove(); }, duration);
     }
 
-    // ============================================================
-    // ✅ Helper: Sanitize Text (for HTML contexts like emails)
-    // ============================================================
     function sanitizeText(str) {
         if (!str) return '';
         return String(str)
@@ -81,26 +68,17 @@
             .replace(/\n/g, ' ');
     }
 
-    // ============================================================
-    // ✅ Helper: Validate Phone (Tunisian)
-    // ============================================================
     function validatePhone(phone) {
         if (!phone) return false;
         const cleaned = phone.replace(/\s+/g, '').replace(/-/g, '');
         return /^(?:\+216|00216)?[234579]\d{7}$/.test(cleaned);
     }
 
-    // ============================================================
-    // ✅ Helper: Clean Input
-    // ============================================================
     function cleanInput(str) {
         if (!str) return '';
         return String(str).replace(/[<>]/g, '').trim();
     }
 
-    // ============================================================
-    // ✅ Helper: Safe Number Parse
-    // ============================================================
     function parsePositiveNumber(value, max) {
         const num = Number(value);
         if (!Number.isFinite(num)) return NaN;
@@ -109,94 +87,52 @@
         return num;
     }
 
-    // ============================================================
-    // ✅ Helper: Truncate
-    // ============================================================
     function truncate(str, max) {
         if (!str) return '';
         const s = String(str);
         return s.length > max ? s.slice(0, max) : s;
     }
 
-    // ============================================================
-    // ✅ Helper: Trim AI History
-    // ============================================================
     function trimAiHistory() {
         if (aiChatHistory.length > AI_HISTORY_MAX_ITEMS) {
             aiChatHistory = aiChatHistory.slice(-AI_HISTORY_MAX_ITEMS);
         }
-        let totalChars = aiChatHistory.reduce((sum, m) => sum + (m.content ? m.content.length : 0), 0);
+        let totalChars = aiChatHistory.reduce(function(sum, m) {
+            return sum + (m.content ? m.content.length : 0);
+        }, 0);
         while (totalChars > AI_HISTORY_MAX_CHARS && aiChatHistory.length > 2) {
             const removed = aiChatHistory.shift();
             totalChars -= (removed.content ? removed.content.length : 0);
         }
     }
 
-    // ============================================================
-    // AI FUNCTIONS
-    // ============================================================
     function getFallbackResponse(userMessage) {
         const msg = userMessage.toLowerCase();
 
         if (msg.includes('منتج') || msg.includes('متوف') || msg.includes('شنو')) {
-            return `📦 **المنتجات المتوفرة عندنا:**
-
-🥬 **خضرة:** طماطم، فلفل، بصل، بطاطا، جزر، خس، قرع، فقّوس، زبدّة
-🍎 **غلة:** تفاح، موز، برتقال، ليمون، بطيخ، دلاع، شمام
-🌾 **مواد أساسية:** زيت زيتون، سكر، سميدة، خبز، حليب، قهوة، بهارات، رز، ماء، دقيق
-🫘 **بقول:** عدس، حمص، لوبيا، جلبانة
-🥩 **بروتينات:** لحم مفروم، دجاج، لحم بقري، تونة، سردين، سمك
-🥛 **ألبان:** بيض، جبن، زبدة، لبن، ياغورت
-🥫 **مواد غذائية:** طماطم مصبرة، زيت قلي، مايونيز، كاتشب، شوكولاتة
-
-شنو تحب تطلب؟ 😊`;
+            return '📦 **المنتجات المتوفرة عندنا:**\n\n🥬 خضرة: طماطم، فلفل، بصل، بطاطا، جزر، خس، قرع، فقّوس، زبدّة\n🍎 غلة: تفاح، موز، برتقال، ليمون، بطيخ، دلاع، شمام\n🌾 مواد أساسية: زيت زيتون، سكر، سميدة، خبز، حليب، قهوة، بهارات، رز، ماء، دقيق\n🫘 بقول: عدس، حمص، لوبيا، جلبانة\n🥩 بروتينات: لحم مفروم، دجاج، لحم بقري، تونة، سردين، سمك\n🥛 ألبان: بيض، جبن، زبدة، لبن، ياغورت\n🥫 مواد غذائية: طماطم مصبرة، زيت قلي، مايونيز، كاتشب، شوكولاتة\n\nشنو تحب تطلب؟ 😊';
         }
 
         if (msg.includes('توصيل') || msg.includes('سعر') || msg.includes('كم')) {
-            return `🚗 **أسعار التوصيل:**
-- 0.500 دت/كم (الحد الأدنى 1.800 DT)
-- رسوم الشركة: 3.000 DT
-- يُحسب السعر حسب المسافة الفعلية`;
+            return '🚗 **أسعار التوصيل:**\n- 0.500 دت/كم (الحد الأدنى 1.800 DT)\n- رسوم الشركة: 3.000 DT\n- يُحسب السعر حسب المسافة الفعلية';
         }
 
         if (msg.includes('كيف') || msg.includes('طلب') || msg.includes('طريقة')) {
-            return `📝 **كيف تطلب من 9ATHYA.TN؟**
-
-1️⃣ اختر المنتجات من القائمة
-2️⃣ حدد الكمية المطلوبة
-3️⃣ اضغط "أضف للسلة"
-4️⃣ اكتب اسم المحل والمنطقة
-5️⃣ حدد موقعك للتوصيل
-6️⃣ املأ اسمك ورقم هاتفك
-7️⃣ اضغط "تأكيد الطلب"`;
+            return '📝 **كيف تطلب من 9ATHYA.TN؟**\n\n1️⃣ اختر المنتجات من القائمة\n2️⃣ حدد الكمية المطلوبة\n3️⃣ اضغط "أضف للسلة"\n4️⃣ اكتب اسم المحل والمنطقة\n5️⃣ حدد موقعك للتوصيل\n6️⃣ املأ اسمك ورقم هاتفك\n7️⃣ اضغط "تأكيد الطلب"';
         }
 
         if (msg.includes('صحي') || msg.includes('نصيحة') || msg.includes('وجبة')) {
-            return `🥗 **نصيحة غذائية:**
-
-جرب وجبة تونسية صحية:
-- سلطة مشكلة (خس + طماطم + فلفل + زيت زيتون)
-- طاجين بالخضرة (قرع + بطاطا + بيض)
-- سمك مشوي مع سلطة
-- فواكه موسمية للتحلية`;
+            return '🥗 **نصيحة غذائية:**\n\nجرب وجبة تونسية صحية:\n- سلطة مشكلة (خس + طماطم + فلفل + زيت زيتون)\n- طاجين بالخضرة (قرع + بطاطا + بيض)\n- سمك مشوي مع سلطة\n- فواكه موسمية للتحلية';
         }
 
-        return `🤔 شكراً على سؤالك!
-
-أنا مساعد 9ATHYA الذكي. أقدر نجاوب على أسئلة عن:
-- 🛒 **المنتجات** المتوفرة
-- 🚗 **أسعار التوصيل**
-- 📝 **كيفية الطلب**
-- 🥗 **نصائح غذائية**
-
-شنو تحب تسأل بالضبط؟`;
+        return '🤔 شكراً على سؤالك!\n\nأنا مساعد 9ATHYA الذكي. أقدر نجاوب على أسئلة عن:\n- 🛒 المنتجات المتوفرة\n- 🚗 أسعار التوصيل\n- 📝 كيفية الطلب\n- 🥗 نصائح غذائية\n\nشنو تحب تسأل بالضبط؟';
     }
 
     async function sendAiMessage(userMessage) {
         const now = Date.now();
         if (now - lastAiCallTime < AI_MIN_INTERVAL_MS) {
             const remaining = Math.ceil((AI_MIN_INTERVAL_MS - (now - lastAiCallTime)) / 1000);
-            showToast(`⏳ الرجاء الانتظار ${remaining} ثانية`, 'warning');
+            showToast('⏳ الرجاء الانتظار ' + remaining + ' ثانية', 'warning');
             return;
         }
 
@@ -208,7 +144,7 @@
             return;
         }
         if (trimmed.length > AI_MAX_MESSAGE_LENGTH) {
-            showToast(`الرسالة طويلة جداً (${AI_MAX_MESSAGE_LENGTH} حرف كحد أقصى)`, 'warning');
+            showToast('الرسالة طويلة جداً (' + AI_MAX_MESSAGE_LENGTH + ' حرف كحد أقصى)', 'warning');
             return;
         }
 
@@ -299,9 +235,6 @@
         }
     }
 
-    // ============================================================
-    // AI UI CONTROLS
-    // ============================================================
     const aiToggle = document.getElementById('aiToggle');
     const aiChatWindow = document.getElementById('aiChatWindow');
     const aiCloseBtn = document.getElementById('aiCloseBtn');
@@ -359,9 +292,6 @@
         aiChatWindow.classList.remove('open');
     });
 
-    // ============================================================
-    // MENU DATA
-    // ============================================================
     const menuData = {
         vegetables: [
             { id: 'v1', name: 'طماطم', pricePerUnit: 2.500, unit: 'كغ', image: '🍅', description: 'طماطم طازجة', quickQuantities: [1, 2, 5] },
@@ -429,18 +359,13 @@
         ]
     };
 
-    // ✅ Registry للمنتجات
     const itemRegistry = {};
-    Object.values(menuData).forEach(catArray => {
-        catArray.forEach(item => { itemRegistry[item.id] = item; });
+    Object.values(menuData).forEach(function(catArray) {
+        catArray.forEach(function(item) { itemRegistry[item.id] = item; });
     });
 
-    // ✅ السلة
     const cart = [];
 
-    // ============================================================
-    // ✅ Helper: Get Shop Data
-    // ============================================================
     function getShopData() {
         const entries = document.querySelectorAll('.shop-entry');
         const shops = [];
@@ -462,9 +387,6 @@
         return shops;
     }
 
-    // ============================================================
-    // GEOLOCATION
-    // ============================================================
     function getClientLocation() {
         const addressInput = document.getElementById('userAdresse');
         const statusEl = document.getElementById('locationStatus');
@@ -498,9 +420,9 @@
                 const lng = position.coords.longitude;
                 clientCoords = [lat, lng];
 
-                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18&addressdetails=1`)
-                    .then(response => response.json())
-                    .then(data => {
+                fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lng + '&format=json&zoom=18&addressdetails=1')
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
                         if (addressInput) {
                             if (data && data.display_name) {
                                 let address = truncate(data.display_name, 80);
@@ -508,14 +430,14 @@
                                 addressInput.value = address;
                                 addressInput.className = 'form-input success';
                                 addressInput.disabled = false;
-                                if (statusEl) statusEl.textContent = `✅ ${address}`;
+                                if (statusEl) statusEl.textContent = '✅ ' + address;
                                 showToast('تم تحديد موقعك بنجاح', 'success');
                             } else {
-                                addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                                addressInput.value = lat.toFixed(6) + ', ' + lng.toFixed(6);
                                 addressInput.className = 'form-input success';
                                 addressInput.disabled = false;
                                 if (statusEl) {
-                                    statusEl.textContent = `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                                    statusEl.textContent = '✅ تم التحديد (' + lat.toFixed(4) + ', ' + lng.toFixed(4) + ')';
                                 }
                             }
                         }
@@ -524,13 +446,13 @@
                             btn.textContent = '📍 تحديد موقعي';
                         }
                     })
-                    .catch(() => {
+                    .catch(function() {
                         if (addressInput) {
-                            addressInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                            addressInput.value = lat.toFixed(6) + ', ' + lng.toFixed(6);
                             addressInput.className = 'form-input success';
                             addressInput.disabled = false;
                             if (statusEl) {
-                                statusEl.textContent = `✅ تم التحديد (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                                statusEl.textContent = '✅ تم التحديد (' + lat.toFixed(4) + ', ' + lng.toFixed(4) + ')';
                             }
                         }
                         if (btn) {
@@ -550,8 +472,8 @@
                     btn.disabled = false;
                     btn.textContent = '📍 تحديد موقعي';
                 }
-                if (statusEl) statusEl.textContent = `❌ ${error.message}`;
-                showToast(`فشل تحديد الموقع: ${error.message}`, 'error');
+                if (statusEl) statusEl.textContent = '❌ ' + error.message;
+                showToast('فشل تحديد الموقع: ' + error.message, 'error');
             },
             { enableHighAccuracy: true, timeout: 15000 }
         );
@@ -562,9 +484,6 @@
         locationBtn.addEventListener('click', getClientLocation);
     }
 
-    // ============================================================
-    // SHOPS
-    // ============================================================
     const addShopBtn = document.getElementById('addShopBtn');
     if (addShopBtn) {
         addShopBtn.addEventListener('click', function() {
@@ -572,7 +491,7 @@
             if (!container) return;
 
             if (container.children.length >= MAX_SHOPS) {
-                showToast(`⚠️ لا يمكن إضافة أكثر من ${MAX_SHOPS} متاجر`, 'warning');
+                showToast('⚠️ لا يمكن إضافة أكثر من ' + MAX_SHOPS + ' متاجر', 'warning');
                 return;
             }
 
@@ -602,7 +521,7 @@
             removeBtn.addEventListener('click', function() {
                 if (container.children.length > 1) {
                     entry.remove();
-                    container.querySelectorAll('.shop-entry').forEach((el, i) => {
+                    container.querySelectorAll('.shop-entry').forEach(function(el, i) {
                         const numSpan = el.querySelector('.shop-number');
                         if (numSpan) numSpan.textContent = i + 1;
                     });
@@ -623,22 +542,19 @@
         });
     }
 
-    // ============================================================
-    // CATEGORY
-    // ============================================================
     function filterCategory(category) {
         const sections = document.querySelectorAll('.category-section');
         if (category === 'all') {
-            sections.forEach(section => {
+            sections.forEach(function(section) {
                 section.classList.remove('hidden');
                 section.style.display = 'block';
             });
         } else {
-            sections.forEach(section => {
+            sections.forEach(function(section) {
                 section.classList.add('hidden');
                 section.style.display = 'none';
             });
-            const targetSection = document.getElementById(`${category}-section`);
+            const targetSection = document.getElementById(category + '-section');
             if (targetSection) {
                 targetSection.classList.remove('hidden');
                 targetSection.style.display = 'block';
@@ -646,20 +562,17 @@
         }
     }
 
-    document.querySelectorAll('.category-nav-btn').forEach(btn => {
+    document.querySelectorAll('.category-nav-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.category-nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.category-nav-btn').forEach(function(b) { b.classList.remove('active'); });
             this.classList.add('active');
             filterCategory(this.dataset.category);
         });
     });
 
-    // ============================================================
-    // RENDER MENU
-    // ============================================================
     function renderMenu() {
-        Object.keys(menuData).forEach(category => {
-            const container = document.getElementById(`${category}-menu`);
+        Object.keys(menuData).forEach(function(category) {
+            const container = document.getElementById(category + '-menu');
             if (container) renderCategory(container, menuData[category]);
         });
         filterCategory('all');
@@ -669,7 +582,7 @@
         if (!container) return;
         container.innerHTML = '';
 
-        items.forEach(item => {
+        items.forEach(function(item) {
             const card = document.createElement('div');
             card.className = 'menu-card';
 
@@ -692,7 +605,7 @@
             priceDiv.textContent = item.pricePerUnit.toFixed(3) + ' ';
 
             const priceSpan = document.createElement('span');
-            priceSpan.textContent = `DT/${item.unit}`;
+            priceSpan.textContent = 'DT/' + item.unit;
             priceDiv.appendChild(priceSpan);
 
             infoDiv.appendChild(nameDiv);
@@ -725,7 +638,7 @@
 
             const totalItemPrice = document.createElement('span');
             totalItemPrice.className = 'total-item-price';
-            totalItemPrice.textContent = `= ${item.pricePerUnit.toFixed(3)} DT`;
+            totalItemPrice.textContent = '= ' + item.pricePerUnit.toFixed(3) + ' DT';
 
             qtySelector.appendChild(qtyLabel);
             qtySelector.appendChild(quantityInput);
@@ -734,10 +647,10 @@
 
             const quickBtnsDiv = document.createElement('div');
             quickBtnsDiv.className = 'quick-quantity-btns';
-            item.quickQuantities.forEach(qty => {
+            item.quickQuantities.forEach(function(qty) {
                 const qBtn = document.createElement('button');
                 qBtn.className = 'quick-qty-btn';
-                qBtn.textContent = `${qty} ${item.unit}`;
+                qBtn.textContent = qty + ' ' + item.unit;
                 qBtn.dataset.qty = qty;
                 quickBtnsDiv.appendChild(qBtn);
             });
@@ -754,12 +667,12 @@
 
             function updatePrice() {
                 const qty = parseFloat(quantityInput.value) || 0;
-                totalItemPrice.textContent = `= ${(qty * item.pricePerUnit).toFixed(3)} DT`;
+                totalItemPrice.textContent = '= ' + (qty * item.pricePerUnit).toFixed(3) + ' DT';
             }
 
             quantityInput.addEventListener('input', updatePrice);
 
-            card.querySelectorAll('.quick-qty-btn').forEach(btn => {
+            card.querySelectorAll('.quick-qty-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     quantityInput.value = this.dataset.qty;
                     updatePrice();
@@ -768,7 +681,7 @@
 
             addToCartBtn.addEventListener('click', function() {
                 if (cart.length >= MAX_CART_ITEMS) {
-                    showToast(`⚠️ السلة ممتلئة (${MAX_CART_ITEMS} منتج كحد أقصى)`, 'warning');
+                    showToast('⚠️ السلة ممتلئة (' + MAX_CART_ITEMS + ' منتج كحد أقصى)', 'warning');
                     return;
                 }
 
@@ -794,16 +707,13 @@
                 updateCartDisplay();
                 quantityInput.value = 1;
                 updatePrice();
-                showToast(`✅ تم إضافة ${item.name} إلى السلة`, 'success');
+                showToast('✅ تم إضافة ' + item.name + ' إلى السلة', 'success');
             });
 
             container.appendChild(card);
         });
     }
 
-    // ============================================================
-    // CART DISPLAY
-    // ============================================================
     function updateCartDisplay() {
         const cartList = document.getElementById('cart-items');
         const cartCount = document.getElementById('cart-count');
@@ -820,7 +730,7 @@
             if (shops.length === 0) {
                 shopsDisplay.textContent = 'أضف متاجر';
             } else {
-                shops.forEach(s => {
+                shops.forEach(function(s) {
                     const span = document.createElement('span');
                     span.className = 'shop-item';
                     let label = s.name;
@@ -843,7 +753,7 @@
             }
             if (cartCount) cartCount.textContent = '0';
         } else {
-            cart.forEach((item) => {
+            cart.forEach(function(item) {
                 subtotal += item.totalPrice;
                 if (cartList) {
                     const li = document.createElement('li');
@@ -853,18 +763,18 @@
 
                     const nameSpan = document.createElement('span');
                     nameSpan.className = 'cart-item-name';
-                    nameSpan.textContent = `${item.image} ${item.name}`;
+                    nameSpan.textContent = item.image + ' ' + item.name;
 
                     const priceSpan = document.createElement('span');
                     priceSpan.className = 'cart-item-price';
-                    priceSpan.textContent = `${item.totalPrice.toFixed(3)} DT`;
+                    priceSpan.textContent = item.totalPrice.toFixed(3) + ' DT';
 
                     headerDiv.appendChild(nameSpan);
                     headerDiv.appendChild(priceSpan);
 
                     const detailsDiv = document.createElement('div');
                     detailsDiv.className = 'cart-item-details';
-                    detailsDiv.textContent = `${item.quantity} ${item.unit} × ${item.unitPrice.toFixed(3)} DT`;
+                    detailsDiv.textContent = item.quantity + ' ' + item.unit + ' × ' + item.unitPrice.toFixed(3) + ' DT';
 
                     const removeBtn = document.createElement('button');
                     removeBtn.className = 'remove-btn';
@@ -873,7 +783,7 @@
                     removeBtn.dataset.cartId = item.cartId;
                     removeBtn.addEventListener('click', function() {
                         const id = this.dataset.cartId;
-                        const idx = cart.findIndex(c => c.cartId === id);
+                        const idx = cart.findIndex(function(c) { return c.cartId === id; });
                         if (idx !== -1) {
                             cart.splice(idx, 1);
                             updateCartDisplay();
@@ -900,16 +810,13 @@
         }
     }
 
-    // ============================================================
-    // ✅ SUBMIT ORDER
-    // ============================================================
     const submitBtn = document.getElementById('submitOrder');
     if (submitBtn) {
         submitBtn.addEventListener('click', function() {
             const now = Date.now();
             if (now - lastSubmitTime < SUBMIT_MIN_INTERVAL_MS) {
                 const remaining = Math.ceil((SUBMIT_MIN_INTERVAL_MS - (now - lastSubmitTime)) / 1000);
-                showToast(`⏳ الرجاء الانتظار ${remaining} ثانية قبل إرسال طلب آخر`, 'warning');
+                showToast('⏳ الرجاء الانتظار ' + remaining + ' ثانية قبل إرسال طلب آخر', 'warning');
                 return;
             }
 
@@ -974,25 +881,15 @@
 
                 const verifiedItemTotal = cartItem.quantity * officialItem.pricePerUnit;
                 verifiedSubtotal += verifiedItemTotal;
-                orderDetails +=
-                    `${i + 1}. ${officialItem.name} - ${cartItem.quantity} ${officialItem.unit} × ${officialItem.pricePerUnit.toFixed(3)} DT = ${verifiedItemTotal.toFixed(3)} DT\n`;
+                orderDetails += (i + 1) + '. ' + officialItem.name + ' - ' + cartItem.quantity + ' ' + officialItem.unit + ' × ' + officialItem.pricePerUnit.toFixed(3) + ' DT = ' + verifiedItemTotal.toFixed(3) + ' DT\n';
             }
 
             const totalAmount = verifiedSubtotal + SERVICE_FEE;
 
-            let orderMessage = `
-🛒 طلب توصيل - 9ATHYA.TN
-👤 ${sanitizeText(nameVal)}
-📞 ${sanitizeText(phoneVal)}
-📍 ${sanitizeText(adresseVal)}
-📝 ${sanitizeText(notesVal || 'لا يوجد')}
-🏪 ${shops.map((s, i) => `${i + 1}. ${sanitizeText(s.name)}${s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : ''}`).join('\n')}
-📋 ${orderDetails}
-💳 رسوم الشركة: ${SERVICE_FEE.toFixed(3)} DT
-🚗 التوصيل: ${DELIVERY_PRICE_PER_KM.toFixed(3)} دت/كم (الحد الأدنى ${MIN_DELIVERY_PRICE.toFixed(3)} DT)
-💰 المجموع (بدون التوصيل): ${totalAmount.toFixed(3)} DT
-⏰ ${new Date().toLocaleString('ar-TN')}
-            `.trim();
+            let orderMessage = '\n🛒 طلب توصيل - 9ATHYA.TN\n👤 ' + sanitizeText(nameVal) + '\n📞 ' + sanitizeText(phoneVal) + '\n📍 ' + sanitizeText(adresseVal) + '\n📝 ' + sanitizeText(notesVal || 'لا يوجد') + '\n🏪 ' + shops.map(function(s, i) {
+                return (i + 1) + '. ' + sanitizeText(s.name) + (s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : '');
+            }).join('\n') + '\n📋 ' + orderDetails + '\n💳 رسوم الشركة: ' + SERVICE_FEE.toFixed(3) + ' DT\n🚗 التوصيل: ' + DELIVERY_PRICE_PER_KM.toFixed(3) + ' دت/كم (الحد الأدنى ' + MIN_DELIVERY_PRICE.toFixed(3) + ' DT)\n💰 المجموع (بدون التوصيل): ' + totalAmount.toFixed(3) + ' DT\n⏰ ' + new Date().toLocaleString('ar-TN') + '\n';
+            orderMessage = orderMessage.trim();
 
             if (orderMessage.length > MAX_ORDER_MESSAGE_LENGTH) {
                 orderMessage = orderMessage.slice(0, MAX_ORDER_MESSAGE_LENGTH) + '\n... (تم اقتصاص الرسالة)';
@@ -1010,9 +907,9 @@
             formData.append('phone', sanitizeText(phoneVal));
             formData.append('adresse', sanitizeText(adresseVal));
             formData.append('message', orderMessage);
-            formData.append('shops', shops.map(s =>
-                sanitizeText(s.name) + (s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : '')
-            ).join(', '));
+            formData.append('shops', shops.map(function(s) {
+                return sanitizeText(s.name) + (s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : '');
+            }).join(', '));
             formData.append('total', totalAmount.toFixed(3) + ' DT');
             formData.append('notes', sanitizeText(notesVal || 'لا يوجد'));
             formData.append('_captcha', 'false');
@@ -1023,13 +920,13 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
+            .then(function(response) {
                 if (!response.ok) {
                     throw new Error('فشل الإرسال - الكود: ' + response.status);
                 }
                 return response.json();
             })
-            .then(data => {
+            .then(function(data) {
                 lastSubmitTime = Date.now();
                 showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
                 cart.length = 0;
@@ -1038,11 +935,11 @@
                 if (phone) phone.value = '';
                 if (notes) notes.value = '';
             })
-            .catch(error => {
+            .catch(function(error) {
                 console.error('Error:', error);
                 showToast('❌ عذراً، حدث خطأ في الإرسال. حاول مرة أخرى', 'error');
             })
-            .finally(() => {
+            .finally(function() {
                 isSubmitting = false;
                 if (submitBtnEl) {
                     submitBtnEl.disabled = false;
@@ -1052,9 +949,6 @@
         });
     }
 
-    // ============================================================
-    // INIT
-    // ============================================================
     renderMenu();
     updateCartDisplay();
 
