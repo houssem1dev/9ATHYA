@@ -1,15 +1,11 @@
 User-agent: *
 Allow: /
+
+# Block API routes from crawlers
 Disallow: /api/
+
+# Block AI chat from indexing
 Disallow: /api/chat
 
-User-agent: GPTBot
-Disallow: /
-
-User-agent: ChatGPT-User
-Disallow: /
-
-User-agent: CCBot
-Disallow: /
-
-Sitemap: https://www.9aadhiya.tech/sitemap.xml
+# Sitemap (uncomment when you have one)
+# Sitemap: https://9athya.tn/sitemap.xml
