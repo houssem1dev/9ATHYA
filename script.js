@@ -97,38 +97,39 @@
         if (aiChatHistory.length > AI_HISTORY_MAX_ITEMS) {
             aiChatHistory = aiChatHistory.slice(-AI_HISTORY_MAX_ITEMS);
         }
-        let totalChars = aiChatHistory.reduce(function(sum, m) {
-            return sum + (m.content ? m.content.length : 0);
-        }, 0);
+        let totalChars = 0;
+        for (let i = 0; i < aiChatHistory.length; i++) {
+            totalChars += aiChatHistory[i].content ? aiChatHistory[i].content.length : 0;
+        }
         while (totalChars > AI_HISTORY_MAX_CHARS && aiChatHistory.length > 2) {
             const removed = aiChatHistory.shift();
-            totalChars -= (removed.content ? removed.content.length : 0);
+            totalChars -= removed.content ? removed.content.length : 0;
         }
     }
 
     function getFallbackResponse(userMessage) {
         const msg = userMessage.toLowerCase();
 
-        if (msg.includes('منتج') || msg.includes('متوف') || msg.includes('شنو')) {
+        if (msg.indexOf('منتج') !== -1 || msg.indexOf('متوف') !== -1 || msg.indexOf('شنو') !== -1) {
             return '📦 **المنتجات المتوفرة عندنا:**\n\n🥬 خضرة: طماطم، فلفل، بصل، بطاطا، جزر، خس، قرع، فقّوس، زبدّة\n🍎 غلة: تفاح، موز، برتقال، ليمون، بطيخ، دلاع، شمام\n🌾 مواد أساسية: زيت زيتون، سكر، سميدة، خبز، حليب، قهوة، بهارات، رز، ماء، دقيق\n🫘 بقول: عدس، حمص، لوبيا، جلبانة\n🥩 بروتينات: لحم مفروم، دجاج، لحم بقري، تونة، سردين، سمك\n🥛 ألبان: بيض، جبن، زبدة، لبن، ياغورت\n🥫 مواد غذائية: طماطم مصبرة، زيت قلي، مايونيز، كاتشب، شوكولاتة\n\nشنو تحب تطلب؟ 😊';
         }
 
-        if (msg.includes('توصيل') || msg.includes('سعر') || msg.includes('كم')) {
+        if (msg.indexOf('توصيل') !== -1 || msg.indexOf('سعر') !== -1 || msg.indexOf('كم') !== -1) {
             return '🚗 **أسعار التوصيل:**\n- 0.500 دت/كم (الحد الأدنى 1.800 DT)\n- رسوم الشركة: 3.000 DT\n- يُحسب السعر حسب المسافة الفعلية';
         }
 
-        if (msg.includes('كيف') || msg.includes('طلب') || msg.includes('طريقة')) {
+        if (msg.indexOf('كيف') !== -1 || msg.indexOf('طلب') !== -1 || msg.indexOf('طريقة') !== -1) {
             return '📝 **كيف تطلب من 9ATHYA.TN؟**\n\n1️⃣ اختر المنتجات من القائمة\n2️⃣ حدد الكمية المطلوبة\n3️⃣ اضغط "أضف للسلة"\n4️⃣ اكتب اسم المحل والمنطقة\n5️⃣ حدد موقعك للتوصيل\n6️⃣ املأ اسمك ورقم هاتفك\n7️⃣ اضغط "تأكيد الطلب"';
         }
 
-        if (msg.includes('صحي') || msg.includes('نصيحة') || msg.includes('وجبة')) {
+        if (msg.indexOf('صحي') !== -1 || msg.indexOf('نصيحة') !== -1 || msg.indexOf('وجبة') !== -1) {
             return '🥗 **نصيحة غذائية:**\n\nجرب وجبة تونسية صحية:\n- سلطة مشكلة (خس + طماطم + فلفل + زيت زيتون)\n- طاجين بالخضرة (قرع + بطاطا + بيض)\n- سمك مشوي مع سلطة\n- فواكه موسمية للتحلية';
         }
 
         return '🤔 شكراً على سؤالك!\n\nأنا مساعد 9ATHYA الذكي. أقدر نجاوب على أسئلة عن:\n- 🛒 المنتجات المتوفرة\n- 🚗 أسعار التوصيل\n- 📝 كيفية الطلب\n- 🥗 نصائح غذائية\n\nشنو تحب تسأل بالضبط؟';
     }
 
-    async function sendAiMessage(userMessage) {
+    function sendAiMessage(userMessage) {
         const now = Date.now();
         if (now - lastAiCallTime < AI_MIN_INTERVAL_MS) {
             const remaining = Math.ceil((AI_MIN_INTERVAL_MS - (now - lastAiCallTime)) / 1000);
@@ -180,30 +181,27 @@
         inputField.disabled = true;
         sendBtn.disabled = true;
 
-        try {
-            const response = await fetch(AI_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: trimmed,
-                    history: aiChatHistory
-                })
-            });
-
+        fetch(AI_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: trimmed,
+                history: aiChatHistory
+            })
+        })
+        .then(function(response) {
             const typingEl = document.getElementById('typingIndicator');
             if (typingEl) typingEl.remove();
 
-            let aiReply;
-
             if (!response.ok) {
-                aiReply = getFallbackResponse(trimmed);
-                showToast('⚠️ استخدمت الردود المحلية', 'warning');
-            } else {
-                const data = await response.json();
-                aiReply = (data && typeof data.reply === 'string' && data.reply.length > 0)
-                    ? data.reply
-                    : getFallbackResponse(trimmed);
+                throw new Error('HTTP ' + response.status);
             }
+            return response.json();
+        })
+        .then(function(data) {
+            let aiReply = (data && typeof data.reply === 'string' && data.reply.length > 0)
+                ? data.reply
+                : getFallbackResponse(trimmed);
 
             aiChatHistory.push({ role: 'user', content: trimmed });
             aiChatHistory.push({ role: 'assistant', content: aiReply });
@@ -214,8 +212,8 @@
             aiMsgDiv.textContent = aiReply;
             messagesContainer.appendChild(aiMsgDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        } catch (error) {
+        })
+        .catch(function(error) {
             console.error('AI Error:', error);
             const typingEl = document.getElementById('typingIndicator');
             if (typingEl) typingEl.remove();
@@ -227,12 +225,13 @@
             messagesContainer.appendChild(aiMsgDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             showToast('⚠️ مشكلة في الاتصال، استخدمت الردود المحلية', 'error');
-        } finally {
+        })
+        .finally(function() {
             isAiProcessing = false;
             inputField.disabled = false;
             sendBtn.disabled = false;
             inputField.focus();
-        }
+        });
     }
 
     const aiToggle = document.getElementById('aiToggle');
@@ -360,8 +359,10 @@
     };
 
     const itemRegistry = {};
-    Object.values(menuData).forEach(function(catArray) {
-        catArray.forEach(function(item) { itemRegistry[item.id] = item; });
+    Object.keys(menuData).forEach(function(cat) {
+        menuData[cat].forEach(function(item) {
+            itemRegistry[item.id] = item;
+        });
     });
 
     const cart = [];
@@ -369,8 +370,9 @@
     function getShopData() {
         const entries = document.querySelectorAll('.shop-entry');
         const shops = [];
-        for (const entry of entries) {
+        for (let i = 0; i < entries.length; i++) {
             if (shops.length >= MAX_SHOPS) break;
+            const entry = entries[i];
             const nameInput = entry.querySelector('.shop-name-input');
             const zoneInput = entry.querySelector('.shop-zone-input');
             if (nameInput && zoneInput) {
@@ -521,10 +523,11 @@
             removeBtn.addEventListener('click', function() {
                 if (container.children.length > 1) {
                     entry.remove();
-                    container.querySelectorAll('.shop-entry').forEach(function(el, i) {
-                        const numSpan = el.querySelector('.shop-number');
+                    const remaining = container.querySelectorAll('.shop-entry');
+                    for (let i = 0; i < remaining.length; i++) {
+                        const numSpan = remaining[i].querySelector('.shop-number');
                         if (numSpan) numSpan.textContent = i + 1;
-                    });
+                    }
                     updateCartDisplay();
                     showToast('تم حذف المحل', 'info');
                 } else {
@@ -544,16 +547,16 @@
 
     function filterCategory(category) {
         const sections = document.querySelectorAll('.category-section');
-        if (category === 'all') {
-            sections.forEach(function(section) {
-                section.classList.remove('hidden');
-                section.style.display = 'block';
-            });
-        } else {
-            sections.forEach(function(section) {
-                section.classList.add('hidden');
-                section.style.display = 'none';
-            });
+        for (let i = 0; i < sections.length; i++) {
+            if (category === 'all') {
+                sections[i].classList.remove('hidden');
+                sections[i].style.display = 'block';
+            } else {
+                sections[i].classList.add('hidden');
+                sections[i].style.display = 'none';
+            }
+        }
+        if (category !== 'all') {
             const targetSection = document.getElementById(category + '-section');
             if (targetSection) {
                 targetSection.classList.remove('hidden');
@@ -562,19 +565,25 @@
         }
     }
 
-    document.querySelectorAll('.category-nav-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.category-nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    const catNavBtns = document.querySelectorAll('.category-nav-btn');
+    for (let i = 0; i < catNavBtns.length; i++) {
+        catNavBtns[i].addEventListener('click', function() {
+            const allBtns = document.querySelectorAll('.category-nav-btn');
+            for (let j = 0; j < allBtns.length; j++) {
+                allBtns[j].classList.remove('active');
+            }
             this.classList.add('active');
             filterCategory(this.dataset.category);
         });
-    });
+    }
 
     function renderMenu() {
-        Object.keys(menuData).forEach(function(category) {
-            const container = document.getElementById(category + '-menu');
-            if (container) renderCategory(container, menuData[category]);
-        });
+        const categories = Object.keys(menuData);
+        for (let i = 0; i < categories.length; i++) {
+            const cat = categories[i];
+            const container = document.getElementById(cat + '-menu');
+            if (container) renderCategory(container, menuData[cat]);
+        }
         filterCategory('all');
     }
 
@@ -582,7 +591,8 @@
         if (!container) return;
         container.innerHTML = '';
 
-        items.forEach(function(item) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             const card = document.createElement('div');
             card.className = 'menu-card';
 
@@ -647,13 +657,15 @@
 
             const quickBtnsDiv = document.createElement('div');
             quickBtnsDiv.className = 'quick-quantity-btns';
-            item.quickQuantities.forEach(function(qty) {
+
+            for (let q = 0; q < item.quickQuantities.length; q++) {
+                const qty = item.quickQuantities[q];
                 const qBtn = document.createElement('button');
                 qBtn.className = 'quick-qty-btn';
                 qBtn.textContent = qty + ' ' + item.unit;
                 qBtn.dataset.qty = qty;
                 quickBtnsDiv.appendChild(qBtn);
-            });
+            }
 
             const addToCartBtn = document.createElement('button');
             addToCartBtn.className = 'add-to-cart-btn';
@@ -665,53 +677,56 @@
             card.appendChild(quickBtnsDiv);
             card.appendChild(addToCartBtn);
 
-            function updatePrice() {
-                const qty = parseFloat(quantityInput.value) || 0;
-                totalItemPrice.textContent = '= ' + (qty * item.pricePerUnit).toFixed(3) + ' DT';
-            }
+            (function(capturedItem, capturedInput, capturedTotal) {
+                function updatePrice() {
+                    const qty = parseFloat(capturedInput.value) || 0;
+                    capturedTotal.textContent = '= ' + (qty * capturedItem.pricePerUnit).toFixed(3) + ' DT';
+                }
 
-            quantityInput.addEventListener('input', updatePrice);
+                capturedInput.addEventListener('input', updatePrice);
 
-            card.querySelectorAll('.quick-qty-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    quantityInput.value = this.dataset.qty;
+                const quickBtns = quickBtnsDiv.querySelectorAll('.quick-qty-btn');
+                for (let k = 0; k < quickBtns.length; k++) {
+                    quickBtns[k].addEventListener('click', function() {
+                        capturedInput.value = this.dataset.qty;
+                        updatePrice();
+                    });
+                }
+
+                addToCartBtn.addEventListener('click', function() {
+                    if (cart.length >= MAX_CART_ITEMS) {
+                        showToast('⚠️ السلة ممتلئة (' + MAX_CART_ITEMS + ' منتج كحد أقصى)', 'warning');
+                        return;
+                    }
+
+                    const qty = parsePositiveNumber(capturedInput.value, MAX_CART_QUANTITY);
+                    if (!Number.isFinite(qty)) {
+                        showToast('⚠️ الكمية غير صالحة', 'warning');
+                        return;
+                    }
+
+                    const totalPrice = qty * capturedItem.pricePerUnit;
+
+                    cart.push({
+                        cartId: capturedItem.id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8),
+                        id: capturedItem.id,
+                        name: capturedItem.name,
+                        image: capturedItem.image,
+                        unit: capturedItem.unit,
+                        quantity: qty,
+                        unitPrice: capturedItem.pricePerUnit,
+                        totalPrice: totalPrice
+                    });
+
+                    updateCartDisplay();
+                    capturedInput.value = 1;
                     updatePrice();
+                    showToast('✅ تم إضافة ' + capturedItem.name + ' إلى السلة', 'success');
                 });
-            });
-
-            addToCartBtn.addEventListener('click', function() {
-                if (cart.length >= MAX_CART_ITEMS) {
-                    showToast('⚠️ السلة ممتلئة (' + MAX_CART_ITEMS + ' منتج كحد أقصى)', 'warning');
-                    return;
-                }
-
-                const qty = parsePositiveNumber(quantityInput.value, MAX_CART_QUANTITY);
-                if (!Number.isFinite(qty)) {
-                    showToast('⚠️ الكمية غير صالحة', 'warning');
-                    return;
-                }
-
-                const totalPrice = qty * item.pricePerUnit;
-
-                cart.push({
-                    cartId: item.id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8),
-                    id: item.id,
-                    name: item.name,
-                    image: item.image,
-                    unit: item.unit,
-                    quantity: qty,
-                    unitPrice: item.pricePerUnit,
-                    totalPrice: totalPrice
-                });
-
-                updateCartDisplay();
-                quantityInput.value = 1;
-                updatePrice();
-                showToast('✅ تم إضافة ' + item.name + ' إلى السلة', 'success');
-            });
+            })(item, quantityInput, totalItemPrice);
 
             container.appendChild(card);
-        });
+        }
     }
 
     function updateCartDisplay() {
@@ -730,7 +745,8 @@
             if (shops.length === 0) {
                 shopsDisplay.textContent = 'أضف متاجر';
             } else {
-                shops.forEach(function(s) {
+                for (let i = 0; i < shops.length; i++) {
+                    const s = shops[i];
                     const span = document.createElement('span');
                     span.className = 'shop-item';
                     let label = s.name;
@@ -740,7 +756,7 @@
                     span.textContent = label;
                     shopsDisplay.appendChild(span);
                     shopsDisplay.appendChild(document.createTextNode(' '));
-                });
+                }
             }
         }
 
@@ -753,7 +769,8 @@
             }
             if (cartCount) cartCount.textContent = '0';
         } else {
-            cart.forEach(function(item) {
+            for (let i = 0; i < cart.length; i++) {
+                const item = cart[i];
                 subtotal += item.totalPrice;
                 if (cartList) {
                     const li = document.createElement('li');
@@ -783,7 +800,10 @@
                     removeBtn.dataset.cartId = item.cartId;
                     removeBtn.addEventListener('click', function() {
                         const id = this.dataset.cartId;
-                        const idx = cart.findIndex(function(c) { return c.cartId === id; });
+                        let idx = -1;
+                        for (let j = 0; j < cart.length; j++) {
+                            if (cart[j].cartId === id) { idx = j; break; }
+                        }
                         if (idx !== -1) {
                             cart.splice(idx, 1);
                             updateCartDisplay();
@@ -796,7 +816,7 @@
                     li.appendChild(removeBtn);
                     cartList.appendChild(li);
                 }
-            });
+            }
             if (cartCount) cartCount.textContent = cart.length;
         }
 
@@ -846,7 +866,7 @@
                 if (phone) phone.focus();
                 return;
             }
-            if (!adresseVal || adresseVal.includes('⏳') || adresseVal.includes('جاري')) {
+            if (!adresseVal || adresseVal.indexOf('⏳') !== -1 || adresseVal.indexOf('جاري') !== -1) {
                 showToast('⚠️ انتظر تحديد موقعك أو اكتب عنوانك', 'warning');
                 if (adresse) adresse.focus();
                 return;
@@ -886,9 +906,27 @@
 
             const totalAmount = verifiedSubtotal + SERVICE_FEE;
 
-            let orderMessage = '\n🛒 طلب توصيل - 9ATHYA.TN\n👤 ' + sanitizeText(nameVal) + '\n📞 ' + sanitizeText(phoneVal) + '\n📍 ' + sanitizeText(adresseVal) + '\n📝 ' + sanitizeText(notesVal || 'لا يوجد') + '\n🏪 ' + shops.map(function(s, i) {
-                return (i + 1) + '. ' + sanitizeText(s.name) + (s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : '');
-            }).join('\n') + '\n📋 ' + orderDetails + '\n💳 رسوم الشركة: ' + SERVICE_FEE.toFixed(3) + ' DT\n🚗 التوصيل: ' + DELIVERY_PRICE_PER_KM.toFixed(3) + ' دت/كم (الحد الأدنى ' + MIN_DELIVERY_PRICE.toFixed(3) + ' DT)\n💰 المجموع (بدون التوصيل): ' + totalAmount.toFixed(3) + ' DT\n⏰ ' + new Date().toLocaleString('ar-TN') + '\n';
+            let orderMessage = '\n🛒 طلب توصيل - 9ATHYA.TN\n';
+            orderMessage += '👤 ' + sanitizeText(nameVal) + '\n';
+            orderMessage += '📞 ' + sanitizeText(phoneVal) + '\n';
+            orderMessage += '📍 ' + sanitizeText(adresseVal) + '\n';
+            orderMessage += '📝 ' + sanitizeText(notesVal || 'لا يوجد') + '\n';
+            orderMessage += '🏪 ';
+
+            for (let i = 0; i < shops.length; i++) {
+                const s = shops[i];
+                orderMessage += (i + 1) + '. ' + sanitizeText(s.name);
+                if (s.zone && s.zone !== 'غير محدد') {
+                    orderMessage += ' (' + sanitizeText(s.zone) + ')';
+                }
+                orderMessage += '\n';
+            }
+
+            orderMessage += '📋 ' + orderDetails + '\n';
+            orderMessage += '💳 رسوم الشركة: ' + SERVICE_FEE.toFixed(3) + ' DT\n';
+            orderMessage += '🚗 التوصيل: ' + DELIVERY_PRICE_PER_KM.toFixed(3) + ' دت/كم (الحد الأدنى ' + MIN_DELIVERY_PRICE.toFixed(3) + ' DT)\n';
+            orderMessage += '💰 المجموع (بدون التوصيل): ' + totalAmount.toFixed(3) + ' DT\n';
+            orderMessage += '⏰ ' + new Date().toLocaleString('ar-TN');
             orderMessage = orderMessage.trim();
 
             if (orderMessage.length > MAX_ORDER_MESSAGE_LENGTH) {
@@ -907,9 +945,16 @@
             formData.append('phone', sanitizeText(phoneVal));
             formData.append('adresse', sanitizeText(adresseVal));
             formData.append('message', orderMessage);
-            formData.append('shops', shops.map(function(s) {
-                return sanitizeText(s.name) + (s.zone && s.zone !== 'غير محدد' ? ' (' + sanitizeText(s.zone) + ')' : '');
-            }).join(', '));
+
+            let shopsJoined = '';
+            for (let i = 0; i < shops.length; i++) {
+                shopsJoined += sanitizeText(shops[i].name);
+                if (shops[i].zone && shops[i].zone !== 'غير محدد') {
+                    shopsJoined += ' (' + sanitizeText(shops[i].zone) + ')';
+                }
+                if (i < shops.length - 1) shopsJoined += ', ';
+            }
+            formData.append('shops', shopsJoined);
             formData.append('total', totalAmount.toFixed(3) + ' DT');
             formData.append('notes', sanitizeText(notesVal || 'لا يوجد'));
             formData.append('_captcha', 'false');
