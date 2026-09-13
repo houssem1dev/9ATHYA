@@ -1,0 +1,11 @@
+{
+  "name": "9athya",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"Static build\""
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}
