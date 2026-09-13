@@ -1,17 +1,12 @@
 {
-  "name": "9athya-tn",
+  "name": "9athya",
   "version": "1.0.0",
-  "description": "9ATHYA.TN - Online Grocery Delivery",
   "private": true,
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "description": "9ATHYA.TN - Livraison de courses en Tunisie",
   "scripts": {
-    "dev": "vercel dev",
-    "deploy": "vercel --prod"
+    "build": "echo \"Static build - no compilation needed\""
   },
-  "dependencies": {},
-  "devDependencies": {
-    "vercel": "^latest"
+  "engines": {
+    "node": "20.x"
   }
 }
