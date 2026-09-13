@@ -4,7 +4,7 @@
   "private": true,
   "description": "9ATHYA.TN - Livraison de courses en Tunisie",
   "scripts": {
-    "build": "echo \"Static build - no compilation needed\""
+    "build": "echo \"Static build\""
   },
   "engines": {
     "node": "20.x"
