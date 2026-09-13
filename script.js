@@ -9,29 +9,25 @@
     const SERVICE_FEE = 3.000;
 
     // ✅ حدود الحماية
-    const AI_MIN_INTERVAL_MS = 2500;        // 2.5 ثانية بين كل رسالة AI
-    const SUBMIT_MIN_INTERVAL_MS = 30000;   // 30 ثانية بين كل طلب
-    const AI_MAX_MESSAGE_LENGTH = 500;      // 500 حرف كحد أقصى
-    const AI_MIN_MESSAGE_LENGTH = 2;        // 2 حرف كحد أدنى
-    const MAX_CART_ITEMS = 50;              // 50 منتج كحد أقصى في السلة
-    const MAX_CART_QUANTITY = 999;          // 999 وحدة كحد أقصى
-    const MAX_SHOPS = 10;                   // 10 متاجر كحد أقصى
+    const AI_MIN_INTERVAL_MS = 2500;
+    const SUBMIT_MIN_INTERVAL_MS = 30000;
+    const AI_MAX_MESSAGE_LENGTH = 500;
+    const AI_MIN_MESSAGE_LENGTH = 2;
+    const MAX_CART_ITEMS = 50;
+    const MAX_CART_QUANTITY = 999;
+    const MAX_SHOPS = 10;
     const MAX_NAME_LENGTH = 50;
     const MAX_PHONE_LENGTH = 20;
     const MAX_ADDRESS_LENGTH = 200;
     const MAX_NOTES_LENGTH = 200;
-    const MAX_ORDER_MESSAGE_LENGTH = 8000;  // حماية ضد FormSubmit payload limit
-    const AI_HISTORY_MAX_ITEMS = 20;        // عدد الرسائل في السجل
-    const AI_HISTORY_MAX_CHARS = 8000;      // حد أقصى لحجم السجل
+    const MAX_ORDER_MESSAGE_LENGTH = 8000;
+    const AI_HISTORY_MAX_ITEMS = 20;
+    const AI_HISTORY_MAX_CHARS = 8000;
 
     let clientCoords = null;
     let isSubmitting = false;
-
-    // ✅ تتبع آخر الطلبات
     let lastAiCallTime = 0;
     let lastSubmitTime = 0;
-
-    // ✅ Debounce timer
     let shopUpdateTimer = null;
 
     // ============================================================
@@ -95,7 +91,7 @@
     }
 
     // ============================================================
-    // ✅ Helper: Clean Input (strip < > for textContent safety)
+    // ✅ Helper: Clean Input
     // ============================================================
     function cleanInput(str) {
         if (!str) return '';
@@ -123,7 +119,7 @@
     }
 
     // ============================================================
-    // ✅ Helper: Trim AI History by chars + items
+    // ✅ Helper: Trim AI History
     // ============================================================
     function trimAiHistory() {
         if (aiChatHistory.length > AI_HISTORY_MAX_ITEMS) {
@@ -197,7 +193,6 @@
     }
 
     async function sendAiMessage(userMessage) {
-        // ✅ 1. تحقق من Rate Limit محلي
         const now = Date.now();
         if (now - lastAiCallTime < AI_MIN_INTERVAL_MS) {
             const remaining = Math.ceil((AI_MIN_INTERVAL_MS - (now - lastAiCallTime)) / 1000);
@@ -207,7 +202,6 @@
 
         if (isAiProcessing) return;
 
-        // ✅ 2. تحقق من المدخلات
         const trimmed = cleanInput(userMessage);
         if (trimmed.length < AI_MIN_MESSAGE_LENGTH) {
             showToast('الرجاء كتابة سؤال أطول', 'warning');
@@ -226,7 +220,6 @@
 
         if (!messagesContainer || !inputField || !sendBtn) return;
 
-        // ✅ إضافة رسالة المستخدم
         const userMsgDiv = document.createElement('div');
         userMsgDiv.className = 'message user';
         userMsgDiv.textContent = trimmed;
@@ -235,7 +228,6 @@
 
         inputField.value = '';
 
-        // ✅ مؤشر الكتابة
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message assistant';
         typingDiv.id = 'typingIndicator';
@@ -277,12 +269,10 @@
                     : getFallbackResponse(trimmed);
             }
 
-            // ✅ تحديث السجل + تقليم
             aiChatHistory.push({ role: 'user', content: trimmed });
             aiChatHistory.push({ role: 'assistant', content: aiReply });
             trimAiHistory();
 
-            // ✅ عرض الرد
             const aiMsgDiv = document.createElement('div');
             aiMsgDiv.className = 'message assistant';
             aiMsgDiv.textContent = aiReply;
@@ -362,7 +352,6 @@
         });
     }
 
-    // ✅ إغلاق النافذة عند النقر خارجها
     document.addEventListener('click', function(e) {
         if (!aiChatWindow || !aiChatWindow.classList.contains('open')) return;
         if (aiToggle && aiToggle.contains(e.target)) return;
@@ -450,7 +439,7 @@
     const cart = [];
 
     // ============================================================
-    // ✅ Helper: Get Shop Data (with hard cap + length limit)
+    // ✅ Helper: Get Shop Data
     // ============================================================
     function getShopData() {
         const entries = document.querySelectorAll('.shop-entry');
@@ -684,7 +673,6 @@
             const card = document.createElement('div');
             card.className = 'menu-card';
 
-            // Header
             const headerDiv = document.createElement('div');
             headerDiv.className = 'item-header';
 
@@ -712,12 +700,10 @@
             headerDiv.appendChild(imgDiv);
             headerDiv.appendChild(infoDiv);
 
-            // Description
             const descDiv = document.createElement('div');
             descDiv.style.cssText = 'color:#666;font-size:0.85rem;margin-bottom:8px;';
             descDiv.textContent = item.description;
 
-            // Quantity Selector
             const qtySelector = document.createElement('div');
             qtySelector.className = 'quantity-selector';
 
@@ -746,7 +732,6 @@
             qtySelector.appendChild(qtyUnit);
             qtySelector.appendChild(totalItemPrice);
 
-            // Quick Quantities
             const quickBtnsDiv = document.createElement('div');
             quickBtnsDiv.className = 'quick-quantity-btns';
             item.quickQuantities.forEach(qty => {
@@ -757,7 +742,6 @@
                 quickBtnsDiv.appendChild(qBtn);
             });
 
-            // Add to Cart Button
             const addToCartBtn = document.createElement('button');
             addToCartBtn.className = 'add-to-cart-btn';
             addToCartBtn.textContent = '🛒 أضف للسلة';
@@ -768,7 +752,6 @@
             card.appendChild(quickBtnsDiv);
             card.appendChild(addToCartBtn);
 
-            // ✅ Update Price
             function updatePrice() {
                 const qty = parseFloat(quantityInput.value) || 0;
                 totalItemPrice.textContent = `= ${(qty * item.pricePerUnit).toFixed(3)} DT`;
@@ -832,7 +815,6 @@
         let subtotal = 0;
         const shops = getShopData();
 
-        // Shops Display (uses textContent to be extra safe)
         if (shopsDisplay) {
             shopsDisplay.innerHTML = '';
             if (shops.length === 0) {
@@ -852,7 +834,6 @@
             }
         }
 
-        // Cart Items
         if (cart.length === 0) {
             if (cartList) {
                 const emptyLi = document.createElement('li');
@@ -909,7 +890,6 @@
             if (cartCount) cartCount.textContent = cart.length;
         }
 
-        // Total
         if (totalPriceEl) {
             totalPriceEl.textContent = (subtotal + SERVICE_FEE).toFixed(3) + ' DT';
         }
@@ -926,7 +906,6 @@
     const submitBtn = document.getElementById('submitOrder');
     if (submitBtn) {
         submitBtn.addEventListener('click', function() {
-            // ✅ Rate limit
             const now = Date.now();
             if (now - lastSubmitTime < SUBMIT_MIN_INTERVAL_MS) {
                 const remaining = Math.ceil((SUBMIT_MIN_INTERVAL_MS - (now - lastSubmitTime)) / 1000);
@@ -950,7 +929,6 @@
             const adresseVal = truncate(cleanInput(adresse ? adresse.value : ''), MAX_ADDRESS_LENGTH);
             const notesVal = truncate(cleanInput(notes ? notes.value : ''), MAX_NOTES_LENGTH);
 
-            // ✅ Validation
             if (!nameVal || nameVal.length < 2) {
                 showToast('⚠️ اكتب اسمك الكامل', 'warning');
                 if (name) name.focus();
@@ -975,7 +953,6 @@
                 return;
             }
 
-            // ✅ Price verification
             let verifiedSubtotal = 0;
             let orderDetails = '';
             for (let i = 0; i < cart.length; i++) {
@@ -1017,7 +994,6 @@
 ⏰ ${new Date().toLocaleString('ar-TN')}
             `.trim();
 
-            // ✅ حماية ضد payload كبير
             if (orderMessage.length > MAX_ORDER_MESSAGE_LENGTH) {
                 orderMessage = orderMessage.slice(0, MAX_ORDER_MESSAGE_LENGTH) + '\n... (تم اقتصاص الرسالة)';
             }
@@ -1054,7 +1030,6 @@
                 return response.json();
             })
             .then(data => {
-                // ✅ فقط بعد نجاح حقيقي
                 lastSubmitTime = Date.now();
                 showToast('✅ تم إرسال طلبك بنجاح! سنتصل بك قريباً', 'success');
                 cart.length = 0;
@@ -1083,7 +1058,6 @@
     renderMenu();
     updateCartDisplay();
 
-    // ✅ Debounced shop input listener
     document.addEventListener('input', function(e) {
         if (e.target.classList.contains('shop-name-input') ||
             e.target.classList.contains('shop-zone-input')) {
