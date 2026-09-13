@@ -2,7 +2,6 @@
   "name": "9athya",
   "version": "1.0.0",
   "private": true,
-  "description": "9ATHYA.TN - Livraison de courses en Tunisie",
   "scripts": {
     "build": "echo \"Static build\""
   },
