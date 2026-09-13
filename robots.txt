@@ -1,11 +1,5 @@
 User-agent: *
 Allow: /
 
-# Block API routes from crawlers
 Disallow: /api/
-
-# Block AI chat from indexing
 Disallow: /api/chat
-
-# Sitemap (uncomment when you have one)
-# Sitemap: https://9athya.tn/sitemap.xml
